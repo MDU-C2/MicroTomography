@@ -18,10 +18,10 @@ for i=1:N
 
     Po(i,:) = [Px, Py, Pz];
 end
-
-p = pcread('teapot.ply');
-P = double(squeeze(p.Location));
-k = boundary(P, 1);
+P = Po;
+%p = pcread('teapot.ply');
+%P = double(squeeze(p.Location));
+k = boundary(P);
 
 
 % Create a figure window
@@ -36,7 +36,7 @@ ax.ZGrid = "on";
 hold(ax, 'on')
 view(ax,[-5 2 5])
 tes = scatter3(ax, P(:,1),P(:,2),P(:,3), '.');
-k = trisurf(k,P(:,1),P(:,2),P(:,3), 'LineStyle', '-', 'FaceAlpha',0.5 ,'Parent', ax);
+k = trisurf(k,P(:,1),P(:,2),P(:,3), 'LineStyle', 'none', 'FaceAlpha',0.5 ,'Parent', ax);
 xlabel('x', 'Parent',ax);
 ylabel('y', 'Parent',ax);
 zlabel('z', 'Parent',ax);
