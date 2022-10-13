@@ -46,7 +46,7 @@ z = [6.5632 8.0705 6.83394];
 %plot3(ax, x,y,z,'-','MarkerSize',20);
 d = datacursormode(fig);
 %set(d, 'Marker','o', 'MarkerFaceColor','b');
-set(d,'Enable','on', 'UpdateFcn', {@alert, d, ax})
+set(d,'Enable','on', 'SnapToDataVertex','off' , 'UpdateFcn', {@alert, d, ax})
 %drawcuboid(tes);
 
 %dT = dataTipInteraction('SnapToDataVertex', 'off');
