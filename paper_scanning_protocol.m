@@ -27,7 +27,7 @@ num_z_step = (hole_center(3)-boundary_height)/(0.5); % number of steps
 Z = linspace(hole_center(3),(hole_center(3)-boundary_height), num_z_step+1);
 
 
-azimuth = (pi.*linspace(0,360,21))./180 ;
+azimuth = (pi.*linspace(0,360-18,21))./180 ;
 
 r = hole_diameter/2;
 
