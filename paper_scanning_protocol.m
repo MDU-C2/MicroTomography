@@ -51,6 +51,6 @@ hold on;
 % Plot points 
 for point_idx = 1:length(scan_points)
     scatter3(scan_points(point_idx,1),scan_points(point_idx,2),scan_points(point_idx,3))
-    drawnow
 end
 
+vector = []
