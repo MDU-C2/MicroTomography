@@ -26,7 +26,7 @@ num_z_step = (hole_center(3)-boundary_height)/(0.5); % number of steps
 % Z of all scanning heights
 Z = linspace(hole_center(3),(hole_center(3)-boundary_height), num_z_step+1);
 
-
+% Make it better later
 azimuth = (pi.*linspace(0,360-18,21))./180 ;
 
 r = hole_diameter/2;
@@ -36,15 +36,24 @@ scan_points = [];
 for i = 1:length(azimuth)
  
     for j = 1 :length(Z)
-        point(:,1) = r.*cos(azimuth(i));
-        point(:,2) = r.*sin(azimuth(i));
-        point(:,3) = Z(j);
-        scan_points = [scan_points;point];
+        point_c_space(:,1) = r.*cos(azimuth(i));
+        point_c_space(:,2) = r.*sin(azimuth(i));
+        point_c_space(:,3) = Z(j);
+        
+        rotation_matrix = 
+        HT = 
+
+        scan_points = [scan_points;point_c_space];
     end
 
 end
-% Remove the last scan as 2pi and 0 are the same azimuth 
-%.......
+
+[1 0 0 hole_center(1);]
+rotm2tform(roty(90))
+
+hole2yumi = se3(roty(90),hole_center);
+
+%%
 
 figure;
 hold on;
