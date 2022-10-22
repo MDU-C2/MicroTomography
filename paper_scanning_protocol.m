@@ -35,6 +35,7 @@ azimuth = (pi.*linspace(0,360-18,21))./180 ;
 R_epsi = hole_diameter/2 + epsilon;
 
 scan_points = [];
+figure; hold on;
 
 for i = 1:length(azimuth)
  
@@ -46,7 +47,15 @@ for i = 1:length(azimuth)
 
         % Create Homogeneous Transformations with orientation
         HT = se3(roty(90)*rotx(azimuth(i)),point_c_space);
+
+        new_x = HT.transform([1,0,0]);
+        new_y = HT.transform([0,1,0]);
+        new_z = HT.transform([0,0,1]);
+        translation_vec = HT.trvec;
         
+        quiver3( translation_vec(1),translation_vec(2),translation_vec(3),...
+            new_z(1),new_z(2),new_z(3) )
+        drawnow
         % Convert to position and roll pith yaw
         scan_pos = [HT.trvec, tform2eul(HT.tform)];
 
@@ -55,6 +64,8 @@ for i = 1:length(azimuth)
 
 end
 
+%%
+HT.transform([1,0,0])
 %%
 epsilon = 100;
 z_step_size = 5;
