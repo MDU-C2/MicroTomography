@@ -2,13 +2,6 @@ clc
 clear
 close all;
 
-<<<<<<< Updated upstream
-laserlength=10;
-posRobot=[-100,0,0];
-rot=[0,90,0];
-
-position = findSurfacePosition(rot,posRobot,laserlength);
-=======
 laserlength=100;
 
 t = tcpclient('192.168.125.1',55000);
@@ -41,7 +34,6 @@ while true
     hold on;
 end
 
->>>>>>> Stashed changes
 
 function position = findSurfacePosition(rot,posRobot,laserlength)
     d=[0,0,0];
@@ -64,12 +56,6 @@ function position = findSurfacePosition(rot,posRobot,laserlength)
 end
 
 function T=createTransformationMatrix(R,D)
-<<<<<<< Updated upstream
-    D=D';
-    T = [R D];
-    T = [T ; [0,0,0,1]];
-end
-=======
 
     D=D';
 
@@ -154,4 +140,3 @@ function packAndSendPose(~, pos, eulerDeg, t)
     %send msg string
     %write(t,sendMsg)
 end
->>>>>>> Stashed changes
