@@ -2,20 +2,33 @@ clc
 clear
 close all;
 
-laserlength=100;
+laserlength=20;
 
 t = tcpclient('192.168.125.1',55000);
 %disp (t.NumBytesAvailable)
 flush (t);
 
-a=[[0,0,100];[0,-100,50];[0,0,-100];[0,100,50]];
+o=[-100,0,0];
+h1=[0,-100,0];
+h2=[100,0,0];
+v1=[0,100,0];
+v2=[100,0,0];
+
+ro=[0,0,0];
+rh1=[0,90,0];
+rh2=[0,180,0];
+rv1=[0,-90,0];
+rv2=[0,-180,0];
+
+s=[o;h1;h2;h1;o;v1;v2;v1;o];
+r=[ro;rh1;rh2;rh1;ro;rv1;rv2;rv1;ro];
 i=1;
 while true
     %sendposition
-    packAndSendPose(0, a(i,:), [0,0,0], t);
+    packAndSendPose(0, s(i,:), r(i,:), t);
     i=i+1;
 
-    if i>4
+    if i>length(s)
         i=1;
     end
 
@@ -41,9 +54,9 @@ function position = findSurfacePosition(rot,posRobot,laserlength)
     %disp('RobPos: ')
     %disp(posRobot)
 
-    T1=createTransformationMatrix(rotx(rot(1)),posRobot);
+    T1=createTransformationMatrix(rotx(rot(3)),posRobot);
     T2=createTransformationMatrix(roty(rot(2)),d);
-    T3=createTransformationMatrix(rotz(rot(3)),d);
+    T3=createTransformationMatrix(rotx(rot(1)),d);
     T = T1*T2*T3;
 
     position = T*laserlength;
