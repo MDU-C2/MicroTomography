@@ -6,10 +6,19 @@
 
 classdef laserPointToRealPoint
    methods
+       function surfacePoints = calcSurfacePoint(obj, LaserPoints)
+           surfacePoints=[];
+           while true %NOT TRUE BUT LENGTH OF STRING
+               %Take next elements in array TRANS ROT
+               surfacePoint = calcSurfacePoint.GetSurfacepoint(t, trans, rot);
+               surfacePoints(end+1) = surfacePoint;
+           end
+       end
+
        function position = GetSurfacepoint(obj, t,transIn,rotIn)
-            packAndSendPose(obj, 0, transIn, rotIn, t);
+            %packAndSendPose(obj, 0, transIn, rotIn, t);
         
-            [pos, rot] = ReceiveAndUnpackPose(obj, 0, t);
+            %[pos, rot] = ReceiveAndUnpackPose(obj, 0, t);
         
             scatter3(pos(1),pos(2),pos(3),'filled');
             hold on;
@@ -42,41 +51,8 @@ classdef laserPointToRealPoint
             T = [T ; [0,0,0,1]];
         end
         
-        function [trans, rot] = ReceiveAndUnpackPose(obj, ~, t)
         
-            noMsgReceived = 1;
-            while noMsgReceived
-                receivedMsg = char(read(t));
-                noMsgReceived = isempty(receivedMsg);
-            end
-            
-            msg=strrep(receivedMsg,',',' ');
-            msg=strrep(msg,'][',' ');
-            msg=msg(2:end-1);
-        
-            pos = str2num(msg);
-        
-            trans = pos(1:3);
-            rot = pos(4:end);
-        end
-        
-        function packAndSendPose(obj, ~, pos, eulerDeg, t)
-            %put together msg string
-            sPos = string(pos);
-            sRot = string(eulerDeg);
-            
-            
-            %add formatting to pos string
-            sPos = join(sPos,",");
-            sPos = strcat("[",sPos,"]");
-            
-            %add formatting to rot string
-            sRot = join(sRot,",");
-            sRot = strcat("[",sRot,"]");
-        
-            pos = strcat ("[",sPos,",",sRot,"]");
-            write(t,pos);
-        end
+
 
    end
 end
