@@ -50,7 +50,7 @@ for i = 1:length(azimuth)
         % Create Homogeneous Transformations with orientation
         HT = se3(roty(90)*rotx(rad2deg(-azimuth(i))),point_c_space);
 
-        show_HT(fig, axis,HT,10)
+        %show_HT(fig, axis,HT,10)
 
         % Convert to position and roll pith yaw
         scan_pos = [HT.trvec, tform2eul(HT.tform)];
@@ -59,7 +59,8 @@ for i = 1:length(azimuth)
     end
 
 end
-
+%%
+scan_points = create_scan_points(200,200,100,5);
 %% Open connection 
 tcp_con = tcpclient('192.168.125.1',55000);
 
