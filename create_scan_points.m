@@ -1,4 +1,4 @@
-function scan_points = create_scan_points(boundary_height,hole_diameter,epsilon,z_step_size)
+function points = create_scan_points(boundary_height,hole_diameter,epsilon,z_step_size)
 %CREATE_SCAN_POINTS Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -20,8 +20,11 @@ azimuth = (pi.*linspace(0,360-18,21))./180 ;
 
 R_epsi = hole_diameter/2 + epsilon;
 
-scan_points = [];
+points = zeros(length(Z),6,length(azimuth));
 
+fig = figure; 
+axis = axes;
+hold(axis, "on")
 
 for i = 1:length(azimuth)
  
@@ -34,13 +37,11 @@ for i = 1:length(azimuth)
         % Create Homogeneous Transformations with orientation
         HT = se3(roty(90)*rotx(rad2deg(-azimuth(i))),point_c_space);
 
-        %show_HT(fig, axis,HT,10)
-
-        % Convert to position and roll pith yaw
-        scan_pos = [HT.trvec, tform2eul(HT.tform)];
+        points(j,:,i) = [HT.trvec tform2eul(HT.tform)];
         
-        scan_points = [scan_points;scan_pos];
     end
+
+end
 
 
 end
