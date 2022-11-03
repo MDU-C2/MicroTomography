@@ -10,10 +10,10 @@ CollectLaserPoints = collectLaserPoint;
 
 t = RobotCon.connect();
 
-Scanpoints = create_scan_points(200,200,100,5);
+Scanpoints = create_scan_points(200,200,0,5); %% Scanpoints = []
 
-LaserPoints = CollectLaserPoints(Scanpoints);
+LaserPoints = CollectLaserPoints.collect(Scanpoints,t); %%LaserPoints = [laser pos rot]
 
-surfacePoint = calcSurfacePoint.calcSurfacePoint(LaserPoints)
+surfacePoint = calcSurfacePoint.calcSurfacePoint(LaserPoints); %%surfacePoint = [x y z]
 
 

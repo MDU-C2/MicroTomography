@@ -1,18 +1,17 @@
 classdef collectLaserPoint
     methods
-        function [laser,pos,rot] = collect(obj, Scanpoints)
-            laser=[];
-            pos=[];
-            rot=[];
-            spline = size(Scanpoints,3);
-            Rows = size(Scanpoints,1);
+        function positionLaser = collect(obj, Scanpoints,t)
 
-            for s = 1:spline
-                for r = 1:Rows
-                    packAndSendPose(obj, 0, A(r,1:3,spline), A(r,4:6,spline), t); 
-                    [pos(end+1), rot(end+1)] = ReceiveAndUnpackPose(obj, 0, t);
+            positionLaser = zeros( size(Scanpoints,1), size(Scanpoints,2)+1, size(Scanpoints,3));
 
-                    laser(end+1)=20; %%READ FROM LASER:
+            for s = 2:size(Scanpoints,3)
+                for r = 1:size(Scanpoints,1)
+                    packAndSendPose(obj, 0, Scanpoints(r,1:3,s), Scanpoints(r,4:6,s), t); 
+                    position = ReceiveAndUnpackPose(obj, 0, t);
+
+                    laser=20; %%READ FROM LASER
+
+                    positionLaser(s,:,r) = [position laser];
                 end
             end
         end
@@ -35,7 +34,7 @@ classdef collectLaserPoint
             write(t,pos);
         end
 
-        function [trans, rot] = ReceiveAndUnpackPose(obj, ~, t)
+        function position = ReceiveAndUnpackPose(obj, ~, t)
             noMsgReceived = 1;
             while noMsgReceived
             receivedMsg = char(read(t));
@@ -50,6 +49,8 @@ classdef collectLaserPoint
             
             trans = pos(1:3);
             rot = pos(4:end);
+
+            position=[trans rot];
         end
    end
 end

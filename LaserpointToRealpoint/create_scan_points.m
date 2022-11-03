@@ -22,9 +22,6 @@ R_epsi = hole_diameter/2 + epsilon;
 
 points = zeros(length(Z),6,length(azimuth));
 
-fig = figure; 
-axis = axes;
-hold(axis, "on")
 
 for i = 1:length(azimuth)
  
@@ -37,7 +34,7 @@ for i = 1:length(azimuth)
         % Create Homogeneous Transformations with orientation
         HT = se3(roty(90)*rotx(rad2deg(-azimuth(i))),point_c_space);
 
-        points(j,:,i) = [HT.trvec tform2eul(HT.tform)];
+        points(j,:,i) = [HT.trvec rad2deg(tform2eul(HT.tform))];
         
     end
 
