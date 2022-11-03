@@ -34,7 +34,7 @@ azimuth = (pi.*linspace(0,360-18,21))./180 ;
 
 R_epsi = hole_diameter/2 + epsilon;
 
-scan_points = [];
+points = [];
 fig = figure; 
 axis = axes;
 hold(axis, "on")
@@ -55,7 +55,7 @@ for i = 1:length(azimuth)
         % Convert to position and roll pith yaw
         scan_pos = [HT.trvec, tform2eul(HT.tform)];
         
-        scan_points = [scan_points;scan_pos];
+        points = [points;scan_pos];
     end
 
 end
@@ -63,13 +63,67 @@ end
 scan_points = create_scan_points(200,200,100,5);
 %% Open connection 
 tcp_con = tcpclient('192.168.125.1',55000);
+%..... From GUI Functions
 
-if tc_con == "open"
 
-else 
-    display(" TCP Connection failed")
+%% Generate simulated data
+clear all 
+close all 
+clc
+
+boundary_height = 200;
+% Heights for scanning points 
+z_step_size = 5; % Height slice step size
+num_z_step = (boundary_height)/(z_step_size); % number of steps 
+% Z of all scanning heights
+Z = linspace(-z_step_size,-boundary_height, num_z_step);
+% Make it better later
+azimuth = (pi.*linspace(0,360-18,21))./180 ;
+
+
+points = zeros(num_z_step,3,length(azimuth));
+
+
+for i = 1:length(azimuth)
+    for j = 1:length(Z)
+        Radius = sqrt( (Z(j)+200)/0.02 ); 
+        % Create coordinate in base space
+        points(j,1,i) = Radius.*cos(azimuth(i));
+        points(j,2,i) = Radius.*sin(azimuth(i));
+        points(j,3,i) = Z(j);
+
+    end
 end
 
+figure;hold on;
+for i = 1:length(azimuth)
+    scatter3(points(:,1,i),points(:,2,i),points(:,3,i))
+end
+
+%% Interpolate spline from data 
+i = 1;
+order = 3;
+
+cell_array = num2cell(points(:,1:2,i))
+
+
+spl2 = spap2(optknt(points(:,1:2,i),order), num2cell(points(:,1:2,i)), points(:,3,i));
+fnplt(spl2,'b',2);
+% axis([-1 7 -1.2 1.2])
+% hold on
+% plot(x,noisy_y,'x')
+% hold off
+
+
+%% extract spline intersection with every Z
+
+
+
+%% interpolate in a ellipse 
+
+
+
+%% uniformly resample from ellipse 
 
 
 
@@ -89,52 +143,8 @@ end
 % Crust Algorithm                               == Todo Jonathan 
 % Return Surface 
 
-%%
-hole_diameter = 200 ; %CM 
-epsilon = 100;
-% it assumes a cylindrical boundary box arround the table hole. 
-% The cylindrical boundary center matches the hole in the table and have
-% the same diameter. 
-% The maximum heigh is assumed to be 20 cm 
-boundary_height = 200;
-R_epsi = hole_diameter/2 + epsilon;
 
 
-% Heights for scanning points 
+%% 
 
-z_step_size = 5; % Height slice step size
-
-num_z_step = (boundary_height)/(z_step_size); % number of steps 
-% Z of all scanning heights
-Z = linspace(0,-boundary_height, num_z_step+1);
-
-point_c_space(:,1) = R_epsi.*cos(0);
-point_c_space(:,2) = R_epsi.*sin(0);
-point_c_space(:,3) = Z(1);
-
-        % Create Homogeneous Transformations with orientation
-HT = se3(roty(-90)*rotx(0),point_c_space)
-
-new_z = HT.transform([0,0,1])
-new_z = HT.trvec -new_z
- translation_vec = HT.trvec;
-        
-
-figure;
-quiver3( translation_vec(1),translation_vec(2),translation_vec(3),...
-            new_z(1),new_z(2),new_z(3))
-
-%%
-epsilon = 100;
-z_step_size = 5;
-points = create_scan_points(epsilon,z_step_size);
-
-%%
-
-figure;
-hold on;
-% Plot points 
-for point_idx = 1:length(scan_points)
-    scatter3(scan_points(point_idx,1),scan_points(point_idx,2),scan_points(point_idx,3))
-end
 
