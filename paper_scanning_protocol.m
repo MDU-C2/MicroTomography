@@ -98,19 +98,33 @@ for i = 1:length(azimuth)
 end
 
 %% Interpolate spline from data 
-i = 1;
-order = 3;
 
-cell_array = num2cell(points(:,1:2,i))
+ linspace(-z_step_size,-boundary_height, num_z_step);
+for i = 1:size(points,3)
+    ppx = spline (points(:,3,i),points(:,1,i));
+    ppy = spline (points(:,3,i),points(:,2,i));
+    zz =  linspace(-z_step_size,-boundary_height, num_z_step);
+    
+    new_x(:,i) = ppval(ppx,zz);
+    new_y(:,i) = ppval(ppy,zz);
 
 
-spl2 = spap2(optknt(points(:,1:2,i),order), num2cell(points(:,1:2,i)), points(:,3,i));
-fnplt(spl2,'b',2);
+end
+    figure;hold on;
+for i = 1:size(points,3)
+
+    plot3(new_x(:,i),new_y(:,i),zz)
+    view(3)
+
+end
+
+figure; 
+scatter3(new_x(1,:),new_y(1,:),zz(1))
 % axis([-1 7 -1.2 1.2])
 % hold on
 % plot(x,noisy_y,'x')
 % hold off
-
+%fnplt(pp)
 
 %% extract spline intersection with every Z
 
