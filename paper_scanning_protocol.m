@@ -70,7 +70,7 @@ clc
 
 boundary_height = 200;
 % Heights for scanning points 
-z_step_size = 5; % Height slice step size
+z_step_size = 20; % Height slice step size
 num_z_step = (boundary_height)/(z_step_size); % number of steps 
 % Z of all scanning heights
 Z = linspace(-z_step_size,-boundary_height, num_z_step);
@@ -98,35 +98,56 @@ for i = 1:length(azimuth)
 end
 
 %% Interpolate spline from data 
+boundary_height = 200;
+% Heights for scanning points 
+z_step_size = 5; % Height slice step size,
 
- linspace(-z_step_size,-boundary_height, num_z_step);
-for i = 1:size(points,3)
-    ppx = spline (points(:,3,i),points(:,1,i));
-    ppy = spline (points(:,3,i),points(:,2,i));
-    zz =  linspace(-z_step_size,-boundary_height, num_z_step);
+azimuth = (pi.*linspace(0,360-18,21))./180 ;
+num_z_step = (boundary_height)/(z_step_size); % number of steps 
+zz =  linspace(-z_step_size,-boundary_height, num_z_step);
+
+ppoints = zeros(length(zz),3,length (azimuth));
+linspace(-z_step_size,-boundary_height, num_z_step);
+for i = 1:length(azimuth)
+    ppx(:,i) = spline (points(:,3,i),points(:,1,i));
+    ppy(:,i) = spline (points(:,3,i),points(:,2,i));
+
     
-    new_x(:,i) = ppval(ppx,zz);
-    new_y(:,i) = ppval(ppy,zz);
-
-
+    ppoints(:,1,i) = ppval(ppx(:,i),zz);
+    ppoints(:,2,i) = ppval(ppy(:,i),zz);
+    ppoints(:,3,i) = zz;
+  
 end
     figure;hold on;
-for i = 1:size(points,3)
-
-    plot3(new_x(:,i),new_y(:,i),zz)
-    view(3)
+for i = 1:length(azimuth)
+    
+    scatter3(points(:,1,i),points(:,2,i),points(:,3,i),'filled')
+    plot3(ppoints(:,1,i),ppoints(:,2,i),ppoints(:,3,i))
+    scatter3(ppoints(:,1,i),ppoints(:,2,i),ppoints(:,3,i),'red')
+    
 
 end
+legend('Scanning Points', 'Aproximated function', 'Uniformly resampled')
+
+
+%% extract spline intersection with Z
+for z = -160
+    for i = 1:length(ppx)
+        circle_points(i,1) = ppval(ppx(1,i),z);
+        circle_points(i,2) = ppval(ppy(1,i),z);
+    end
+end
+    figure;hold on;
+for i = 1:length(azimuth)
+    
+    scatter3(circle_points(:,1),circle_points(:,2),z,'filled')
+    plot3(ppoints(:,1,i),ppoints(:,2,i),ppoints(:,3,i))
+    
+end
+legend('Scanning Points', 'Aproximated function')
 
 figure; 
-scatter3(new_x(1,:),new_y(1,:),zz(1))
-% axis([-1 7 -1.2 1.2])
-% hold on
-% plot(x,noisy_y,'x')
-% hold off
-%fnplt(pp)
-
-%% extract spline intersection with every Z
+scatter(circle_points(:,1),circle_points(:,2))
 
 
 
