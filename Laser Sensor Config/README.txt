@@ -1,0 +1,2 @@
+This is the traces of the atempts to communicate with the sensor over serial using MEDAQLib. It was unsuccessful, but maybe something can be learned by this attempt.
+I am therefore leaving this non-working code.
