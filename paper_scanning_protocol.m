@@ -152,8 +152,9 @@ scatter(circle_points(:,1),circle_points(:,2))
 
 
 %% interpolate in a ellipse 
-
-
+% Test using 
+% https://se.mathworks.com/help/matlab/math/example-curve-fitting-via-optimization.html
+% Otherwise follow paper 
 
 %% uniformly resample from ellipse 
 
