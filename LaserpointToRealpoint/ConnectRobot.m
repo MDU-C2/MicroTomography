@@ -1,7 +1,7 @@
 classdef ConnectRobot
     methods
         function t = connect(obj)
-            t = tcpclient('192.168.125.1',55000);
+            t = tcpclient('10.132.158.88',55000);
             flush (t);
         end
         
