@@ -133,21 +133,21 @@ legend('Scanning Points', 'Aproximated function', 'Uniformly resampled')
 %% extract spline intersection with Z
 for z = -160
     for i = 1:length(ppx)
-        circle_points(i,1) = ppval(ppx(1,i),z);
-        circle_points(i,2) = ppval(ppy(1,i),z);
+        circle_points_x(i) = ppval(ppx(1,i),z);
+        circle_points_y(i) = ppval(ppy(1,i),z);
     end
 end
     figure;hold on;
 for i = 1:length(azimuth)
     
-    scatter3(circle_points(:,1),circle_points(:,2),z,'filled')
+    scatter3(circle_points_x(:),circle_points_y(:),z,'filled')
     plot3(ppoints(:,1,i),ppoints(:,2,i),ppoints(:,3,i))
     
 end
 legend('Scanning Points', 'Aproximated function')
 
 figure; 
-scatter(circle_points(:,1),circle_points(:,2))
+scatter(circle_points_x(:),circle_points_y(:))
 
 
 
@@ -155,11 +155,34 @@ scatter(circle_points(:,1),circle_points(:,2))
 % Test using 
 % https://se.mathworks.com/help/matlab/math/example-curve-fitting-via-optimization.html
 % Otherwise follow paper 
+xxx=circle_points_x;
+yyy=circle_points_y;
+scatter(xxx,yyy);
+axis([-50 50 -50 50]);
+axis equal;
+initialparameter=[10 10 0];
+mx=@(initialparameter)error_function(initialparameter,xxx,yyy);
+[outputparameters, fval]=fminsearch(mx,initialparameter);
+
 
 %% uniformly resample from ellipse 
+t=linspace(0,2*pi,200);
+xao=outputparameters(1)*cos(t);
+yao=outputparameters(2)*sin(t);
+a=outputparameters(3);
+z=[cos(a) -sin(a);sin(a) cos(a)];
+m=[xao;yao];
+k=z*m;
 
+xao=k(1,:);
+yao=k(2,:);
 
-
+scatter(xao,yao); 
+hold on;
+scatter(circle_points_x,circle_points_y,'r');
+axis([-50 50 -50 50]);
+axis equal;
+drawnow;
 %% Scanning protocol 
 
 % For all points in protocol 
