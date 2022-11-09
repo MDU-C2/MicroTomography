@@ -7,7 +7,7 @@ addpath('connect_rob-mat','Protocall','PowerCrust','LaserPointToRealpoint')
 %%%%
 RobotCon = ConnectRobot;
 calcSurfacePoint = laserPointToRealPoint;
-CollectLaserPoints = collectLaserPoint;
+CollectLaserPoints = collectLaserPoint; 
 %%%%
 
 
@@ -20,7 +20,8 @@ LaserPoints = CollectLaserPoints.collect(Scanpoints,t); %%LaserPoints = [laser p
 surfacePoint = calcSurfacePoint.calcSurfacePoint(LaserPoints); %%surfacePoint = [x y z]
 
 %%Interpolation
-ppoints = surfacePoint;
+ppoints = resampling(surfacePoint,5,200);
+
 
 poToPowerCrust = permute(ppoints,[1 3 2]);
 poToPowerCrust = reshape(poToPowerCrust,[],size(ppoints,2),1);

@@ -38,7 +38,6 @@ function [ poleVerts, poleRadMat, sampleIdxForPole, oppositePoleIdx] = FindPoles
         thisPoint = points(i,:);
         thisCell = cells{i};
         cellsVertices = verts(thisCell,:); 
-
        %%%% plots the voronoi diagram can be deselected 
            hold on 
        if (optionToPlot==1)

@@ -5,6 +5,7 @@ zz =  linspace(-sample_step_size,-boundary_height, num_z_step);
 
 ppoints = zeros(length(zz),3,size(points,3));
 uniform_points = [];
+%points= unique(points);
 for i = 1:size(points,3)
     ppx(:,i) = spline (points(:,3,i),points(:,1,i));
     ppy(:,i) = spline (points(:,3,i),points(:,2,i));
