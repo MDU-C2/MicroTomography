@@ -70,7 +70,7 @@ clc
 
 boundary_height = 200;
 % Heights for scanning points 
-z_step_size = 5; % Height slice step size
+z_step_size = 20; % Height slice step size
 num_z_step = (boundary_height)/(z_step_size); % number of steps 
 % Z of all scanning heights
 Z = linspace(-z_step_size,-boundary_height, num_z_step);
@@ -98,32 +98,97 @@ for i = 1:length(azimuth)
 end
 
 %% Interpolate spline from data 
-i = 1;
-order = 3;
+boundary_height = 200;
+% Heights for scanning points 
+z_step_size = 5; % Height slice step size,
 
-cell_array = num2cell(points(:,1:2,i))
+azimuth = (pi.*linspace(0,360-18,21))./180 ;
+num_z_step = (boundary_height)/(z_step_size); % number of steps 
+zz =  linspace(-z_step_size,-boundary_height, num_z_step);
 
+ppoints = zeros(length(zz),3,length (azimuth));
+linspace(-z_step_size,-boundary_height, num_z_step);
+for i = 1:length(azimuth)
+    ppx(:,i) = spline (points(:,3,i),points(:,1,i));
+    ppy(:,i) = spline (points(:,3,i),points(:,2,i));
 
-spl2 = spap2(optknt(points(:,1:2,i),order), num2cell(points(:,1:2,i)), points(:,3,i));
-fnplt(spl2,'b',2);
-% axis([-1 7 -1.2 1.2])
-% hold on
-% plot(x,noisy_y,'x')
-% hold off
+    
+    ppoints(:,1,i) = ppval(ppx(:,i),zz);
+    ppoints(:,2,i) = ppval(ppy(:,i),zz);
+    ppoints(:,3,i) = zz;
+  
+end
+    figure;hold on;
+for i = 1:length(azimuth)
+    
+    scatter3(points(:,1,i),points(:,2,i),points(:,3,i),'filled')
+    plot3(ppoints(:,1,i),ppoints(:,2,i),ppoints(:,3,i))
+    scatter3(ppoints(:,1,i),ppoints(:,2,i),ppoints(:,3,i),'red')
+    
 
+end
+legend('Scanning Points', 'Aproximated function', 'Uniformly resampled')
+%% Function 
+boundary_height = 200;
+ppoints = resampling(points,5,boundary_height);
 
-%% extract spline intersection with every Z
+figure;
+scatter3(ppoints(:,1),ppoints(:,2),ppoints(:,3))
+
+%% extract spline intersection with Z
+for z = -160
+    for i = 1:length(ppx)
+        circle_points_x(i) = ppval(ppx(1,i),z);
+        circle_points_y(i) = ppval(ppy(1,i),z);
+    end
+end
+    figure;hold on;
+for i = 1:length(azimuth)
+    
+    scatter3(circle_points_x(:),circle_points_y(:),z,'filled')
+    plot3(ppoints(:,1,i),ppoints(:,2,i),ppoints(:,3,i))
+    
+end
+legend('Scanning Points', 'Aproximated function')
+
+figure; 
+scatter(circle_points_x(:),circle_points_y(:))
 
 
 
 %% interpolate in a ellipse 
-
+% Test using 
+% https://se.mathworks.com/help/matlab/math/example-curve-fitting-via-optimization.html
+% Otherwise follow paper 
+xxx=circle_points_x;
+yyy=circle_points_y;
+scatter(xxx,yyy);
+axis([-50 50 -50 50]);
+axis equal;
+initialparameter=[10 10 0];
+mx=@(initialparameter)error_function(initialparameter,xxx,yyy);
+[outputparameters, fval]=fminsearch(mx,initialparameter);
 
 
 %% uniformly resample from ellipse 
+t=linspace(0,2*pi,200);
 
+xao=outputparameters(1)*cos(t);
+yao=outputparameters(2)*sin(t);
+a=outputparameters(3);
+z=[cos(a) -sin(a);sin(a) cos(a)];
+m=[xao;yao];
+k=z*m;
 
+xao=k(1,:);
+yao=k(2,:);
 
+scatter(xao,yao); 
+hold on;
+scatter(circle_points_x,circle_points_y,'r');
+axis([-50 50 -50 50]);
+axis equal;
+drawnow;
 %% Scanning protocol 
 
 % For all points in protocol 
