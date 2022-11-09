@@ -128,7 +128,12 @@ for i = 1:length(azimuth)
 
 end
 legend('Scanning Points', 'Aproximated function', 'Uniformly resampled')
+%% Function 
+boundary_height = 200;
+ppoints = resampling(points,5,boundary_height);
 
+figure;
+scatter3(ppoints(:,1),ppoints(:,2),ppoints(:,3))
 
 %% extract spline intersection with Z
 for z = -160
@@ -167,6 +172,7 @@ mx=@(initialparameter)error_function(initialparameter,xxx,yyy);
 
 %% uniformly resample from ellipse 
 t=linspace(0,2*pi,200);
+
 xao=outputparameters(1)*cos(t);
 yao=outputparameters(2)*sin(t);
 a=outputparameters(3);
