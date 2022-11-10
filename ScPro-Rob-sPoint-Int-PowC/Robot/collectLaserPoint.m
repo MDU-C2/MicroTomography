@@ -5,7 +5,7 @@ function positionLaser = collectLaserPoint(Scanpoints,t)
 
     for s = 1:size(Scanpoints,3)
         for r = 1:size(Scanpoints,1)
-            packAndSendPose(Scanpoints(r,1:3,s), Scanpoints(r,4:6,s), t); 
+            packAndSendPose(Scanpoints(r,1:3,s), Scanpoints(r,4:6,s),1,0,0, t); 
             position = ReceiveAndUnpackPose(t);
 
             laser=20; %%READ FROM LASER
