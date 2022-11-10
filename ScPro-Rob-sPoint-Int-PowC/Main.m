@@ -2,25 +2,23 @@ clc
 clear
 close all
 
-addpath('connect_rob-mat','Protocall','PowerCrust','LaserPointToRealpoint')
+%rmpath('')
+%addpath('connect_rob-mat','Protocall','PowerCrust','Robot')
 
-%%%%
-RobotCon = ConnectRobot;
-calcSurfacePoint = laserPointToRealPoint;
-CollectLaserPoints = collectLaserPoint; 
-%%%%
-
-
-t = RobotCon.connect();
+t = ConnectRobot();
 
 Scanpoints = create_scan_points(200,150,50,5); %% Scanpoints = []
-tic
-LaserPoints = CollectLaserPoints.collect(Scanpoints,t); %%LaserPoints = [laser pos rot]
 
-surfacePoint = calcSurfacePoint.calcSurfacePoint(LaserPoints); %%surfacePoint = [x y z]
+%Test different points randomly from scanpoints
+%TestRandPoints(Scanpoints,t);
+
+tic
+LaserPoints = collectLaserPoint(Scanpoints,t); %%LaserPoints = [laser pos rot]
+
+surfacePoint = calcSurfacePoint(LaserPoints); %%surfacePoint = [x y z]
 
 %%Interpolation
-ppoints = resampling(surfacePoint,5,200);
+ppoints = resampling(surfacePoint,20,200);
 
 
 poToPowerCrust = permute(ppoints,[1 3 2]);
