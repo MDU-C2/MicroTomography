@@ -27,7 +27,7 @@ function [MeshVerts,MeshEdges,MedialAxis,MAT,verts] = PowerCrust(points,optionTo
     %% Step 1: Voronoi Diagram
     disp('Finding Voronoi Diagram');
     %add boundary points to avoid infinite voronoi cells
-    boundPts = FindBoundingPoints(points, 5);
+    boundPts = FindBoundingPoints(points, 2);
     points = [points ; boundPts];
     %create a voronoi diagram from the points
     [verts, cells] = voronoin(points);
