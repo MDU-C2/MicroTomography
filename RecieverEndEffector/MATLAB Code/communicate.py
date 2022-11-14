@@ -43,7 +43,7 @@ def getDistance(ipComputer, ComputerPort, ipArduino, ArduinoPort):
 
 
 #Take reading
-print(getDistance(sys.argv[1], int(sys.argv[2]), sys.argv[3], int(sys.argv[4])))
+getDistance(sys.argv[1], int(sys.argv[2]), sys.argv[3], int(sys.argv[4]))
 
 
 
