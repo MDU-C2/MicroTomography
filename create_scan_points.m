@@ -1,4 +1,4 @@
-function points = create_scan_points(boundary_height,hole_diameter,epsilon,z_step_size)
+function points = create_scan_points(boundary_height,hole_diameter,epsilon,z_step_size, azimuth_angle)
 %CREATE_SCAN_POINTS Summary of this function goes here
 %   Detailed explanation goes here
 
@@ -16,15 +16,12 @@ num_z_step = (boundary_height)/(z_step_size); % number of steps
 Z = linspace(0,-boundary_height, num_z_step+1);
 
 % Make it better later
-azimuth = (pi.*linspace(0,360-18,21))./180 ;
+azimuth = (pi.*linspace(0,360-azimuth_angle,360/azimuth_angle))./180 ;
 
 R_epsi = hole_diameter/2 + epsilon;
 
 points = zeros(length(Z),6,length(azimuth));
 
-fig = figure; 
-axis = axes;
-hold(axis, "on")
 
 for i = 1:length(azimuth)
  

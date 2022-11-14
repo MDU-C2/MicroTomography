@@ -57,7 +57,14 @@ for i = 1:length(azimuth)
 
 end
 %%
-scan_points = create_scan_points(200,200,100,5);
+scan_points = create_scan_points(200,200,100,5,7);
+figure;hold on;
+for i = 1:size(scan_points,3)
+    scatter3(scan_points(:,1,i),scan_points(:,2,i),scan_points(:,3,i))
+    view(3)
+    drawnow
+end
+
 %% Open connection 
 tcp_con = tcpclient('192.168.125.1',55000);
 %..... From GUI Functions
