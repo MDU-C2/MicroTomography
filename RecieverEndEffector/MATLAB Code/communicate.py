@@ -38,7 +38,7 @@ def getDistance(ipComputer, ComputerPort, ipArduino, ArduinoPort):
     
 
 
-sys.stdout.write(getDistance(sys.argv[1], int(sys.argv[2]), sys.argv[3], int(sys.argv[4])))
+sys.stdout.write(str(getDistance(sys.argv[1], int(sys.argv[2]), sys.argv[3], int(sys.argv[4]))))
 sys.stdout.flush()
 sys.exit(0)
 
