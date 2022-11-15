@@ -4,7 +4,7 @@ function TestRandPoints(ListofPoints,t)
         p2=round(rand()*(size(ListofPoints,3)-1))+1
         randPoint = ListofPoints(p1,:,p2)
         
-        tool = 1;
+        tool = 0; %&1: Laser, 0:reciever
         packAndSendPose(randPoint(1:3), randPoint(4:6),tool,0,0, t); 
         position = ReceiveAndUnpackPose( t);
 

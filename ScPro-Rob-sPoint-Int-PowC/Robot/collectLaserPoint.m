@@ -9,14 +9,19 @@ function positionLaser = collectLaserPoint(Scanpoints,t)
             position = ReceiveAndUnpackPose(t);
 
             %laser=20; %%READ FROM LASER
-            s=1;
-            while s ~= 0
+            for i = 1:3
                 [status, laser] = system('communicate.exe 10.132.158.95 1884 10.132.158.190 1000');
                 %Check laser. if laser inte är nummer: status=1;
-                s = any(isletter(laser));
-            end
 
-            positionLaser(r,:,s) = [position laser];
+                read = any(isletter(laser));
+                if ~ read
+                    break;
+                end
+            end
+            
+            if read
+                positionLaser(r,:,s) = [position laser];
+            end
         end
     end
 end
