@@ -9,6 +9,8 @@ t = ConnectRobot();
 
 Mesh = scanBreast(t);
 
+%%TEST
+
 
 
 function Mesh = scanBreast(t)
