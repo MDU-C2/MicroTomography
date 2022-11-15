@@ -20,8 +20,19 @@ def getDistance(ipComputer, ComputerPort, ipArduino, ArduinoPort):
             data = data.decode('utf-8')
             #data = data.replace('\r', '')
             #print("'"+data+"'")
+            #print(data)
+            #print(data.isnumeric())
+            #allData.append(int(data))
 
-            allData.append(int(data))
+            #Try to append it as an int, otherwise append as string. This will cause the check later on to fail and redo the 4 measurements.
+            try:
+                allData.append(int(data))
+            except:
+                allData.append(data)
+
+         
+          
+
 
         if len(set(allData)) == 1:
             if allData[0] == 16370:

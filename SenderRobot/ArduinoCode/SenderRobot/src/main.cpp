@@ -1,32 +1,138 @@
 #include <Arduino.h>
-#include <Stepper.h>
+
+#include <AccelStepper.h>
 
 // Arduino PWM Speed Control：
-int E1 = 5;
 int M1 = 4;
+int E1 = 5;
+
 int E2 = 6;
 int M2 = 7;
 
-const int stepsPerRevolution = 400;
-
-// Initialize the stepper library on pins 8 through 11:
-Stepper myStepper = Stepper(stepsPerRevolution, 4, 5, 6, 7);
-
 void setup()
 {
-  // Set the motor speed (RPMs):
-  myStepper.setSpeed(100);
+  /*pinMode(M1, OUTPUT);
+  pinMode(M2, OUTPUT);
+
+  Serial.begin(115200);*/
 }
 
 void loop()
 {
-  // Step one revolution in one direction:
-  myStepper.step(200);
 
-  delay(2000);
+    AccelStepper stepper1(1, 2, 5); // (Type of driver: with 2 pins, STEP, DIR)
 
-  // Step on revolution in the other direction:
-  myStepper.step(-200);
+    /*int time = 600;
+    int power = 100;
 
-  delay(2000);
+    // Steg 1
+    analogWrite(E1, 0);
+    digitalWrite(M1, LOW);
+
+    analogWrite(E2, power);
+    digitalWrite(M2, LOW);
+
+    delayMicroseconds(time);
+
+    // Steg 2
+    analogWrite(E1, power);
+    digitalWrite(M1, HIGH);
+
+    analogWrite(E2, power);
+    digitalWrite(M2, LOW);
+
+    delayMicroseconds(time);
+
+    // Steg 3
+    analogWrite(E1, power);
+    digitalWrite(M1, HIGH);
+
+    analogWrite(E2, 0);
+    digitalWrite(M2, LOW);
+
+    delayMicroseconds(time);
+
+    // Steg 4
+    analogWrite(E1, power);
+    digitalWrite(M1, HIGH);
+
+    analogWrite(E2, power);
+    digitalWrite(M2, HIGH);
+
+    delayMicroseconds(time);
+
+    // Steg 5
+    analogWrite(E1, 0);
+    digitalWrite(M1, LOW);
+
+    analogWrite(E2, power);
+    digitalWrite(M2, HIGH);
+
+    delayMicroseconds(time);
+
+    // Steg 6
+    analogWrite(E1, power);
+    digitalWrite(M1, LOW);
+
+    analogWrite(E2, power);
+    digitalWrite(M2, HIGH);
+
+    delayMicroseconds(time);
+
+    // Steg 7
+    analogWrite(E1, power);
+    digitalWrite(M1, LOW);
+
+    analogWrite(E2, 0);
+    digitalWrite(M2, LOW);
+
+    delayMicroseconds(time);
+
+    // Steg 8
+    analogWrite(E1, power);
+    digitalWrite(M1, LOW);
+
+    analogWrite(E2, power);
+    digitalWrite(M2, LOW);
+
+    delayMicroseconds(time);*/
+  
+
+  /*
+  //Steg 1
+  analogWrite(E1, 80);
+  digitalWrite(M1, LOW);
+
+  analogWrite(E2, 80);
+  digitalWrite(M2, LOW);
+
+  delay(5);
+
+  //Steg 2
+  analogWrite(E1, 80);
+  digitalWrite(M1, LOW);
+
+  analogWrite(E2, 80);
+  digitalWrite(M2, HIGH);
+
+  delay(5);
+
+  //Steg 3
+  analogWrite(E1, 80);
+  digitalWrite(M1, HIGH);
+
+  analogWrite(E2, 80);
+  digitalWrite(M2, HIGH);
+
+  delay(5);
+
+  //Steg 4
+  analogWrite(E1, 80);
+  digitalWrite(M1, HIGH);
+
+  analogWrite(E2, 80);
+  digitalWrite(M2, LOW);
+
+  delay(5);
+  */
 }
