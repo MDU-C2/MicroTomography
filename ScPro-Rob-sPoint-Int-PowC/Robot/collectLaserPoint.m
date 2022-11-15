@@ -19,8 +19,10 @@ function positionLaser = collectLaserPoint(Scanpoints,t)
                 end
             end
             
-            if read
-                positionLaser(r,:,s) = [position laser];
+            if ~ read
+                positionLaser(r,:,s) = [position str2double(laser)];
+            else 
+                positionLaser(r,:,s) = [NaN,NaN,NaN,NaN,NaN,NaN,NaN];
             end
         end
     end
