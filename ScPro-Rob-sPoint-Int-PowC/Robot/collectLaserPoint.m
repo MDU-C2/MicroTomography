@@ -7,8 +7,9 @@ function positionLaser = collectLaserPoint(Scanpoints,t)
         for r = 1:size(Scanpoints,1)
             packAndSendPose(Scanpoints(r,1:3,s), Scanpoints(r,4:6,s),1,0,0, t); 
             position = ReceiveAndUnpackPose(t);
-
-            %laser=20; %%READ FROM LASER
+% 
+%             laser=20; %%READ FROM LASER
+%             read = 0;
             for i = 1:3
                 [status, laser] = system('communicate.exe 10.132.158.95 1884 10.132.158.190 1000');
                 %Check laser. if laser inte är nummer: status=1;
@@ -18,7 +19,7 @@ function positionLaser = collectLaserPoint(Scanpoints,t)
                     break;
                 end
             end
-            
+%             
             if ~ read
                 positionLaser(r,:,s) = [position str2double(laser)];
             else 

@@ -16,6 +16,7 @@ Mesh = scanBreast(t);
 function Mesh = scanBreast(t)
     Scanpoints = create_scan_points(200,150,50,5); %% Scanpoints = []
 
+
     %Test different points randomly from scanpoints
     %TestRandPoints(Scanpoints,t);
     
