@@ -2,7 +2,7 @@
 clear all 
 close all 
 clc
-
+azimuth_angle= 7
 boundary_height = 200;
 % Heights for scanning points 
 z_step_size = 20; % Height slice step size
@@ -10,7 +10,8 @@ num_z_step = (boundary_height)/(z_step_size); % number of steps
 % Z of all scanning heights
 Z = linspace(-z_step_size,-boundary_height, num_z_step);
 % Make it better later
-azimuth = (pi.*linspace(0,360-18,21))./180 ;
+
+azimuth = (pi.*linspace(0,360-azimuth_angle,360/azimuth_angle))./180 ;
 
 
 points = zeros(num_z_step,3,length(azimuth));
