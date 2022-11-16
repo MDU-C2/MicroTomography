@@ -1,29 +1,18 @@
-function [pos, rot] = ReceiveAndUnpackPose(app, t)
-%wait until message is received
-noMsgReceived = 1;
-while noMsgReceived
+function position = ReceiveAndUnpackPose(t)
+    noMsgReceived = 1;
+    while noMsgReceived
     receivedMsg = char(read(t));
     noMsgReceived = isempty(receivedMsg);
-    %pause(0.5);
-end
-%Handle message string so that it becoms seperate rot och pos arrays
-match = ["[","]"];
-pose = split(receivedMsg, match);
-pos = pose(2);
-pos = split(pos,",");
-pos = str2double(pos);
+    end
+    
+    msg=strrep(receivedMsg,',',' ');
+    msg=strrep(msg,'][',' ');
+    msg=msg(2:end-1);
+    
+    pos = str2num(msg);
+    
+    trans = pos(1:3);
+    rot = pos(4:end);
 
-while noMsgReceived
-    receivedMsg = char(read(t));
-    noMsgReceived = isempty(receivedMsg);
-    %pause(0.5);
-end
-match = ["[","]"];
-pose = split(receivedMsg, match);
-rot = pose(2);
-rot = split(rot, ",");
-rot = str2double(rot);
-
-%eulerRad = quat2eul(rot');
-%eulerDeg = rad2deg(eulerRad);
+    position=[trans rot];
 end

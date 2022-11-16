@@ -1,28 +1,22 @@
-function packAndSendPose(app, pos, eulerDeg, t)
-%eulerRad = deg2rad(eulerDeg);
-%eulerDeg = [0,0,0];
+function packAndSendPose(pos, eulerDeg,tool,speed,extra, t)
+    %put together msg string
+    sPos = string(pos);
+    sRot = string(eulerDeg);
+   
+    %add formatting to pos string
+    sPos = join(sPos,",");
+    sPos = strcat("[",sPos,"]");
+    
+    %add formatting to rot string
+    sRot = join(sRot,",");
+    sRot = strcat("[",sRot,"]");
 
-%rot = eul2quat(eulerRad)';
-
-%put together msg string
-sPos = string(pos);
-sRot = string(eulerDeg);
-
-
-%add formatting to pos string
-sPos = join(sPos,",");
-sPos = strcat("[",sPos,"]");
-
-%add formatting to rot string
-sRot = join(sRot,",");
-sRot = strcat("[",sRot,"]");
-write(t,sPos);
-write(t, sRot);
-
-%put pos and rot together
-%sendMsg = strcat(sPos,",",sRot);
-%sendMsg = strcat("[",sendMsg,"]");
-
-%send msg string
-%write(t,sendMsg)
+    %%% 1: Laser   0: reciever
+    sTool = string(tool);
+    sSpeed = string(speed);
+    sExtra = string(extra);
+    sSpec = strcat("[",sTool,",",sSpeed,",",sExtra,"]");
+    
+    pos = strcat ("[",sPos,",",sRot,",",sSpec,"]");
+    write(t,pos);
 end
