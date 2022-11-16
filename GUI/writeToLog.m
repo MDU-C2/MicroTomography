@@ -1,6 +1,6 @@
 function writeToLog(app, text)
 %get current datetime for logs
-t = datetime("now");
+t = now;
 d = string(datetime(t,'ConvertFrom','datenum'));
 test = string(app.LogsTextArea.Value);
 newText = d + ": " + text; %create new text row

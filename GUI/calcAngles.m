@@ -1,21 +1,10 @@
-function [angle_H, angle_P, angle_B, dirArrow] = calcAngles(app, wantedTCPplotPos, centerPoints, normals, dirArrow)
+function [angle_H, angle_P, angle_B, k] = calcAngles(app, pos, centerPoints, normals)
 %get the current position
-pos = [wantedTCPplotPos.XData, wantedTCPplotPos.YData, wantedTCPplotPos.ZData];
+%pos = [pos.XData, pos.YData, pos.ZData];
 center = centerPoints;
 %search for closest triangle center point (gives index of point)
 [k,dist] = dsearchn(center,pos);
-%plot normal, origin from tcp point
-if isempty(dirArrow) %if not plotted before, plot, otherwise update coordinates
-    dirArrow = quiver3(wantedTCPplotPos.XData, wantedTCPplotPos.YData, wantedTCPplotPos.ZData, normals(k,1), normals(k,2), normals(k,3), 'Parent', app.UIAxes, 'AutoScale','on', 'AutoScaleFactor',15, 'LineWidth',1.5, 'MaxHeadSize',20);
-else
-    dirArrow.XData = wantedTCPplotPos.XData;
-    dirArrow.YData = wantedTCPplotPos.YData;
-    dirArrow.ZData = wantedTCPplotPos.ZData;
 
-    dirArrow.UData = normals(k,1);
-    dirArrow.VData = normals(k,2);
-    dirArrow.WData = normals(k,3);
-end
 %get the corresponding normal (use index given from the nearest
 %point search)
 sNormal = normals(k,:);
