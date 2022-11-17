@@ -5,10 +5,6 @@ close all
 %rmpath('')
 addpath('Protocall','PowerCrust','Robot')
 
-
-
-
-
 t = ConnectRobot();
 
 Mesh = scanBreast(t);
