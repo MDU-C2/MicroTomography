@@ -2,7 +2,7 @@ clc
 clear all 
 close all 
 
-load surfacePoint.mat ;
+load surfacePoint11171430.mat ;
 % Plot raw data
 figure; hold on
 for spline_ind = 1:size(surfacePoint,3)
