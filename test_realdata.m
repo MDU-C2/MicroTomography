@@ -7,6 +7,9 @@ load surfacePoint11171457.mat ;
 figure; hold on
 for spline_ind = 1:size(surfacePoint,3)
     scatter3(surfacePoint(:,1,spline_ind),surfacePoint(:,2,spline_ind),surfacePoint(:,3,spline_ind))
+    xlabel('X axis')
+    ylabel('y axis')
+    zlabel('z axis')
     view(3)
     drawnow
     
