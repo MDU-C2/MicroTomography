@@ -57,7 +57,14 @@ for i = 1:length(azimuth)
 
 end
 %%
-scan_points = create_scan_points(200,200,100,5);
+scan_points = create_scan_points(200,200,100,5,7);
+figure;hold on;
+for i = 1:size(scan_points,3)
+    scatter3(scan_points(:,1,i),scan_points(:,2,i),scan_points(:,3,i))
+    view(3)
+    drawnow
+end
+
 %% Open connection 
 tcp_con = tcpclient('192.168.125.1',55000);
 %..... From GUI Functions
@@ -67,7 +74,7 @@ tcp_con = tcpclient('192.168.125.1',55000);
 clear all 
 close all 
 clc
-
+azimuth_angle = 7
 boundary_height = 200;
 % Heights for scanning points 
 z_step_size = 20; % Height slice step size
@@ -75,8 +82,7 @@ num_z_step = (boundary_height)/(z_step_size); % number of steps
 % Z of all scanning heights
 Z = linspace(-z_step_size,-boundary_height, num_z_step);
 % Make it better later
-azimuth = (pi.*linspace(0,360-18,21))./180 ;
-
+azimuth = (pi.*linspace(0,360-azimuth_angle,360/azimuth_angle))./180 ;
 
 points = zeros(num_z_step,3,length(azimuth));
 
