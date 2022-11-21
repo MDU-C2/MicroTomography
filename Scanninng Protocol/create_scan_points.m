@@ -48,7 +48,7 @@ for i = 1:length(azimuth)
             show_HT(fig,axis, HT,20 )
         end
         % Create points by extracting euler 
-        points(j,:,i) = [HT.trvec tform2eul(HT.tform)];        
+        points(j,:,i) = [HT.trvec rad2deg(tform2eul(HT.tform))];        
     end
 end
 end
