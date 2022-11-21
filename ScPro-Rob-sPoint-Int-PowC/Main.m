@@ -11,6 +11,7 @@ Mesh = scanBreast(t);
 
 %%TEST
 
+
 function Mesh = scanBreast(t)
     Scanpoints = create_scan_points(150,150,50,5); %% Scanpoints = []
 
@@ -20,10 +21,11 @@ function Mesh = scanBreast(t)
     tic
 
     %%Collect surface points:
-    LaserPoints = collectLaserPoint(Scanpoints,t); %%LaserPoints = [laser robPos robRot]
+    LaserPoints = collectLaserPoint(Scanpoints(:,:,1:end),t); %%LaserPoints = [laser robPos robRot]
     surfacePoint = calcSurfacePoint(LaserPoints); %%surfacePoint = [x y z]
     
     %%Interpolation:
+    
     ppoints = resampling(surfacePoint,20,200);
     
     %%PowerCrust:

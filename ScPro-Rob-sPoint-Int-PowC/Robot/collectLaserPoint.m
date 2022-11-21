@@ -17,6 +17,7 @@ function positionLaser = collectLaserPoint(Scanpoints,t)
                 for i = 1:3
                     [status, laser] = system('communicate.exe 10.132.158.95 1884 10.132.158.190 1000');
                     %Check laser. if laser inte är nummer: status=1;
+                    %laser=20;
     
                     read = any(isletter(laser));
                     if ~ read
