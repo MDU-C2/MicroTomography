@@ -40,6 +40,8 @@ close all
 clc
 
 load surfacePoint11161346.mat
+offset = load ('surfacePoint11221446_white_10degrees_TCPChange.mat');
+offset = offset.surfacePoints;
 
 old = load ('angle10_surfacePoint11221058.mat');
 old = old.surfacePoints;
@@ -57,9 +59,10 @@ real_points(:,3) = real_points(:,3) -120;
 
 figure; hold on;
 for i = 1:size(surfacePoints,3)
-    scatter3(surfacePoints(:,1,i),surfacePoints(:,2,i),surfacePoints(:,3,i), 'filled', 'black' )
-    scatter3(old(:,1,i),old(:,2,i),old(:,3,i), 'filled', 'blue' )
-    scatter3(new(:,1,i),new(:,2,i),new(:,3,i), 'filled', 'magenta' )
+%     scatter3(surfacePoints(:,1,i),surfacePoints(:,2,i),surfacePoints(:,3,i), 'filled', 'black' )
+%     scatter3(old(:,1,i),old(:,2,i),old(:,3,i), 'filled', 'blue' )
+%     scatter3(new(:,1,i)-1,new(:,2,i)-3,new(:,3,i), 'filled', 'magenta' )
+    scatter3(offset(:,1,i),offset(:,2,i),offset(:,3,i), 'filled', 'red' )
     view(3)
 
 end
