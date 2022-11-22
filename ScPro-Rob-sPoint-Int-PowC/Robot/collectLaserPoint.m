@@ -3,7 +3,7 @@ function positionLaser = collectLaserPoint(Scanpoints,t)
 
     positionLaser = zeros( size(Scanpoints,1), size(Scanpoints,2)+1, size(Scanpoints,3));
 
-    for s = 1:size(Scanpoints,3)
+    for s =1:size(Scanpoints,3)
         NaNCounter=0;
         for r = 1:size(Scanpoints,1)
             if NaNCounter<3
