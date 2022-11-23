@@ -2,18 +2,104 @@ clear all
 close all
 clc
 
-load surfacePoint11161346.mat
+light_above = load ('surfacePoint11221608_RemoveLightAbove.mat');
+light_above = light_above.surfacePoints;
+
+light_above_extra = load ('surfacePoint11221617_RemoveLightAboveExtra.mat');
+light_above_extra = light_above_extra.surfacePoints;
+
+no_roof = load ('surfacePoint11221523_white_10degrees_TCPChange_protect.mat');
+no_roof = no_roof.surfacePoints;
+
+no_protect = load ('surfacePoint11221446_white_10degrees_TCPChange.mat');
+no_protect = no_protect.surfacePoints;
+
+stl_file = stlread('symmetricalBreastModel.STL');
+%Rotate
+real_points = rotx(90)*stl_file.Points';
+real_points = real_points';
+% Centering
+real_points(:,1) = real_points(:,1) -60;
+real_points(:,2) = real_points(:,2) +60;
+real_points(:,3) = real_points(:,3) -120;
+
+d3fig = figure();
 
 
-figure; hold on;
-for i = 1%: size(surfacePoints,3)
 
-   plot(surfacePoints(:,3,i),surfacePoints(:,1,i), 'Marker','*', Color = 'black')
+for i = 1: size(no_protect,3)
+    figure(d3fig); hold on; 
+    scatter3(no_protect(:,1,i),no_protect(:,2,i),no_protect(:,3,i), '+','cyan')
+    scatter3(no_roof(:,1,i),no_roof(:,2,i),no_roof(:,3,i), '*','magenta')
+    scatter3(light_above(:,1,i),light_above(:,2,i),light_above(:,3,i), 'x','blue')
+    scatter3(light_above_extra(:,1,i),light_above_extra(:,2,i),light_above_extra(:,3,i), 'hexagram','red')
+    hold off; 
+    
+    d2fig = figure(); hold on;  
+    scatter(no_protect(:,3,i),no_protect(:,1,i),'cyan','+')
+    scatter(no_roof(:,3,i),no_roof(:,1,i),'magenta', '*')
+    scatter(light_above(:,3,i),light_above(:,1,i),'blue', 'x')
+    scatter(light_above_extra(:,3,i),light_above_extra(:,1,i), 'hexagram','red')
+    xlabel('Z')
+    ylabel('X')
+    legend('no_protect', 'no_roof', 'light_above', 'light_above_extra')
+    hold off
+
+    d2fig2 = figure(); hold on;  
+    scatter(no_protect(:,3,i),no_protect(:,2,i),'cyan','+')
+    scatter(no_roof(:,3,i),no_roof(:,2,i),'magenta', '*')
+    scatter(light_above(:,3,i),light_above(:,2,i),'blue', 'x')
+    scatter(light_above_extra(:,3,i),light_above_extra(:,2,i),'red', 'hexagram')
+    xlabel('Z')
+    ylabel('Y')
+    legend('no_protect', 'no_roof', 'light_above', 'light_above_extra')
+    hold off
+
 end
-hold on ; 
-plot(old(:,3,1),old(:,1,1), 'Marker','*',Color='blue')
-plot(new(:,3,1),new(:,1,1), 'Marker','*',Color='magenta')
-% plot(real_points(:,3),real_points(:,1), 'Marker','*','red')
+figure(d3fig); hold on;
+scatter3(real_points(:,1),real_points(:,2),real_points(:,3),'.','yellow')
+legend('no_protect', 'no_roof', 'light_above', 'light_above_extra', 'real_points')
+xlabel('X')
+ylabel('Y')
+zlabel('Z')
+hold off;
+
+
+figure; hold on ; 
+scatter(real_points(:,3),real_points(:,1));
+for i = 1:size(light_above_extra,3)
+    scatter(light_above_extra(:,3,i), light_above_extra(:,1,i),'red')
+end
+%% Spline interpolation 
+clear all 
+close all 
+clc 
+% Load data 
+data = load ('surfacePoint11221617_RemoveLightAboveExtra.mat');
+data = data.surfacePoints;
+% Choose spline 
+spline_number = 5;
+
+% X interpolation
+ppx = csapi(data(:,3, spline_number), data(:,1,spline_number));
+
+spx = spap2(1,3,data(:,3, spline_number),data(:,1,spline_number)); 
+spx = spap2(newknt(spx),3,data(:,3, spline_number),data(:,1,spline_number));
+spx = spap2(newknt(spx),3,data(:,3, spline_number),data(:,1,spline_number));
+spx = spap2(newknt(spx),3,data(:,3, spline_number),data(:,1,spline_number));
+% Plot a spline in X and Y 
+
+figure;  hold on;
+scatter(data(:,3,spline_number),data(:,1,spline_number));
+fnplt(spx) 
+xlabel('Z')
+ylabel('X')
+% figure; 
+% scatter(data(:,3,spline_number),data(:,2,spline_number));
+% xlabel('Z')
+% ylabel('Y')
+
+
 
 
 

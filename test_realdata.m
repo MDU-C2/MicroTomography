@@ -11,7 +11,7 @@ for spline_ind = 1:size(surfacePoint,3)
     ylabel('y axis')
     zlabel('z axis')
     view(3)
-    drawnow
+
     
 end
 %%
