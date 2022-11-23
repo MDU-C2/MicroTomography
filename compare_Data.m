@@ -5,6 +5,10 @@ clc
 light_above = load ('surfacePoint11221608_RemoveLightAbove.mat');
 light_above = light_above.surfacePoints;
 
+new_code = load ('SurfacePoint11231426_NecCodeEm.mat');
+new_code = new_code.surfacePoint;
+
+
 light_above_extra = load ('surfacePoint11221617_RemoveLightAboveExtra.mat');
 light_above_extra = light_above_extra.surfacePoints;
 
@@ -33,6 +37,7 @@ for i = 1: size(no_protect,3)
     scatter3(no_roof(:,1,i),no_roof(:,2,i),no_roof(:,3,i), '*','magenta')
     scatter3(light_above(:,1,i),light_above(:,2,i),light_above(:,3,i), 'x','blue')
     scatter3(light_above_extra(:,1,i),light_above_extra(:,2,i),light_above_extra(:,3,i), 'hexagram','red')
+    scatter3(new_code(:,1,i),new_code(:,2,i),new_code(:,3,i), 'hexagram','black')
     hold off; 
     
     d2fig = figure(); hold on;  
@@ -40,6 +45,7 @@ for i = 1: size(no_protect,3)
     scatter(no_roof(:,3,i),no_roof(:,1,i),'magenta', '*')
     scatter(light_above(:,3,i),light_above(:,1,i),'blue', 'x')
     scatter(light_above_extra(:,3,i),light_above_extra(:,1,i), 'hexagram','red')
+    scatter(new_code(:,3,i),new_code(:,1,i), 'hexagram','black')
     xlabel('Z')
     ylabel('X')
     legend('no_protect', 'no_roof', 'light_above', 'light_above_extra')
@@ -50,6 +56,7 @@ for i = 1: size(no_protect,3)
     scatter(no_roof(:,3,i),no_roof(:,2,i),'magenta', '*')
     scatter(light_above(:,3,i),light_above(:,2,i),'blue', 'x')
     scatter(light_above_extra(:,3,i),light_above_extra(:,2,i),'red', 'hexagram')
+    scatter(new_code(:,3,i),new_code(:,2,i),'red', 'black')
     xlabel('Z')
     ylabel('Y')
     legend('no_protect', 'no_roof', 'light_above', 'light_above_extra')
@@ -67,9 +74,24 @@ hold off;
 
 figure; hold on ; 
 scatter(real_points(:,3),real_points(:,1));
-for i = 1:size(light_above_extra,3)
-    scatter(light_above_extra(:,3,i), light_above_extra(:,1,i),'red')
+for i = 1:size(new_code,3)
+    %scatter(new_code(:,3,i)-10, new_code(:,1,i)-3,'filled','red')
+    scatter(light_above_extra(:,3,i)-10, light_above_extra(:,1,i)-3,'filled','black')
 end
+xlabel('Z')
+ylabel('X')
+legend('stl data','New code', 'old code')
+
+figure; hold on ; 
+scatter(real_points(:,3),real_points(:,2));
+for i = 1:size(new_code,3)
+    scatter(new_code(:,3,i)-10, new_code(:,2,i)-3,'filled','red')
+    scatter(light_above_extra(:,3,i)-10, light_above_extra(:,2,i)-3,'filled','black')
+end
+xlabel('Z')
+ylabel('Y')
+legend('stl data','New code', 'old code')
+
 %% Spline interpolation 
 clear all 
 close all 
