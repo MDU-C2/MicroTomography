@@ -13,8 +13,8 @@ def getDistance(ipComputer, ComputerPort, ipArduino, ArduinoPort):
     while True:
         allData = []
         i = 0
-        for _ in range(0,4):
-            time.sleep(0.001)
+        for _ in range(0,8):
+            time.sleep(0.01)
             sock.sendto("Get".encode(), (ipArduino, ArduinoPort))
             data, addr = sockk.recvfrom(4096)
             data = data.decode('utf-8')
