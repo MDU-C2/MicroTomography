@@ -15,4 +15,7 @@ function position = ReceiveAndUnpackPose(t)
     rot = pos(4:end);
 
     position=[trans rot];
+    
+    disp ("From Robot: ");
+    disp(position);
 end
