@@ -9,6 +9,8 @@ def getDistance(ipComputer, ComputerPort, ipArduino, ArduinoPort):
     sockk.bind((ipComputer, ComputerPort))
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # UDP
+
+    numberOfAttempts = 0 #If the sensor is facing a lamp, then it will think something is moving around 20-26cm away from it. Therefore if we cannot get a good reading after some time, we return an error to prevent false readings from causing locks
     
     while True:
         allData = []
@@ -30,7 +32,10 @@ def getDistance(ipComputer, ComputerPort, ipArduino, ArduinoPort):
             except:
                 allData.append(data)
 
-         
+        
+        numberOfAttempts += 1
+        if numberOfAttempts == 20:
+            return "no object detected"
           
 
 
