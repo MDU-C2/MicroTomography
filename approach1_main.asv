@@ -30,9 +30,9 @@ for i = 1:size(new_code,3)
         y_spline = createFit2(new_code(:,3,i), new_code(:,2,i), false);
         title(i);
     otherwise
-        x_spline = createFit1(new_code(:,3,i),new_code(:,1,i),true);
+        x_spline = createFit1(new_code(:,3,i),new_code(:,1,i),false);
         title(i);
-        y_spline = createFit2(new_code(:,3,i), new_code(:,2,i), true);
+        y_spline = createFit2(new_code(:,3,i), new_code(:,2,i), false);
         title(i);
     end
     spline_resample(:,1,i) = x_spline(new_z);
