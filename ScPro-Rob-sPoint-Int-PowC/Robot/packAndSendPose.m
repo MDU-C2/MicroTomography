@@ -19,4 +19,6 @@ function packAndSendPose(pos, eulerDeg,tool,speed,extra, t)
     
     pos = strcat ("[",sPos,",",sRot,",",sSpec,"]");
     write(t,pos);
+    disp ("To Robot: ");
+    disp(pos);
 end
