@@ -105,6 +105,7 @@ spline_number = 5;
 % X interpolation
 ppx = csapi(data(:,3, spline_number), data(:,1,spline_number));
 
+
 spx = spap2(1,3,data(:,3, spline_number),data(:,1,spline_number)); 
 spx = spap2(newknt(spx),3,data(:,3, spline_number),data(:,1,spline_number));
 spx = spap2(newknt(spx),3,data(:,3, spline_number),data(:,1,spline_number));
@@ -120,10 +121,19 @@ ylabel('X')
 % scatter(data(:,3,spline_number),data(:,2,spline_number));
 % xlabel('Z')
 % ylabel('Y')
+%% Fitting app
 
+clear all; 
+close all ; 
+clc
+% Load data 
+data = load ('surfacePoint11221617_RemoveLightAboveExtra.mat');
+data = data.surfacePoints;
+spline_number = 5;
 
-
-
+x = data(:,1, spline_number);
+y = data(:,2, spline_number);
+z = data(:,3, spline_number);
 
 %%
 figure; hold on;
