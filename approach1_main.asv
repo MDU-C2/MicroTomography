@@ -4,14 +4,44 @@ clc
 
 new_code = load ('SurfacePoint11231426_NecCodeEm.mat');
 new_code = new_code.surfacePoint;
+data = new_code;
+%% FUnction for all above 
+delta_z = 1;
+step_size_t = 0.2;
+points = resample_points(data. delta_z, step_size_t);
 
-new_z =-1.*(0:3:100);
-spline_resample = zeros(size(new_z,2), 3, size(new_code,3));
+%%
+figure;hold on;
+for i = 1:size(data,3)
+    scatter3(data(:,1),data(:,2),data(:,3), 'black')
+end
+scatter3(points(:,1),points(:,2),points(:,3), 'red')
 
-for i = 1:size(new_code,3)
-    x = new_code(:,1,i);
-    y = new_code(:,2,i);
-    z = new_code(:,3,i);
+%% Prepare data fix nan 
+
+% find longest column 
+[A,I] = min(min(sum(isnan(data))));
+
+for i = 1:size(data,3)
+    % create nan index
+    nan_indexes = zeros(size(data,1),1,'logical');
+    % find nan values
+    nan_indexes(5:end)  = isnan(data(5:end,1,i));
+    % replace nan values with longest column 
+    data(nan_indexes,:,i) = data(nan_indexes,:,I);
+end
+%%
+data = prepare_data(data);
+%%
+delta_z = 1;
+new_z =-1.*(0:delta_z:abs(min(min(data(:,3,:)))));
+
+spline_resample = zeros(size(new_z,2), 3, size(data,3));
+
+for i = 1:size(data,3)
+    x = data(:,1,i);
+    y = data(:,2,i);
+    z = data(:,3,i);
     % INTERPOLATION
     % Make the linear part better by changing the fitting function 
     % Make the code find 1, 11, 6, 16 automaticaly. 
@@ -19,33 +49,35 @@ for i = 1:size(new_code,3)
     switch i
         % FOr Y i = 1 and i = 11 are linear interpolation change ti linear
     case i == 1 || i ==11
-        x_spline = createFitx(new_code(:,3,i),new_code(:,1,i),false);
-        title(i);
-        y_spline = poly_Fity(new_code(:,3,i), new_code(:,2,i), false);
-        title(i);
+        x_spline = createFitx(data(:,3,i),data(:,1,i),false);
+        y_spline = poly_Fity(data(:,3,i), data(:,2,i), false);
          % FOr x i = 6 and 16 are linear 
     case i == 6 || i == 16
-        x_spline = poly_Fitx(new_code(:,3,i),new_code(:,1,i),false);
+        x_spline = poly_Fitx(data(:,3,i),data(:,1,i),false);
         title(i);
-        y_spline = createFity(new_code(:,3,i), new_code(:,2,i), false);
-        title(i);
+        y_spline = createFity(data(:,3,i), data(:,2,i), false);
     otherwise
-        x_spline = createFitx(new_code(:,3,i),new_code(:,1,i),false);
+        x_spline = createFitx(data(:,3,i),data(:,1,i),false);
         title(i);
-        y_spline = createFity(new_code(:,3,i), new_code(:,2,i), false);
-        title(i);
+        y_spline = createFity(data(:,3,i), data(:,2,i), false);
     end
     spline_resample(:,1,i) = x_spline(new_z);
     spline_resample(:,2,i) = y_spline(new_z);
     spline_resample(:,3,i) = new_z;
-
 end
+%%
+delta_z = 1;
+spline_resample = spline_resampling(data, delta_z);
 %% Plot results 
 figure; hold on ; 
 for i = 1:size(spline_resample,3)
     scatter3(spline_resample(:,1,i),spline_resample(:,2,i),spline_resample(:,3,i))
 end
 
+figure; hold on ; 
+for i = 1:size(data,3)
+    scatter3(data(:,1,i),data(:,2,i),data(:,3,i))
+end
 % %% add dimension with zeros 
 % for i = 1 : size(spline_resample,3)
 %     spline_resample(:,4,i) = zeros(size(spline_resample,1),1);
@@ -75,7 +107,7 @@ end
 % end
 
 %% Circular interpolation 
-step_size_t = 0.05;
+step_size_t = 0.2;
 t=0:step_size_t:2*pi;
 %power_crust_points = zeros (size(t,2),3,size(spline_resample,1));
 points = [];
@@ -84,11 +116,12 @@ for j = 1: size(spline_resample,1)
     xx = squeeze(spline_resample(j,1,:));
     yy = squeeze(spline_resample(j,2,:));
     zz = squeeze(spline_resample(j,3,:));
-    initialparameter=[10 10 0 -50 30];
+    % Search for solution 
+    initialparameter=[10 10 0 0 0];
     mx=@(initialparameter)error_function(initialparameter,xx,yy);
     [outputparameters, fval]=fminsearch(mx,initialparameter);
     % plot
-%     if j == 10 || j == 100 || j == 200 || j == 300 || j == 400 || j == 500
+%     if j == 1 || j == 10 || j == 50 || j == 80 || j == 90 || j == 100
 %         figure;
 %         initialparameter=[10 10 0 -50 30];
 %         mx=@(initialparameter)error_function(initialparameter,xx,yy);
@@ -96,37 +129,6 @@ for j = 1: size(spline_resample,1)
 %     end
     % Resample
 
-
-
-    if j ==1
-        radius1 = linspace(0,outputparameters(1),round(outputparameters(1)));
-        radius2 = linspace(0,outputparameters(2),size(t,2));
-        for k = 1:size(radius2,2)
-            xao=outputparameters(4)+radius1(k)*cos(t);
-            yao=outputparameters(5)+radius2(k)*sin(t);
-            a=outputparameters(3);
-            z=[cos(a) -sin(a);sin(a) cos(a)];
-            m=[xao;yao];
-            k=z*m;
-            xao=k(1,:);
-            yao=k(2,:);
-            points = [points; xao' yao' repmat(spline_resample(j,3,1),size(xao))'];
-        end
-    elseif j == size(spline_resample,1)
-        radius1 = linspace(0,outputparameters(1),size(t,2));
-        radius2 = linspace(0,outputparameters(2),size(t,2));
-        for k = 1:size(radius2,2)
-            xao=outputparameters(4)+radius1(k)*cos(t);
-            yao=outputparameters(5)+radius2(k)*sin(t);
-            a=outputparameters(3);
-            z=[cos(a) -sin(a);sin(a) cos(a)];
-            m=[xao;yao];
-            k=z*m;
-            xao=k(1,:);
-            yao=k(2,:);
-            points = [points; xao' yao' repmat(spline_resample(j,3,1),size(xao))'];
-        end
-    else
         xao=outputparameters(4)+outputparameters(1)*cos(t);
         yao=outputparameters(5)+outputparameters(2)*sin(t);
         a=outputparameters(3);
@@ -136,7 +138,46 @@ for j = 1: size(spline_resample,1)
         xao=k(1,:);
         yao=k(2,:);
         points = [points; xao' yao' repmat(spline_resample(j,3,1),size(xao))'];
-    end
+
+%     if j ==0%1
+%         radius1 = linspace(0,outputparameters(1),round(outputparameters(1)/5));
+%         radius2 = linspace(0,outputparameters(2),round(outputparameters(1)/5));
+%         for k = 1:size(radius2,2)
+%             xao=outputparameters(4)+radius1(k)*cos(t);
+%             yao=outputparameters(5)+radius2(k)*sin(t);
+%             a=outputparameters(3);
+%             z=[cos(a) -sin(a);sin(a) cos(a)];
+%             m=[xao;yao];
+%             k=z*m;
+%             xao=k(1,:);
+%             yao=k(2,:);
+%             points = [points; xao' yao' repmat(spline_resample(j,3,1),size(xao))'];
+%         end
+%     elseif j ==0% size(spline_resample,1)
+%         radius1 = linspace(0,outputparameters(1),round(outputparameters(1)/5));
+%         radius2 = linspace(0,outputparameters(2),round(outputparameters(1)/5));
+%         for k = 1:size(radius2,2)
+%             xao=outputparameters(4)+radius1(k)*cos(t);
+%             yao=outputparameters(5)+radius2(k)*sin(t);
+%             a=outputparameters(3);
+%             z=[cos(a) -sin(a);sin(a) cos(a)];
+%             m=[xao;yao];
+%             k=z*m;
+%             xao=k(1,:);
+%             yao=k(2,:);
+%             points = [points; xao' yao' repmat(spline_resample(j,3,1),size(xao))'];
+%         end
+%     else
+%         xao=outputparameters(4)+outputparameters(1)*cos(t);
+%         yao=outputparameters(5)+outputparameters(2)*sin(t);
+%         a=outputparameters(3);
+%         z=[cos(a) -sin(a);sin(a) cos(a)];
+%         m=[xao;yao];
+%         k=z*m;
+%         xao=k(1,:);
+%         yao=k(2,:);
+%         points = [points; xao' yao' repmat(spline_resample(j,3,1),size(xao))'];
+%     end
 
     % Create points
 %     power_crust_points(:,1,j) = xao;
@@ -144,6 +185,9 @@ for j = 1: size(spline_resample,1)
 %     power_crust_points(:,3,j) = repmat(spline_resample(j,3,1),size(xao));
 end
 toc
+%% 
+step_size_t = 0.2;
+points = circular_resampling(spline_resample,step_size_t);
 %% 
 points = [];%zeros(size(power_crust_points,1)*size(power_crust_points,3),3);
 figure; hold on;
@@ -160,5 +204,8 @@ scatter3(points(:,1),points(:,2),points(:,3))
 %%
 
 tic
-[~,Mesh,~,~,~] = PowerCrust(points,1); 
+[~,Mesh,~,~,~] = PowerCrust(points,0); 
 toc
+%%
+stl_data = stlread("symmetricalBreastModel.STL");
+[~,Mesh2,~,~,~] = PowerCrust(stl_data.Points,0); 
