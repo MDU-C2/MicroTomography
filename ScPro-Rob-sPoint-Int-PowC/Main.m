@@ -12,16 +12,17 @@ Mesh = scanBreast(t);
 %%TEST
 
 function Mesh = scanBreast(t)
-    %Scanpoints = create_scan_points(150,150,50,5); %% Scanpoints = []
     Scanpoints = create_scan_points(150,150,50,5,18,0,false);
-    
-    %Test different points randomly from scanpoints
+    %Scanpoints = [125,0,-16,0,90,180;0,125,-16,0,90,90;-125,0,-16,0,90,0;0,-125,-16,0,90,-90;125,0,-16,0,90,-180];
+    %Scanpoints(:,:,2) = Scanpoints;
+
+    %Test different points randomly from scanpoints    
     %TestRandPoints(Scanpoints(:,:,:),t);
     
     tic
     
-    %%Collect surface points:
-    LaserPoints = collectLaserPoint(Scanpoints(:,:,:),t); %%LaserPoints = [laser robPos robRot]
+    %%Collect surface points: 
+    LaserPoints = collectLaserPoint(Scanpoints,t); %%LaserPoints = [laser robPos robRot]
     surfacePoint = calcSurfacePoint(LaserPoints); %%surfacePoint = [x y z]
     
     %%Interpolation:

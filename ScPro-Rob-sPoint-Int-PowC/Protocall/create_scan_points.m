@@ -42,7 +42,7 @@ for i = 1:length(azimuth)
         point_c_space(:,2) = R_epsi.*sin(azimuth(i));
         point_c_space(:,3) = Z(j);
         % Create Homogeneous Transformations with orientation
-        HT = se3(roty(90+laser_angle)*rotx(rad2deg(-azimuth(i))),point_c_space);
+        HT = se3(rotz(180)*roty(90+laser_angle)*rotx(rad2deg(-azimuth(i))),point_c_space);
 
         if plot == true 
             show_HT(fig,axis, HT,20 )
