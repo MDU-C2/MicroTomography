@@ -6,6 +6,8 @@
   Author: Emanuel Bjurhager
  *****************************************************************************************************************************/
 
+#include <string.h>
+#include <stdio.h>
 #include <Arduino.h>
 #include "Ethernet_Generic.h"
 
@@ -20,6 +22,7 @@ const int ENA = 5;             // Enable Pin (Motor on/off) of stepper controlle
 
 // For sender robot
 const unsigned long stepmm = 3200; // Number of steps to move 1mm
+const int max_height = 195;
 double height;
 
 // For ethernet
@@ -36,6 +39,8 @@ void moveUp(unsigned long steps){
   digitalWrite(ENA, HIGH);
 
   for (unsigned long i = 0; i < steps; i++){
+    if(height >= max_height)
+      return;
 
     digitalWrite(PUL, HIGH);
     delayMicroseconds(50);
@@ -88,11 +93,15 @@ void calibrate(){
 
 
 void goTo(double millimeter){
-  while (height < millimeter)
+  while (height < millimeter && height <= max_height)
     moveUp(1);
   
-  while (height > millimeter)
+  while (height > millimeter && height >= 0)
     moveDown(1);
+}
+
+double getHeight(void){
+  return height;
 }
 
 
@@ -107,11 +116,7 @@ int main(void){
 
   //Get sender robot to 0 position
   calibrate();
-  delay(1000);
 
-  
-
-  
   while (!Serial && millis() < 5000);
 
   Ethernet.init(SS_PIN);
@@ -122,32 +127,56 @@ int main(void){
   Ethernet.begin(mac, ip);
 
   Udp.begin(localPort);
+
+  char *command;
+  char temp[100];
+  double arg;
   
   for (;;){
     // if there's data available, read a packet
     packetSize = Udp.parsePacket();
 
-    if (packetSize){
+    if (packetSize > 1){
       // read the packet into packetBufffer
       Udp.read(packetBuffer, 255);
 
+      packetBuffer[packetSize] = '\0';
+
+      //Split command and arg
+      command = strtok(packetBuffer, ":");
+      arg = String(strtok(NULL, ":")).toDouble();
+
       // Get command
-      if (strcmp(packetBuffer, "Get") == 0){
-        Serial.print("Hello");
+      if (strcmp(command, "goTo") == 0){
+        goTo(arg);
+
         Udp.beginPacket(Udp.remoteIP(), recieverPort);
-        Udp.write("Hello", strlen("Hello"));
+        dtostrf(getHeight(), 3, 12, temp); //Convert double to char
+        Udp.write(temp, strlen(temp));
+        Udp.endPacket();
+
+      }else if(strcmp(command, "moveDown") == 0){
+        moveDown((unsigned long)arg);
+
+        Udp.beginPacket(Udp.remoteIP(), recieverPort);
+        dtostrf(getHeight(), 3, 12, temp); //Convert double to char
+        Udp.write(temp, strlen(temp));
+        Udp.endPacket();
+
+      }else if(strcmp(command, "moveUp") == 0){
+        moveUp((unsigned long)arg);
+
+        Udp.beginPacket(Udp.remoteIP(), recieverPort);
+        dtostrf(getHeight(), 3, 12, temp); //Convert double to char
+        Udp.write(temp, strlen(temp));
+        Udp.endPacket();
+
+      }else{
+        Udp.beginPacket(Udp.remoteIP(), recieverPort);
+        Udp.write("Invalid command", strlen("Invalid command"));
         Udp.endPacket();
       }
     }
-
-    /*
-    Serial.println(height, 22);
-    goTo(5);
-    Serial.println(height, 22);
-    goTo(20);
-*/
-    // moveUp((unsigned long) 5*stepmm);
-    // moveDown((unsigned long) 5*stepmm);
 
     if (serialEventRun) // Print whatever is not printed yet
       serialEventRun();
