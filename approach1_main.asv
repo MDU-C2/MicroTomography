@@ -12,22 +12,14 @@ points = resample_points(data, delta_z, step_size_t);
 
 %% PLOt results
 figure;hold on;
-for i = 1:size(data,3)/2+1
+for i = 1:size(data,3)
     scatter3(data(:,1,i),data(:,2,i),data(:,3,i),'filled', 'black')
-    drawnow
 end
 %scatter3(points(:,1),points(:,2),points(:,3),'filled', 'red')
 xlabel('X')
 ylabel('Y')
 zlabel('Z')
-
-
-%
-for i = size(data,3)/2 +2 :size(data,3)
-    scatter3(data(:,1,i),data(:,2,i),data(:,3,i),'filled','red')
-    drawnow
-end
-%scatter3(points(:,1),points(:,2),points(:,3),'filled', 'red')
+legend('Sampled Data', 'Resampled Data')
 
 %% POWERCRUST
 [~,Mesh,~,~,~] = PowerCrust(points,0); 
@@ -104,7 +96,7 @@ new_code = load ('SurfacePoint11231426_NecCodeEm.mat');
 new_code = new_code.surfacePoint;
 data = new_code;
 
-i = 18;
+i = 19;
 
 x = data(:,1,i);
 y = data(:,2,i);
@@ -180,7 +172,7 @@ y_normal2 = normal_slope2.*(x_normal2) + normal_b2;
 figure(fig);hold on; 
 plot(x_normal2, y_normal2)
 
-angle2 = rad2deg(atan(normal_slope2));
+angle2 = rad2deg(atan(normal_slope));
 
 
 %% klad
