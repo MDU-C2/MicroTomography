@@ -12,7 +12,7 @@ data = new_code;
 [geo,stl_points] = load_stl("symmetricalBreastModel.STL");
 
 figure; hold on;
-% trisurf(geo.ConnectivityList,stl_points(:,1),stl_points(:,2),stl_points(:,3))
+ trisurf(geo.ConnectivityList,stl_points(:,1),stl_points(:,2),stl_points(:,3))
 xlabel('X Coordinates')
 ylabel('Y Coordinates')
 zlabel('Z Coordinates')
