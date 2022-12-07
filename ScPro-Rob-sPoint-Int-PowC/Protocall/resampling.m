@@ -13,7 +13,7 @@ for i = 1:size(points,3)
     
     ppoints(:,1,i) = ppval(ppx(:,i),zz);
     ppoints(:,2,i) = ppval(ppy(:,i),zz);
-    ppoints(:,3,i) = zz;
+    ppoints(:,3,i) = zz;seco
   
 end
 for i = 1:size(ppoints,1)
