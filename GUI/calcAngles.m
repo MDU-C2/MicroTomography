@@ -5,6 +5,7 @@ center = centerPoints;
 %search for closest triangle center point (gives index of point)
 [k,dist] = dsearchn(center,pos);
 
+
 %get the corresponding normal (use index given from the nearest
 %point search)
 sNormal = normals(k,:);

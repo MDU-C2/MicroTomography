@@ -21,7 +21,7 @@ function pointList = generateScanningPoints(app, object, distanceThres, surfaceI
 %---------------------------
 %distanceThres = 1; %The ideal distance between all points
 distanceThresTolerance = 0.5; %How tolerant the distance should be: creates a interval from the distance threshold. Higher number = more accepted points
-adjustmentLimit = 1000; %Limit on the maximum amount of adjustemnts done to a single point. Higher value = longer execution time, but higher chance of better positioning
+adjustmentLimit = 1000; %Limit on the maximum amount of adjustemnts done to a single point before the tolerance increased. Higher value = longer execution time, but higher chance of better positioning
 stepSizeZ = 1; %Initial step taken in Z direction, should be a relativly low number. The program finds the exact stepsize for Z iterativly
 originalStepSizeTheta = 0.01; %The difference in theta for every step
 %---------------------------
