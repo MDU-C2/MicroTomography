@@ -12,7 +12,7 @@ data = new_code;
 [geo,stl_points] = load_stl("symmetricalBreastModel.STL");
 
 figure; hold on;
- trisurf(geo.ConnectivityList,stl_points(:,1),stl_points(:,2),stl_points(:,3))
+trisurf(geo.ConnectivityList,stl_points(:,1),stl_points(:,2),stl_points(:,3))
 xlabel('X Coordinates')
 ylabel('Y Coordinates')
 zlabel('Z Coordinates')
@@ -25,10 +25,16 @@ for i = 1:size(test,3)
 end
 legend([m,p,ss],'simulation data','Scan position','Z normal orientation')
 %% Create simulated data
-
+zmin = min(min(data(:,3,:)));
+new_z = zmin : % contunie here
 % simulate points from first spline 
 azimuth = ((1:size(data,3))-1) .* 360/size(data,3) ;
-spline = data (~isnan(data(:,1,1)),:,1); % clean from nan 
+for i = [1,6,11,16]
+    spline = data (~isnan(data(:,1,i)),:,i); % clean from nan 
+    x = spline(:,1);
+    y = spline(:,2);
+    z = spline(:,3);
+end
 % Create array
 sim_data = zeros(size(spline,1),3,size(data,3));
 % Rotate spline 
