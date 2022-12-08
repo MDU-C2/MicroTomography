@@ -1,6 +1,5 @@
-function packAndSendPose(app, pos, eulerDeg,tool,speed,extra, t)
+function packAndSendPose(pos, eulerDeg,tool,speed,extra, t)
     %put together msg string
-    eulerDeg(2) = eulerDeg(2) + 00;
     sPos = string(pos);
     sRot = string(eulerDeg);
    
@@ -20,5 +19,5 @@ function packAndSendPose(app, pos, eulerDeg,tool,speed,extra, t)
     
     pos = strcat ("[",sPos,",",sRot,",",sSpec,"]");
     write(t,pos);
-    writeToLog(app, "GUI sent: " + pos);
+    %writeToLog(app, "GUI sent: " + pos);
 end

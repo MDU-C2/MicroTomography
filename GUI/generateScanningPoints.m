@@ -26,7 +26,7 @@ stepSizeZ = 1; %Initial step taken in Z direction, should be a relativly low num
 originalStepSizeTheta = 0.01; %The difference in theta for every step
 %---------------------------
 
-zMax = max(object.Points(:,3)); %Highest Z of the object
+zMax = max(object.Points(:,3)) - 15; %Highest Z of the object
 zMin = min(object.Points(:,3)); %Lowest Z of the object
 stepSizeTheta = originalStepSizeTheta; %original and stepSizeTheta are seperate because stepsize can vary throught the generation
 distanceThresTolerance_c = distanceThresTolerance;
@@ -37,7 +37,7 @@ pointList = [];
 thetaLimit = double(3.1416); %As the algorithm works in cylindrical coordinates, the sign of theta changes at pi
 sideSwitched = false; %Keeps track if the algorithm is currently working on the positive side or the negative side
 nAdjustments = 0; %Keeps track of the number of adjustments done to a single point's position
-zCurrent = zMax-5; %ZCurrent keeps track of the current Z level, algorithm starts at the top of the object
+zCurrent = zMax; %ZCurrent keeps track of the current Z level, algorithm starts at the top of the object
 
 %Algorithm runs until the bottom of the object is reached.
 % 1 iteration = 1 row done

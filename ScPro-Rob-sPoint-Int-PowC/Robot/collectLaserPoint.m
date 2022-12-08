@@ -2,7 +2,8 @@
 function positionLaser = collectLaserPoint(Scanpoints,t)
 
     positionLaser = zeros( size(Scanpoints,1), size(Scanpoints,2)+1, size(Scanpoints,3));
-
+    pathToLaserCommunicate = horzcat(pwd,'\MicroTomographyHT2022\ScPro-Rob-sPoint-Int-PowC\Robot\communicate.exe');
+    [~, result] = system('ipconfig');
     for s =1:size(Scanpoints,3)
         NaNCounter=0;
         for r = 1:size(Scanpoints,1)
@@ -15,9 +16,10 @@ function positionLaser = collectLaserPoint(Scanpoints,t)
 
             
                 for i = 1:2
-                    [status, laser] = system('communicate.exe 10.132.158.95 1884 10.132.158.190 1000');
+                    [status, laser] = system(horzcat(pathToLaserCommunicate, ' 10.132.158.191 1884 10.132.158.190 1000'));
                     %Check laser. if laser inte är nummer: status=1;
                     %laser=20;
+                    disp(laser);
     
                     read = any(isletter(laser));
                     if ~ read

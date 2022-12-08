@@ -13,7 +13,7 @@ for i = 1:length(tri)
     centerPoints(i, :) = mean(trianglePoints); %get triangle center point
     normal(i, :) = cross(trianglePoints(1,:)-trianglePoints(2,:), trianglePoints(1,:)-trianglePoints(3, :));
     unitNormal = -(normal(i, :) / norm( normal(i, :) )); % just to make it unit length
-    if unitNormal(1) < 0 && unitNormal(2) < 0 && unitNormal(3) < 0 %if normal is pointing wrong
+    if unitNormal(1) < 0 && unitNormal(2) < 0 && unitNormal(3) < 0 || unitNormal(1) == 0 && unitNormal(2) == 0 && unitNormal(3) < 0 %if normal is pointing wrong
         centerPoints(i, :) = []; %remove the centerpoint, dont save the normal
     else
         normals(i, :) = unitNormal; % save normal

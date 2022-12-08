@@ -1,4 +1,4 @@
-function position = ReceiveAndUnpackPose(app, t)
+function position = ReceiveAndUnpackPose(t)
     noMsgReceived = 1;
     while noMsgReceived
     receivedMsg = char(read(t));
@@ -15,5 +15,5 @@ function position = ReceiveAndUnpackPose(app, t)
     rot = pos(4:end);
 
     position=[trans rot];
-    writeToLog(app, "GUI received:" + msg);
+    %writeToLog(app, "GUI received:" + msg);
 end
