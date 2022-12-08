@@ -41,6 +41,10 @@ for i = 1:length(azimuth)
         point_c_space(:,1) = R_epsi.*cos(azimuth(i));
         point_c_space(:,2) = R_epsi.*sin(azimuth(i));
         point_c_space(:,3) = Z(j);
+        if j == 1
+            HT = se3(roty(90+laser_angle+10)*rotx(rad2deg(-azimuth(i))),point_c_space);
+            points(j,:,i) = [HT.trvec rad2deg(tform2eul(HT.tform))]; 
+        end
         % Create Homogeneous Transformations with orientation
         HT = se3(roty(90+laser_angle)*rotx(rad2deg(-azimuth(i))),point_c_space);
 
@@ -48,7 +52,7 @@ for i = 1:length(azimuth)
             show_HT(fig,axis, HT,20 )
         end
         % Create points by extracting euler 
-        points(j,:,i) = [HT.trvec rad2deg(tform2eul(HT.tform))];        
+        points(j+1,:,i) = [HT.trvec rad2deg(tform2eul(HT.tform))];        
     end
 end
 end
