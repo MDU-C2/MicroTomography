@@ -1,11 +1,11 @@
-function [laser_posistions, scan_normals, sim_data] = normal_scanning_protocol(data, distance)
+function [laser_posistions, scan_normals, sim_data] = normal_scanning_protocol(data,num_splines, distance)
 %% Create simulated data from first spline
 
 % simulate points from first spline 
-azimuth = ((1:size(data,3))-1) .* 360/size(data,3) ;
-spline = data (~isnan(data(:,1,1)),:,1); % clean from nan 
+azimuth = linspace(0,360-(360/num_splines),num_splines) ;
+spline = data (~isnan(data(:,1)),:); % clean from nan 
 % Create array
-sim_data = zeros(size(spline,1),3,size(data,3));
+sim_data = zeros(size(spline,1),3,num_splines);
 % Rotate spline 
 for i = 1:size(azimuth,2)
     rotate = rotz(azimuth(i));
@@ -15,7 +15,7 @@ end
 
 %%  Join spline
 points = [];%zeros(size(power_crust_points,1)*size(power_crust_points,3),3);
-for i = 1:size(sim_data,3)
+for i = 1:num_splines
     points = [points; sim_data(:,:,i)];
 end
 

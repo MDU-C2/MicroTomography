@@ -2,20 +2,43 @@ clear all
 close all
 clc
 
-new_code = load ('surfacePoint12071104_90deg_5step (1).mat');
+new_code = load ('surfacePoint12081116_90deg_10step_ExtraAngleBeginning_calb.mat');
 new_code = new_code.surfacePoint;
 data = new_code;
+
+new_code0 = load ('surfacePoint12081126_90deg_5step_0degsurf.mat');
+new_code0 = new_code0.surfacePoint;
+data0 = new_code0;
+
 [geo,stl_points] = load_stl("symmetricalBreastModel.STL");
 fig = figure; hold on ; 
-for i = 1:size(data,3)
-    scatter3(data(:,1,i),data(:,2,i),data(:,3,i)-21.5417,'red')
+for i = 4
+    scatter3(data(:,1,i),data(:,2,i),data(:,3,i)-25.5096,'red')
+    scatter3(data0(:,1,i),data0(:,2,i),data0(:,3,i)-25.5096,'filled','black')
 end
 figure(fig); hold on; 
-scatter3(stl_points(:,1),stl_points(:,2),stl_points(:,3))
+scatter3(stl_points(:,1),stl_points(:,2),stl_points(:,3),'magenta')
 xlabel('X')
-%%
+
+rotate = rotz(3.5);
+rot_stl = rotate*stl_points';
+rot_stl = rot_stl';
+
+% extract spline points 
+true_spline = rot_stl((round(rot_stl(:,1)) == 0) & rot_stl(:,2)<=0 ,:);
+figure(fig); hold on; 
+scatter3(true_spline(:,1),true_spline(:,2),true_spline(:,3),'filled','blue')
+
+true_spline(1,:) = [];
+[~, indx] = sort(true_spline(:,3),1);
+true_spline = true_spline(indx,:);
+%% plot 2 dimensions 
+figure; hold on; 
+scatter3(true_spline(:,1),true_spline(:,2),true_spline(:,3),'blue')
+scatter3(data(:,1,4),data(:,2,4),data(:,3,4)-25.5096,'red')
+scatter3(data0(:,1,4),data0(:,2,4),data0(:,3,4)-25.5096,'black')
 %% ONE FUNCTION TO RUN ALL 
-[test, test_normals, sim_data] = normal_scanning_protocol(data,30);
+[test, test_normals, sim_data] = normal_scanning_protocol(data(:,:,4),20,30);
 
 [geo,stl_points] = load_stl("symmetricalBreastModel.STL");
 
