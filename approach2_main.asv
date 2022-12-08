@@ -8,11 +8,11 @@ data = new_code;
 [geo,stl_points] = load_stl("symmetricalBreastModel.STL");
 fig = figure; hold on ; 
 for i = 1:size(data,3)
-    scatter3(data(:,1,i),data(:,2,i),data(:,3,i)-21.5417,'red')
+    scatter3(data(:,1,i),data(:,2,i),data(:,3,i),'red')
 end
 figure(fig); hold on; 
 scatter3(stl_points(:,1),stl_points(:,2),stl_points(:,3))
-xlabel('X')
+xlable('X')
 %%
 %% ONE FUNCTION TO RUN ALL 
 [test, test_normals, sim_data] = normal_scanning_protocol(data,30);
