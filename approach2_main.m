@@ -24,36 +24,112 @@ for i = 1:size(test,3)
         test_normals(:,1,i),test_normals(:,2,i),test_normals(:,3,i));
 end
 legend([m,p,ss],'simulation data','Scan position','Z normal orientation')
+%% Create simulated data klad
+delta_z = 5;
+num_z = 50;
+scan_data = data(:,:,[1,6,11,16]);
+azimuth = linspace(0,360-(360/size(scan_data,3)),size(scan_data,3));
+
+resample_spline = zeros(num_z,3,size(scan_data,3));
+
+for i = 1:size(scan_data,3)
+    spline = scan_data (~isnan(scan_data(:,1,i)),:,i); % clean from nan
+    x = spline(:,1);
+    y = spline(:,2);
+    z = spline(:,3);
+
+    if i == 1 || i == 11
+    x_spline = smooth_spline_zx(z,x,false);
+    y_spline = poly2_fit(z,y,false);
+    elseif i == 6 || i == 16
+        x_spline = poly2_fit(z,x,false);
+        y_spline = smooth_spline_zx(z,y,false);
+    end
+    new_z = linspace(max(z),min(z), num_z);
+    resampled_spline = 
+    
+
+end
+%% Create simulated data klad
+scan_data = data(:,:,[1,6,11,16]);
+azimuth = linspace(0,360-(360/size(scan_data,3)),size(scan_data,3));
+
+[~,idx] = max(sum(isnan(scan_data(:,1,:))));
+shortest_spline = data (~isnan(data(:,1,idx)),:,idx); % clean from nan 
+data_length = size(shortest_spline(:,3,idx),1);
+for i = 1:size(scan_data,3)
+    spline = data (~isnan(data(:,1,i)),:,i); % clean from nan
+    spline = spline(1:data_length,:); % cut to max length
+    x = spline(:,1);
+    y = spline(:,2);
+    z = spline(:,3);
+
+    if i == 1 || i == 11
+    x_spline = smooth_spline_zx(z,x,false);
+    y_spline = poly2_fit(z,y,false);
+    elseif i == 6 || i == 16
+        x_spline = poly2_fit(z,x,false);
+        y_spline = smooth_spline_zx(z,y,false);
+    end
+end
+
+
+
 %% Create simulated data
 zmin = min(min(data(:,3,:)));
-new_z = zmin : % contunie here
+step_size = 2;
+new_z = -1*(0:step_size:abs(zmin)); % contunie here
 % simulate points from first spline 
 azimuth = ((1:size(data,3))-1) .* 360/size(data,3) ;
+
+num_spline_needed= 20;
+
+resampled_spline = zeros(size(new_z,2),3,num_spline_needed);
+rotation_angles = linspace(0,90,(num_spline_needed/4)+1);%size(data,3);
+%rotation_angles([1,end]) = [];
+
 for i = [1,6,11,16]
     spline = data (~isnan(data(:,1,i)),:,i); % clean from nan 
     x = spline(:,1);
     y = spline(:,2);
     z = spline(:,3);
+    if i == 1 || i == 11
+        x_spline = smooth_spline_zx(z,x,false);
+        y_spline = poly2_fit(z,y,false);
+    elseif i == 6 || i == 16
+        x_spline = poly2_fit(z,x,false);
+        y_spline = smooth_spline_zx(z,y,false);
+    end
+    rot_data = zeros(size(new_z,2),3,num_spline_needed);
+    for j = 1:size(rotation_angles,2)
+        
+        rot_data(:,1,i+j) = x_spline(new_z);
+        rot_data(:,2,i+j) = y_spline(new_z);
+        rot_data(:,3,i+j) = new_z;
+        rotate = rotz(rotation_angles(j));
+
+        resampled_spline(:,:,i+j) = transpose(rotate*rot_data(:,:,i+j)');
+
+    end
+    
 end
-% Create array
-sim_data = zeros(size(spline,1),3,size(data,3));
-% Rotate spline 
-for i = 1:size(azimuth,2)
-    rotate = rotz(azimuth(i));
-    rot_data = rotate*spline';
-    sim_data(:,:,i) = rot_data';
-end
+
 %% Plot results 
+
 figure; hold on;
-for i = 1:size(sim_data,3)
-    scatter3(sim_data(:,1,i),sim_data(:,2,i),sim_data(:,3,i),'filled','black')
+for j = [1,6,11,16]
+    scatter3(resampled_spline(:,1,j),resampled_spline(:,2,j),resampled_spline(:,3,j),'filled','black')
+    view(3)
+end
+hold on;
+for i = 1:size(resampled_spline,3)
     scatter3(data(:,1,i),data(:,2,i),data(:,3,i),'filled','red')
     view(3)
 end
 
 figure; hold on;
-for i = 1:size(sim_data,3)
-    scatter(sim_data(:,2,i),sim_data(:,3,i),'filled','black')
+for i = 1:size(resampled_spline,3)
+    scatter(resampled_spline(:,2,i),resampled_spline(:,3,i),'filled','black')
     scatter(data(:,2,i),data(:,3,i),'filled','red')
 end
 
