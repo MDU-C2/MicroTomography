@@ -2,8 +2,8 @@ clear all
 close all
 clc
 
-new_code = load ('SurfacePoint11231426_NecCodeEm.mat');
-new_code = new_code.surfacePoint;
+new_code = load ('surfacePoint11221617_RemoveLightAboveExtra.mat');
+new_code = new_code.surfacePoints;
 data = new_code;
 %% FUnction for all above 
 delta_z = 1;
@@ -16,7 +16,7 @@ for i = 1:size(data,3)/2+1
     scatter3(data(:,1,i),data(:,2,i),data(:,3,i),'filled', 'black')
     drawnow
 end
-%scatter3(points(:,1),points(:,2),points(:,3),'filled', 'red')
+scatter3(points(:,1),points(:,2),points(:,3),'filled', 'red')
 xlabel('X')
 ylabel('Y')
 zlabel('Z')
