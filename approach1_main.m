@@ -12,7 +12,7 @@ points = resample_points(data, delta_z, step_size_t);
 
 %% PLOt results
 figure;hold on;
-for i = 1:size(data,3)/2+1
+for i = 1:size(data,3)
     scatter3(data(:,1,i),data(:,2,i),data(:,3,i),'filled', 'black')
     drawnow
 end
@@ -69,11 +69,11 @@ for i = 1:size(data,3)
          % FOr x i = 6 and 16 are linear 
     case i == 6 || i == 16
         x_spline = poly_Fitx(data(:,3,i),data(:,1,i),false);
-        title(i);
+%         title(i);
         y_spline = createFity(data(:,3,i), data(:,2,i), false);
     otherwise
         x_spline = createFitx(data(:,3,i),data(:,1,i),false);
-        title(i);
+%         title(i);
         y_spline = createFity(data(:,3,i), data(:,2,i), false);
     end
     spline_resample(:,1,i) = x_spline(new_z);
