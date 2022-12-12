@@ -6,11 +6,16 @@ new_code = load ('surfacePoints0912_1219.mat');
 new_code = new_code.surfacePoint;
 data = new_code;
 %% ONE FUNCTION TO RUN THEM ALL
-points = resample_data(data,6,0.02,false,false);
+% points = resample_data(data,6,0.02,false,false);
 figure; hold on;
-scatter3(points(:,1),points(:,2),points(:,3),'blue')
-for i = 1:size(data,3)
+% scatter3(points(:,1),points(:,2),points(:,3),'blue')
+for i = 1:size(data,3)/2 
     scatter3(data(:,1,i),data(:,2,i),data(:,3,i),'red')
+end
+
+% scatter3(points(:,1),points(:,2),points(:,3),'blue')
+for i = size(data,3)/2+1:size(data,3)
+    scatter3(data(:,1,i),data(:,2,i),data(:,3,i),'black')
 end
 %%
 tic
@@ -83,11 +88,11 @@ ylabel('Z')
 
 figure; hold on; 
 for i = 1:size(data,3)
-    scatter3(spline_resample(:,1,i),spline_resample(:,2,i),spline_resample(:,3,i))
+    plot3(spline_resample(:,1,i),spline_resample(:,2,i),spline_resample(:,3,i))
 end
 
 %% Circular interpolation 
-delta_t = 0.1;
+delta_t = 0.05;
 points = [];
 new_theta = -pi:0.1:pi;
 for j = 1: size(spline_resample,1)
