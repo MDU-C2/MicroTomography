@@ -28,10 +28,13 @@ if show == true
     % Plot fit with data.
     figure( 'Name', 'untitled fit 1' );
     h = plot( fitresult, xData, yData );
-    legend( h, 'x vs. z', 'untitled fit 1', 'Location', 'NorthEast', 'Interpreter', 'none' );
+    %legend( h, 'x vs. z', 'untitled fit 1', 'Location', 'NorthEast', 'Interpreter', 'none' );
     % Label axes
-    xlabel( 'z', 'Interpreter', 'none' );
-    ylabel( 'x', 'Interpreter', 'none' );
+%     xlabel( 'z', 'Interpreter', 'none' );
+%     ylabel( 'x', 'Interpreter', 'none' );
+    xlabel('Z axis','fontweight','bold','fontsize',16)
+    ylabel('X axis','fontweight','bold','fontsize',16)
+    set(gca,'fontweight','bold','fontsize',16);
     grid on
 end
 

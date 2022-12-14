@@ -221,9 +221,9 @@ for i = 1:size(data,3)
 %         title(i);
         y_spline = smooth_spline_zx(z, y, false);
     otherwise
-        x_spline = smooth_spline_zx(z,x,false);
+        x_spline = smooth_spline_zx(z,x,true);
 %         title(i);
-        y_spline = smooth_spline_zx(z, y, false);
+        y_spline = smooth_spline_zx(z, y, true);
     end
     spline_resample(:,1,i) = x_spline(new_z);
     spline_resample(:,2,i) = y_spline(new_z);
@@ -272,17 +272,21 @@ for j = 1: size(spline_resample,1)
     R_hat = r_theta_function(new_theta');
     [new_xx,new_yy] = pol2cart(new_theta',R_hat);
 
-%     figure; hold on; 
-%     plot(xx,yy,'red')
-%     plot(new_xx+mux,new_yy+muy,"blue")
-%     legend('Scanned Points', 'Resampled interpolated')
+    figure; hold on; 
+    scatter(xx,yy,'filled','red')
+    plot(new_xx+mux,new_yy+muy,"blue")
+    legend('Data Points', 'Fitted curve')
+    xlabel('X axis','fontweight','bold','fontsize',16)
+    ylabel('Y axis','fontweight','bold','fontsize',16)
+    % zlabel('Z axis','fontweight','bold','fontsize',16)
+    set(gca,'fontweight','bold','fontsize',16);
 
 %     plot3(new_xx,new_yy,repmat(zz(1),size(new_xx)),'LineWidth',3)
     points = [points; new_xx, new_yy, repmat(spline_resample(j,3,1),size(new_xx))];
 end
 xlabel('X axis','fontweight','bold','fontsize',16)
 ylabel('Y axis','fontweight','bold','fontsize',16)
-zlabel('Z axis','fontweight','bold','fontsize',16)
+% zlabel('Z axis','fontweight','bold','fontsize',16)
 set(gca,'fontweight','bold','fontsize',16);
 %%
 figure; hold on; 
