@@ -131,6 +131,7 @@ int main(void){
   char *command;
   char temp[100];
   double arg;
+
   
   for (;;){
     // if there's data available, read a packet
