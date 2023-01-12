@@ -1,138 +1,188 @@
+/****************************************************************************************************************************
+  main.cpp
+
+  This code allows the Arduino to recieve commands over UDP IP and move the sender robot accordingly.
+
+  Author: Emanuel Bjurhager
+ *****************************************************************************************************************************/
+
+#include <string.h>
+#include <stdio.h>
 #include <Arduino.h>
+#include "Ethernet_Generic.h"
 
-#include <AccelStepper.h>
+#define SS_PIN 10
 
-// Arduino PWM Speed Control：
-int M1 = 4;
-int E1 = 5;
+// Pins
+const int microSwitchPin = 8;  // Pin for microswitch
+const int PUL = 7;             // Pulse pin of stepper controller
+const int DIR = 6;             // Direction pin of stepper controller
+const int ENA = 5;             // Enable Pin (Motor on/off) of stepper controller
 
-int E2 = 6;
-int M2 = 7;
 
-void setup()
-{
-  /*pinMode(M1, OUTPUT);
-  pinMode(M2, OUTPUT);
+// For sender robot
+const unsigned long stepmm = 3200; // Number of steps to move 1mm
+const int max_height = 195;
+double height;
 
-  Serial.begin(115200);*/
+// For ethernet
+unsigned int localPort = 1001;
+unsigned int recieverPort = 1885;
+char packetBuffer[255];
+EthernetUDP Udp;
+int packetSize;
+
+
+void moveUp(unsigned long steps){
+
+  digitalWrite(DIR, HIGH);
+  digitalWrite(ENA, HIGH);
+
+  for (unsigned long i = 0; i < steps; i++){
+    if(height >= max_height)
+      return;
+
+    digitalWrite(PUL, HIGH);
+    delayMicroseconds(50);
+    digitalWrite(PUL, LOW);
+    delayMicroseconds(50);
+
+    height += 1 / (double)stepmm;
+  }
 }
 
-void loop()
-{
 
-    AccelStepper stepper1(1, 2, 5); // (Type of driver: with 2 pins, STEP, DIR)
+void moveDown(unsigned long steps){
 
-    /*int time = 600;
-    int power = 100;
+  digitalWrite(DIR, LOW);
+  digitalWrite(ENA, HIGH);
 
-    // Steg 1
-    analogWrite(E1, 0);
-    digitalWrite(M1, LOW);
+  for (unsigned long i = 0; i < steps; i++){
+    if (digitalRead(microSwitchPin) == LOW)
+      break;
 
-    analogWrite(E2, power);
-    digitalWrite(M2, LOW);
+    digitalWrite(PUL, HIGH);
+    delayMicroseconds(50);
+    digitalWrite(PUL, LOW);
+    delayMicroseconds(50);
+    height -= 1 / (double)stepmm;
+  }
+}
 
-    delayMicroseconds(time);
 
-    // Steg 2
-    analogWrite(E1, power);
-    digitalWrite(M1, HIGH);
+void calibrate(){
+  // Go to bottom
+  while (digitalRead(microSwitchPin) == HIGH)
+     moveDown(1);
 
-    analogWrite(E2, power);
-    digitalWrite(M2, LOW);
+  // Go up 150 steps over switch trigger
+  while (digitalRead(microSwitchPin) == LOW){
+    for (int i = 0; i < 150; i++){
+      moveUp(1);
+    }
+  }
 
-    delayMicroseconds(time);
+  // Slowly go down until switch is triggered
+  while (digitalRead(microSwitchPin) == HIGH){
+    moveDown(1);
+    delay(1);
+  }
 
-    // Steg 3
-    analogWrite(E1, power);
-    digitalWrite(M1, HIGH);
+  height = 0;
+}
 
-    analogWrite(E2, 0);
-    digitalWrite(M2, LOW);
 
-    delayMicroseconds(time);
+void goTo(double millimeter){
+  while (height < millimeter && height <= max_height)
+    moveUp(1);
+  
+  while (height > millimeter && height >= 0)
+    moveDown(1);
+}
 
-    // Steg 4
-    analogWrite(E1, power);
-    digitalWrite(M1, HIGH);
+double getHeight(void){
+  return height;
+}
 
-    analogWrite(E2, power);
-    digitalWrite(M2, HIGH);
 
-    delayMicroseconds(time);
+int main(void){
 
-    // Steg 5
-    analogWrite(E1, 0);
-    digitalWrite(M1, LOW);
+  init();
+  pinMode(microSwitchPin, INPUT);
+  pinMode(PUL, OUTPUT);
+  pinMode(DIR, OUTPUT);
+  pinMode(ENA, OUTPUT);
+  Serial.begin(115200);
 
-    analogWrite(E2, power);
-    digitalWrite(M2, HIGH);
+  //Get sender robot to 0 position
+  calibrate();
 
-    delayMicroseconds(time);
+  while (!Serial && millis() < 5000);
 
-    // Steg 6
-    analogWrite(E1, power);
-    digitalWrite(M1, LOW);
+  Ethernet.init(SS_PIN);
 
-    analogWrite(E2, power);
-    digitalWrite(M2, HIGH);
+  // Use Static IP and MAC
+  byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0x0B };
+  byte ip[] = {10, 132, 158, 192};
+  Ethernet.begin(mac, ip);
 
-    delayMicroseconds(time);
+  Udp.begin(localPort);
 
-    // Steg 7
-    analogWrite(E1, power);
-    digitalWrite(M1, LOW);
+  char *command;
+  char temp[100];
+  double arg;
 
-    analogWrite(E2, 0);
-    digitalWrite(M2, LOW);
+  
+  for (;;){
+    // if there's data available, read a packet
+    packetSize = Udp.parsePacket();
 
-    delayMicroseconds(time);
+    if (packetSize > 1){
+      // read the packet into packetBufffer
+      Udp.read(packetBuffer, 255);
 
-    // Steg 8
-    analogWrite(E1, power);
-    digitalWrite(M1, LOW);
+      packetBuffer[packetSize] = '\0';
 
-    analogWrite(E2, power);
-    digitalWrite(M2, LOW);
+      //Split command and arg
+      command = strtok(packetBuffer, ":");
+      arg = String(strtok(NULL, ":")).toDouble();
 
-    delayMicroseconds(time);*/
+      // Get command
+      if (strcmp(command, "goTo") == 0){
+        goTo(arg);
+
+        Udp.beginPacket(Udp.remoteIP(), recieverPort);
+        dtostrf(getHeight(), 3, 12, temp); //Convert double to char
+        Udp.write(temp, strlen(temp));
+        Udp.endPacket();
+
+      }else if(strcmp(command, "moveDown") == 0){
+        moveDown((unsigned long)arg);
+
+        Udp.beginPacket(Udp.remoteIP(), recieverPort);
+        dtostrf(getHeight(), 3, 12, temp); //Convert double to char
+        Udp.write(temp, strlen(temp));
+        Udp.endPacket();
+
+      }else if(strcmp(command, "moveUp") == 0){
+        moveUp((unsigned long)arg);
+
+        Udp.beginPacket(Udp.remoteIP(), recieverPort);
+        dtostrf(getHeight(), 3, 12, temp); //Convert double to char
+        Udp.write(temp, strlen(temp));
+        Udp.endPacket();
+
+      }else{
+        Udp.beginPacket(Udp.remoteIP(), recieverPort);
+        Udp.write("Invalid command", strlen("Invalid command"));
+        Udp.endPacket();
+      }
+    }
+
+    if (serialEventRun) // Print whatever is not printed yet
+      serialEventRun();
+  }
   
 
-  /*
-  //Steg 1
-  analogWrite(E1, 80);
-  digitalWrite(M1, LOW);
-
-  analogWrite(E2, 80);
-  digitalWrite(M2, LOW);
-
-  delay(5);
-
-  //Steg 2
-  analogWrite(E1, 80);
-  digitalWrite(M1, LOW);
-
-  analogWrite(E2, 80);
-  digitalWrite(M2, HIGH);
-
-  delay(5);
-
-  //Steg 3
-  analogWrite(E1, 80);
-  digitalWrite(M1, HIGH);
-
-  analogWrite(E2, 80);
-  digitalWrite(M2, HIGH);
-
-  delay(5);
-
-  //Steg 4
-  analogWrite(E1, 80);
-  digitalWrite(M1, HIGH);
-
-  analogWrite(E2, 80);
-  digitalWrite(M2, LOW);
-
-  delay(5);
-  */
+  return 0;
 }
