@@ -1,3 +1,5 @@
+% uses one position and measurement from the laser at that position, to calculate the x,y,z for the surface found
+
 function position = findSurfacePosition(posRobot,rot,laserlength)
     d=[0,0,0];
     laserlength=[0;0;laserlength;1];

@@ -1,3 +1,4 @@
+%connect MATLAB and SAY
 
 function t = ConnectRobot()
     t = tcpclient('10.132.158.88',55000);

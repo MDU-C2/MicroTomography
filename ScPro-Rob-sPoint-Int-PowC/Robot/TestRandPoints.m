@@ -1,3 +1,5 @@
+%Send the SAY random points from the protocol. For testing of movement between points
+
 function TestRandPoints(ListofPoints,t)
     while true
         p1=round(rand()*(size(ListofPoints,1)-1))+1

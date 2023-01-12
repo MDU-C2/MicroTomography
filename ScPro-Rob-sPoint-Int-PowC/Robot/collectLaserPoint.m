@@ -1,3 +1,4 @@
+%Sends one-and-one position from the protocoll to the robot, and gets back the position of the robot, and the value of the sensor. Saves it into "positionLaser"
  
 function positionLaser = collectLaserPoint(Scanpoints,t)
 
@@ -7,18 +8,12 @@ function positionLaser = collectLaserPoint(Scanpoints,t)
     for s =1:size(Scanpoints,3)
         NaNCounter=0;
         for r = 1:size(Scanpoints,1)
-            if NaNCounter<3
+            if NaNCounter<3 %counts how many time the Laser dont get a value. To many times in a row = No object = Start new row of scanning 
                 packAndSendPose(Scanpoints(r,1:3,s), Scanpoints(r,4:6,s),1,0,0, t); 
                 position = ReceiveAndUnpackPose(t);
-% 
-%             laser=20; %%READ FROM LASER
-%             read = 0;
-
             
                 for i = 1:2
                     [status, laser] = system(horzcat(pathToLaserCommunicate, ' 10.132.158.191 1884 10.132.158.190 1000'));
-                    %Check laser. if laser inte är nummer: status=1;
-                    %laser=20;
                     disp(laser);
     
                     read = any(isletter(laser));

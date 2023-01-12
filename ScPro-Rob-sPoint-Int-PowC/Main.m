@@ -1,3 +1,5 @@
+%%TEST Scanning without GUI
+
 clc 
 clear
 close all
@@ -8,15 +10,12 @@ close all
 t = ConnectRobot();
 Mesh = scanBreast(t);
 
-%%TEST
-
 function Mesh = scanBreast(t)
+    %Scanning Protocol:
     Scanpoints = create_scan_points(150,150,50,10,18,10,false);
-    %Scanpoints = [125,0,-16,0,90,180;0,125,-16,0,90,90;-125,0,-16,0,90,0;0,-125,-16,0,90,-90;125,0,-16,0,90,-180];
-    %Scanpoints(:,:,2) = Scanpoints;
     
     %Test different points randomly from scanpoints    
-    %TestRandPoints(Scanpoints(:,:,:),t);
+    %TestRandPoints(Scanpoints,t);
     
     tic
     

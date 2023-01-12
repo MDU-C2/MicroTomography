@@ -1,4 +1,5 @@
- 
+% Uses the position of the robot and the distance measured by the laser to calculate where the surface of the object is.
+
 function surfacePoints = calcSurfacePoint(LaserPoints)
    surfacePoints=zeros( size(LaserPoints,1), 3, size(LaserPoints,3));
    for s = 1:size(LaserPoints,3)
@@ -11,10 +12,10 @@ function surfacePoints = calcSurfacePoint(LaserPoints)
                 surfacePoints(r,:,s) = [NaN,NaN,NaN];
             end
 
-            scatter3(LaserPoints(r,1,s),LaserPoints(r,2,s),LaserPoints(r,3,s),'filled')
-            hold on;
-            scatter3(surfacePoints(r,1,s),surfacePoints(r,2,s),surfacePoints(r,3,s));
-            hold on;
+            %scatter3(LaserPoints(r,1,s),LaserPoints(r,2,s),LaserPoints(r,3,s),'filled')
+            %hold on;
+            %scatter3(surfacePoints(r,1,s),surfacePoints(r,2,s),surfacePoints(r,3,s));
+            %hold on;
         end
    end
 end
