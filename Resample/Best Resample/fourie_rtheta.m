@@ -1,5 +1,6 @@
 function [fitresult, gof] = fourie_rtheta(Theta, R, show)
 
+
 %% Fit: 'untitled fit 1'.
 [xData, yData] = prepareCurveData( Theta, R );
 

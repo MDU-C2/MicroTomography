@@ -6,14 +6,7 @@ new_code = load ('surfacePoints0912_1219.mat');
 new_code = new_code.surfacePoint;
 data = new_code;
 %% ONE FUNCTION TO RUN THEM ALL
-points = resample_data(data,6,0.02,false,false);
-figure; hold on;
-% scatter3(points(:,1),points(:,2),points(:,3),'blue')
-for i = 1:size(data,3)
-    scatter3(data(:,1,i),data(:,2,i),data(:,3,i),'red','filled')
-end
-scatter3(points(:,1),points(:,2),points(:,3),'blue','filled')
-%%
+% points = resample_data(data,6,0.02,false,false);
 figure; hold on;
 % scatter3(points(:,1),points(:,2),points(:,3),'blue')
 for i = 1:size(data,3)/2 
