@@ -2,7 +2,7 @@ clear all
 close all
 clc
 
-load surfacePoint11221608_RemoveLightAbove.mat;
+load data\surfacePoint11221608_RemoveLightAbove.mat;
 new_code = surfacePoints;
 data = new_code; 
 %% FUnction for all above 
