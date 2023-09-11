@@ -41,13 +41,11 @@ ylabel('Y')
 zlabel('Z')
 legend('Sampled Data','STL data', 'Resampled Data')
 %% Weird way to represent the surface
-sizeDeg = size(-pi:deg2rad(delta_z):pi,2);
-maxI = length(points)/sizeDeg;
 j = 1;
-for i = 1:maxI
-    X(i,:) = points(((i-1)*sizeDeg)+1:i*sizeDeg,1);
-    Y(i,:) = points(((i-1)*sizeDeg)+1:i*sizeDeg,2);
-    Z(i,:) = points(((i-1)*sizeDeg)+1:i*sizeDeg,3);
+for i = 1:361
+    X(:,i) = points(:,1);
+    Y(:,i) = points(:,2);
+    Z(:,i) = points(:,3);
     
 end
 

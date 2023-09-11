@@ -38,7 +38,7 @@ data = dataNew2;
 % This is because of the gape in yumis callibration . You can comment this
 % out and compare the results with the STL file. 
 for i = 1:size(data,3)
-    data(:,3,i) = data(:,3,i) - mean(data(1,3,:));
+    data(:,3,i) = data(:,3,i) - max(max(data(:,3,:)));
 end
 %% Prepare data fix nan 
 % This is because the Yumi is not callibrated , we need to limit the
