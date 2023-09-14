@@ -1,4 +1,4 @@
-clear all 
+clear all
 close all
 clc
 
@@ -18,7 +18,7 @@ points = resample_data(data, delta_z, step_size_t,show_scatter,show_fit);
 g = importGeometry("data\symmetricalBreastModel.stl");
 stlData = stlread('data\symmetricalBreastModel.STL');
 
-stlPoint = stlData.Points; %%% get the points from the stl file 
+stlPoint = stlData.Points; %%% get the points from the stl file
 maxPoint = max(stlPoint(:,2)); %%Center the stl data to 0,0,0
 stlPoint(:,2) = stlPoint(:,2) - maxPoint;
 [min1,idx1] = min(stlPoint(:,2));
@@ -40,7 +40,7 @@ xlabel('X')
 ylabel('Y')
 zlabel('Z')
 legend('Sampled Data','STL data', 'Resampled Data')
-%% Weird way to represent the surface
+%% Weird way to reconstruct the surface
 sizeDeg = size(-pi:deg2rad(delta_z):pi,2);
 maxI = length(points)/sizeDeg;
 j = 1;
@@ -48,7 +48,7 @@ for i = 1:maxI
     X(i,:) = points(((i-1)*sizeDeg)+1:i*sizeDeg,1);
     Y(i,:) = points(((i-1)*sizeDeg)+1:i*sizeDeg,2);
     Z(i,:) = points(((i-1)*sizeDeg)+1:i*sizeDeg,3);
-    
+
 end
 
 testSurf = surfc(X,Y,Z);

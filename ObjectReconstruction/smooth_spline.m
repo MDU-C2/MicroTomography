@@ -22,6 +22,7 @@ ft = fittype( 'smoothingspline' );
 opts = fitoptions( 'Method', 'SmoothingSpline' );
 opts.SmoothingParam = 0.0205681089988943;
 
+
 % Fit model to data.
 [fitresult, gof] = fit( xData, yData, ft, opts );
 if show == true
