@@ -1,5 +1,8 @@
-## when writing documentation start by downloading the Markdown preview enhanced from the extension market. Remove this when complete.
-## For more information google markdown syntaxes.
+## when writing documentation start by downloading the Markdown preview enhanced from the extension market.
+## For more information on how to use Markdown, see : https://www.markdownguide.org/.
+## Keep it short and easy to understand.
+##  Remove this before publishing the document.
+
 # [Task] documentation
 Introduction on what the manual will involve
 
@@ -10,6 +13,6 @@ Add more subtask if necessary
 
 
 
-## Keep it short and easy to understand.
+
 
 
