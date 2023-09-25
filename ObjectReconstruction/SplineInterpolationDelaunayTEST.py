@@ -5,7 +5,7 @@ import scipy as sp
 from mayavi import mlab
 from statistics import mean
 
-#X = Z, Y = (X or Y)
+
 
 def spline_xy(data_x,data_y,data_z,step):
    
@@ -26,9 +26,6 @@ def spline_xy(data_x,data_y,data_z,step):
     znew = znew[::-1]
     ynew = ynew[::-1]
    
-
-    
-    
     
     return xnew,ynew,znew
     
@@ -103,10 +100,6 @@ newData_Z = np.empty([data_Z.shape[0],n*nPoints])
 for i in range(data_X.shape[0]):
     newData_X[i,:], newData_Y[i,:] = spline_circle(data_X[i,:],data_Y[i,:],newThetaArray,thetaArray)
     newData_Z[i,:] = mean(data_Z[i,:])
-
-
-
-
 
 points = fixPoints(newData_X,newData_Y,newData_Z)
 
