@@ -1,0 +1,3 @@
+# Write reqirements that pip should install in the form
+# package==version
+# like pyserial==3.5
