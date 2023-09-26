@@ -80,7 +80,7 @@ class Robot:
         Executes a move immediately, from current joint angles,
         to 'joints', in degrees.
         """
-        if len(joints) != 7:
+        if len(joints) != 6:
             return False
         msg = "02 "
         for joint in joints:
@@ -265,9 +265,10 @@ class Robot:
         msg = "33 #"
         return self.send(msg)
 
-    def set_external_axis(self, axis_unscaled=[-550, 0, 0, 0, 0, 0]):
-        if len(axis_unscaled) != 6:
-            return False
+    def set_external_axis(self, axis_input):
+        #if len(axis_input) != 1:
+        #    return False
+        axis_unscaled = [axis_input, 0, 0, 0, 0, 0]
         msg = "34 "
         for axis in axis_unscaled:
             msg += format(axis, "+08.2f") + " "

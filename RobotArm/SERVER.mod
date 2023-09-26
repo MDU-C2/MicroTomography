@@ -207,8 +207,8 @@ PROC main()
                 ENDIF	
 				
             CASE 2: !Joint Move
-                IF nParams = 7 THEN
-                    jointsTarget:=[[params{1},params{2},params{3},params{4},params{5},params{6},params{7}], externalAxis];
+                IF nParams = 6 THEN
+                    jointsTarget:=[[params{1},params{2},params{3},params{4},params{5},params{6}], externalAxis];
                     ok := SERVER_OK;
                     moveCompleted := FALSE;
                     MoveAbsJ jointsTarget, currentSpeed, currentZone, currentTool \Wobj:=currentWobj;
@@ -240,8 +240,7 @@ PROC main()
                     addString := addString + NumToStr(jointsPose.robax.rax_3,2) + " ";
                     addString := addString + NumToStr(jointsPose.robax.rax_4,2) + " ";
                     addString := addString + NumToStr(jointsPose.robax.rax_5,2) + " ";
-                    addString := addString + NumToStr(jointsPose.robax.rax_6,2) + " ";
-                    addString := addString + NumToStr(jointsPose.robax.rax_7,2); !End of string
+                    addString := addString + NumToStr(jointsPose.robax.rax_6,2); !End of string
                     ok := SERVER_OK;
                 ELSE
                     ok:=SERVER_BAD_MSG;
@@ -249,12 +248,12 @@ PROC main()
 			CASE 5: !Get external axis positions
                 IF nParams = 0 THEN
                     jointsPose := CJointT();
-                    addString := StrPart(NumToStr(jointsTarget.extax.eax_a, 2),1,8) + " ";
-                    addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_b,2),1,8) + " ";
-                    addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_c,2),1,8) + " ";
-                    addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_d,2),1,8) + " ";
-                    addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_e,2),1,8) + " ";
-                    addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_f,2),1,8); !End of string
+                    addString := NumToStr(jointsTarget.extax.eax_a, 2) + " ";
+                    !addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_b,2),1,8) + " ";
+                    !addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_c,2),1,8) + " ";
+                    !addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_d,2),1,8) + " ";
+                    !addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_e,2),1,8) + " ";
+                    !addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_f,2),1,8); !End of string
                     ok := SERVER_OK;
                 ELSE
                     ok:=SERVER_BAD_MSG;
