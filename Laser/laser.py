@@ -19,13 +19,12 @@ class laser:
         self.ser = serial.Serial(
             comPort,
             115200,
-            timeout=None,
+            timeout=10,
             bytesize=8,
             parity=PARITY_NONE,
             xonxoff=True,
             stopbits=1,
         )
-        self.stupid_list = []
         self.no_Measurements = no_Measurements
 
     # All the error codes from the laser with its corresponding error.
@@ -38,6 +37,8 @@ class laser:
         16380: "Target moves towards the sensor",
         16382: "Target moves away from the sensor",
         16383: "Internal error",
+        16384: "Internal error: Too many H-Bytes",
+        16385: "Internal error: Too many L-Bytes",
     }
 
     def distance(self, digitalValue):
@@ -52,6 +53,7 @@ class laser:
     def measure(self):
         """Gets the data from the laser via serial port and returns the average distance in mm"""
 
+        self.distanceList = []
         self.ser.flushInput()
         self.ser.flushOutput()
         i = 0
@@ -71,29 +73,43 @@ class laser:
             if digitalValue < 161:
                 return "SMR back up"
             elif digitalValue < 16208:
-                self.stupid_list.append(self.distance(digitalValue) + 50)
+                self.distanceList.append(self.distance(digitalValue) + 50)
                 i = i + 1  # Only increment i when a distance is appended
             elif digitalValue < 16370:
                 return "EMR back-up"
-            elif digitalValue < 16384:
+            elif digitalValue < 16386:
                 return self.error_codes.get(digitalValue, "Unknown error")
         # Return the average distance
-        return sum(self.stupid_list) / len(self.stupid_list)
+
+        if self.no_Measurements == 1:
+            return self.distanceList.pop()
+        return sum(self.distanceList) / len(self.distanceList)
 
     def combineBytes(self, dataBytes):
-        """Combine two 8 bit bytes into 14 bits
+        """Combine two 8 bit bytes into 14 bits.
+        Makes sure there are 1 H_Byte and 1 L_Byte
 
         Keyword arguments:
         dataBytes -- List of two bytes
         """
+        countH = 0
+        countL = 0
+
         # Iterate trough the two bytes
         for b in dataBytes:
             # If the 8th bit is 1, the byte is a H_Byte
             if b & 0x80:
                 H_Byte = b & ~0x80  # Remove the 8th bit
+                countH = countH + 1
             # if the 8th bit is 0, the byte is a L_Byte
             else:
                 L_Byte = b  # No need to remove the 8th bit
+                countL = countL + 1
+
+        if countH > 1:
+            return 16384
+        if countL > 1:
+            return 16385
         # The final length should be 14 bits (7 + 7) with the H_Byte first
         # Hence shift the H_Byte 7 steps and append the L_Byte
         return H_Byte << 7 | L_Byte
@@ -114,10 +130,9 @@ class laser:
         sleep(0.2)
         self.ser.read_until(b"\xA0\x49\x00\x83")  # The last row before the info string
         data = self.ser.read_until(b"\x20\x20\x0D\x0A")  # The last row in the message
-        decoded_data = data.decode("ascii")
-        return decoded_data
+        return data.decode("ascii")
 
-    def setMovingAverage(self, averagingNumber):
+    def setMovingAverage(self, averagingNumber=1):
         """Sets the average type to moving average with a specified averaging number
 
         Keyword argumets:
@@ -125,6 +140,7 @@ class laser:
         """
 
         # Max samples are 64, lowest is 1
+        new_averagingNumber = averagingNumber
         if averagingNumber > 64:
             new_averagingNumber = 64
         if averagingNumber < 1:
@@ -136,6 +152,29 @@ class laser:
         self.ser.flushInput()
         self.ser.flushOutput()
         b = self.ser.write(setAvg)
-        sleep(0.2)
-        if b"ILD1\xA0\x7F\x00\x02\x20\x20\x0D\x0A" in self.ser.read_all():
-            print("Response ok")
+        if b"ILD1\xA0\x7F\x00\x02\x20\x20\x0D\x0A" in self.ser.read_until(
+            b"ILD1\xA0\x7F\x00\x02\x20\x20\x0D\x0A"
+        ):
+            print("Moving average: Response ok.")
+        else:
+            print("Moving average: Response not found.")
+
+    def laserOff(self):
+        offBytes = bytearray(b"+++\x0dILD1\x20\x86\x00\x02")
+
+        self.ser.flushInput()
+        self.ser.flushOutput()
+        b = self.ser.write(offBytes)
+        return b"ILD1\xA0\x86\x00\x02\x20\x20\x0D\x0A" in self.ser.read_until(
+            b"ILD1\xA0\x86\x00\x02\x20\x20\x0D\x0A"
+        )
+
+    def laserOn(self):
+        onBytes = bytearray(b"+++\x0dILD1\x20\x87\x00\x02")
+
+        self.ser.flushInput()
+        self.ser.flushOutput()
+        b = self.ser.write(onBytes)
+        return b"ILD1\xA0\x87\x00\x02\x20\x20\x0D\x0A" in self.ser.read_until(
+            b"ILD1\xA0\x87\x00\x02\x20\x20\x0D\x0A"
+        )
