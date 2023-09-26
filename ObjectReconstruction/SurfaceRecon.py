@@ -1,3 +1,6 @@
+##
+# Modules
+##
 from scipy.spatial import Delaunay
 import matplotlib.pyplot as plt
 import numpy as np
@@ -5,6 +8,9 @@ import scipy as sp
 from mayavi import mlab
 from statistics import mean
 import pyvista as pv
+##
+# Class files
+##
 from Spline import spline
 from reshapeArr import reshapeArr
 
@@ -12,14 +18,15 @@ from reshapeArr import reshapeArr
 
 
 
-f = sp.io.loadmat("Data\surfacePoint12061105_5.625deg_10stepWITHOUTNAN.mat",squeeze_me=False)
+fileName = "Data\surfacePoint12061105_5.625deg_10stepWITHOUTNAN.mat"
+f = sp.io.loadmat(fileName,squeeze_me=False)
 data = np.array(f["surfacePoint"]) # Gets the surface points from the .mat file 
 
 data_X = data[:,0,:] #Reorganize the data into rows 
 data_Y = data[:,1,:]
 data_Z = data[:,2,:]
 
-step_down = 0.001 #Step size for spline interpolation with x,y in Z direction
+step_down = 0.001 #Step size for spline interpolation with x,y in Z direction. The smaller this value is, the more values will be added, duh. 
 
 N = int(len(data_Z[:,0]) / 100 / step_down) #Number of steps
 
@@ -34,11 +41,12 @@ for i in range(data_X.shape[1]):
     newData_X[:,i],newData_Y[:,i],newData_Z[:,i] = spline.spline_xy(data_X[:,i],data_Y[:,i],data_Z[:,i],step_down) #Calls spline function
 
 
-
-#fig = plt.figure() ##Plots the point cloud with the all new interpolated values EXCLUDING Z 
+#####Plots the point cloud with the all new interpolated values EXCLUDING Z 
+#fig = plt.figure() 
 #ax = plt.axes(projection='3d')
 #ax.scatter3D(newData_X, newData_Y, newData_Z,c=newData_Z,cmap = 'Greens')
 #lt.show()
+#####
 
 data_X = newData_X
 data_Y = newData_Y
@@ -64,11 +72,12 @@ points = reshapeArr.fixPoints(newData_X,newData_Y,newData_Z)
 
 delaunay_tri = Delaunay(points); # Gets the Delaunay triangulation of the points 
 
-
-#fig = plt.figure() ##Plots the point cloud with the all new interpolated values INCLUDING Z 
+#####Plots the point cloud with the all new interpolated values INCLUDING Z 
+#fig = plt.figure() 
 #ax = plt.axes(projection='3d')
 #ax.scatter3D(newData_X, newData_Y, newData_Z,c=newData_Z,cmap = 'Greens')
 #plt.show()
+#####
 
 h = sp.spatial.ConvexHull(points) #Gets convexhull object from Points
 
