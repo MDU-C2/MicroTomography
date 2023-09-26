@@ -2,6 +2,9 @@
 <ui version="4.0">
  <class>MainWindow</class>
  <widget class="QMainWindow" name="MainWindow">
+  <property name="enabled">
+   <bool>true</bool>
+  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -129,7 +132,7 @@
      </rect>
     </property>
    </widget>
-   <widget class="QPushButton" name="btnScan">
+   <widget class="QPushButton" name="btn_Scan">
     <property name="geometry">
      <rect>
       <x>770</x>
@@ -142,7 +145,10 @@
      <string>Scan</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="btnSave">
+   <widget class="QPushButton" name="btn_Save">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>1010</x>
@@ -255,7 +261,10 @@
      <string>Input</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="btnStop">
+   <widget class="QPushButton" name="btn_Stop">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>890</x>
@@ -278,21 +287,27 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
       <string>Default</string>
      </attribute>
-     <widget class="QTableView" name="tbv_default">
+     <widget class="QTableWidget" name="tbw_default">
       <property name="geometry">
        <rect>
         <x>0</x>
-        <y>10</y>
+        <y>0</y>
         <width>441</width>
-        <height>361</height>
+        <height>371</height>
        </rect>
       </property>
+      <property name="columnCount">
+       <number>3</number>
+      </property>
+      <column/>
+      <column/>
+      <column/>
      </widget>
     </widget>
     <widget class="QWidget" name="tab_2">
@@ -302,12 +317,18 @@
      <widget class="QTableWidget" name="tbw_mylist">
       <property name="geometry">
        <rect>
-        <x>10</x>
+        <x>0</x>
         <y>0</y>
-        <width>431</width>
+        <width>441</width>
         <height>371</height>
        </rect>
       </property>
+      <property name="columnCount">
+       <number>3</number>
+      </property>
+      <column/>
+      <column/>
+      <column/>
      </widget>
     </widget>
    </widget>
