@@ -9,7 +9,7 @@ Here is for the GUI for the system. The red point represent the position of lase
                    Disable stop and save button. Save button enable only when people had load a model
                    Minor code changes.
 2023-09-25 Update: It is able to load csv file and plot the point cloud now. 
-![GUI_ver 1 0]([https://github.com/MDU-C2/MicroTomography/assets/144024751/ef524a3c-13eb-4209-b20a-5fb33548e1b4](https://github.com/MDU-C2/MicroTomography/blob/2292ab387f7e4bdb100808e93182035fd9260724/Design_diagram/GUI_ver.1.0.png))
+![GUI_ver 1 0]([https://github.com/MDU-C2/MicroTomography/blob/2292ab387f7e4bdb100808e93182035fd9260724/Design_diagram/GUI_ver.1.0.png])
 
 
 File description:
