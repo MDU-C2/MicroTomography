@@ -20,8 +20,11 @@ l.setMovingAverage(1)
 
 for _ in range(1000):
     sleep(3)
+    print(f"Laser On: {l.laserOn()}")
     a = l.measure()
     print(a)
-    print(type(a))
+    # print(type(a))
     if type(a) == float:
         distList.append(a)
+    print(f"Laser Off: {l.laserOff()}\n")
+    # print(t)
