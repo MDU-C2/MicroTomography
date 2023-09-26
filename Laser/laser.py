@@ -19,13 +19,14 @@ class laser:
         self.ser = serial.Serial(
             comPort,
             115200,
-            timeout=10,
+            timeout=2,
             bytesize=8,
             parity=PARITY_NONE,
             xonxoff=True,
             stopbits=1,
         )
         self.no_Measurements = no_Measurements
+        self.laserOff()
 
     # All the error codes from the laser with its corresponding error.
     error_codes = {
@@ -52,10 +53,15 @@ class laser:
 
     def measure(self):
         """Gets the data from the laser via serial port and returns the average distance in mm"""
+        """while not self.laserOn():
+            sleep(0.2)"""
+        self.ser.reset_input_buffer()
+        self.ser.reset_output_buffer()
+        while not self.laserOn():
+            continue
 
         self.distanceList = []
-        self.ser.flushInput()
-        self.ser.flushOutput()
+
         i = 0
         # Loop until the desired amount of measurements are reached
         while i < self.no_Measurements:
@@ -71,21 +77,32 @@ class laser:
 
             # Decide what the number means, taken from the datasheet
             if digitalValue < 161:
+                while not self.laserOff():
+                    continue
                 return "SMR back up"
             elif digitalValue < 16208:
                 self.distanceList.append(self.distance(digitalValue) + 50)
                 i = i + 1  # Only increment i when a distance is appended
             elif digitalValue < 16370:
+                while not self.laserOff():
+                    continue
                 return "EMR back-up"
             elif digitalValue < 16386:
+                while not self.laserOff():
+                    continue
                 return self.error_codes.get(digitalValue, "Unknown error")
-        # Return the average distance
+        """while not self.laserOff():
+            sleep(0.2)"""
+        while not self.laserOff():
+            continue
 
         if self.no_Measurements == 1:
             return self.distanceList.pop()
+
+        # Return the average distance
         return sum(self.distanceList) / len(self.distanceList)
 
-    def combineBytes(self, dataBytes):
+    def combineBytes(self, dataBytes: list):
         """Combine two 8 bit bytes into 14 bits.
         Makes sure there are 1 H_Byte and 1 L_Byte
 
@@ -122,8 +139,8 @@ class laser:
         # Bytearray to get info from the laser, found in the datasheet
         requestBits = bytearray(b"+++\x0dILD1\x20\x49\x00\x02")
 
-        self.ser.flushInput()
-        self.ser.flushOutput()
+        self.ser.reset_input_buffer()
+        self.ser.reset_output_buffer()
 
         # Write the bytearray to the laser and wait until reading
         sentBytes = self.ser.write(requestBits)
@@ -132,11 +149,11 @@ class laser:
         data = self.ser.read_until(b"\x20\x20\x0D\x0A")  # The last row in the message
         return data.decode("ascii")
 
-    def setMovingAverage(self, averagingNumber=1):
+    def setMovingAverage(self, averagingNumber: int = 1):
         """Sets the average type to moving average with a specified averaging number
 
         Keyword argumets:
-        averagingNumber -- The number of samples to be averaged over
+        averagingNumber -- The number of samples to be averaged over must be an integer
         """
 
         # Max samples are 64, lowest is 1
@@ -149,8 +166,8 @@ class laser:
         setAvg = bytearray(b"+++\x0dILD1\x20\x7F\x00\x04\x00\x00\x00\x00\x00\x00\x00")
         setAvg.append(new_averagingNumber)
 
-        self.ser.flushInput()
-        self.ser.flushOutput()
+        self.ser.reset_input_buffer()
+        self.ser.reset_output_buffer()
         b = self.ser.write(setAvg)
         if b"ILD1\xA0\x7F\x00\x02\x20\x20\x0D\x0A" in self.ser.read_until(
             b"ILD1\xA0\x7F\x00\x02\x20\x20\x0D\x0A"
@@ -162,8 +179,9 @@ class laser:
     def laserOff(self):
         offBytes = bytearray(b"+++\x0dILD1\x20\x86\x00\x02")
 
-        self.ser.flushInput()
-        self.ser.flushOutput()
+        # self.ser.reset_input_buffer()
+        # self.ser.reset_output_buffer()
+        sleep(0.1)
         b = self.ser.write(offBytes)
         return b"ILD1\xA0\x86\x00\x02\x20\x20\x0D\x0A" in self.ser.read_until(
             b"ILD1\xA0\x86\x00\x02\x20\x20\x0D\x0A"
@@ -172,9 +190,13 @@ class laser:
     def laserOn(self):
         onBytes = bytearray(b"+++\x0dILD1\x20\x87\x00\x02")
 
-        self.ser.flushInput()
-        self.ser.flushOutput()
+        # self.ser.reset_input_buffer()
+        # self.ser.reset_output_buffer()
+        sleep(0.1)
         b = self.ser.write(onBytes)
+        print(b)
+        print(self.ser.out_waiting)
+        print(self.ser.in_waiting)
         return b"ILD1\xA0\x87\x00\x02\x20\x20\x0D\x0A" in self.ser.read_until(
             b"ILD1\xA0\x87\x00\x02\x20\x20\x0D\x0A"
         )
