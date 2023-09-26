@@ -3,7 +3,7 @@
 
 Here is for the GUI for the system. The red point represent the position of laser.
 
-2023-09-26 Update: It is able to save csv file.
+2023-09-26 Update: It is able to save csv file
 
                    It is able to move the laser position with button under robotic arm movement
                    
