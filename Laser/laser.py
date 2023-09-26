@@ -9,7 +9,7 @@ class laser:
     call laser.measure() to measure the distance to the object.
     """
 
-    def __init__(self, comPort="COM3", no_Measurements=1):
+    def __init__(self, comPort: str = "COM3", no_Measurements: int = 1):
         """Initialize the serial communication with the parameters from the datasheet.
 
         Keyword arguments:
@@ -64,7 +64,7 @@ class laser:
         while i < self.no_Measurements:
             # Wait until atleast two values are in the buffer
             while self.ser.in_waiting < 2:
-                continue
+                sleep(0.1)
 
             # Read from serial port and get a 14 bit number
             data = self.ser.read_all()
@@ -137,7 +137,7 @@ class laser:
         return data.decode("ascii")
 
     def setMovingAverage(self, averagingNumber: int = 1):
-        """Sets the average type to moving average with a specified averaging number
+        """Sets the averaging type to moving average with a specified averaging number
 
         Keyword argumets:
         averagingNumber -- The number of samples to be averaged over must be an integer
@@ -164,7 +164,9 @@ class laser:
             print("Moving average: Response not found.")
 
     def laserOff(self):
-        """Turns the laser off internally by sending a bytearray to the laser"""
+        """Turns the laser off internally by sending a bytearray to the laser
+        Returns true or false depending if the command worked
+        """
         offBytes = bytearray(b"+++\x0dILD1\x20\x86\x00\x02")
 
         self.ser.reset_input_buffer()
@@ -180,6 +182,9 @@ class laser:
         )
 
     def laserOn(self):
+        """Turns the laser on internally by sending a bytearray to the laser
+        Returns true or false depending if the command worked
+        """
         onBytes = bytearray(b"+++\x0dILD1\x20\x87\x00\x02")
 
         self.ser.reset_input_buffer()
