@@ -4,53 +4,12 @@ import numpy as np
 import scipy as sp
 from mayavi import mlab
 from statistics import mean
+import pyvista as pv
+from Spline import spline
+from reshapeArr import reshapeArr
 
 
 
-def spline_xy(data_x,data_y,data_z,step):
-   
-   
-    N = int(len(data_z) / 100 / step)
-
-    znew = np.linspace(data_z[-1], data_z[0] / 100, N)
-    
-     
-    f_x = sp.interpolate.interp1d(data_z,data_x)
-    f_y = sp.interpolate.interp1d(data_z,data_y)
-
-    
-    xnew = f_x(znew)
-    ynew = f_y(znew)
-
-    xnew = xnew[::-1]
-    znew = znew[::-1]
-    ynew = ynew[::-1]
-   
-    
-    return xnew,ynew,znew
-    
-def spline_circle(data_x,data_y,newTheta,theta):
-    
-    cx = sp.interpolate.CubicSpline(theta,data_x)
-    cy = sp.interpolate.CubicSpline(theta,data_y)
-
-    return cx(newTheta),cy(newTheta)
-
-def fixPoints(data_x,data_y,data_z): #Fix points for delaunay triangle func
-
-   
-    newData_X = data_x.reshape((data_x.shape[0]*data_x.shape[1],1)) #Reshapes the arrays from (size,size) to (size*size,1)
-    newData_Z = data_z.reshape((data_x.shape[0]*data_x.shape[1],1))
-    newData_Y = data_y.reshape((data_x.shape[0]*data_x.shape[1],1))
-
-    points = np.full((newData_X.shape[0],3),0) # Creates empty array with correct shape
-
-    for i in range(newData_X.shape[0]): #Puts the values into the new array
-        points[i,0] = newData_X[i]
-        points[i,1] = newData_Y[i]
-        points[i,2] = newData_Z[i]
-
-    return points
 
 
 f = sp.io.loadmat("Data\surfacePoint12061105_5.625deg_10stepWITHOUTNAN.mat",squeeze_me=False)
@@ -72,7 +31,7 @@ newData_Y = np.empty([znew.shape[0],data_Y.shape[1]])
 newData_Z = np.empty([znew.shape[0],data_Z.shape[1]])
 
 for i in range(data_X.shape[1]):
-    newData_X[:,i],newData_Y[:,i],newData_Z[:,i] = spline_xy(data_X[:,i],data_Y[:,i],data_Z[:,i],step_down) #Calls spline function
+    newData_X[:,i],newData_Y[:,i],newData_Z[:,i] = spline.spline_xy(data_X[:,i],data_Y[:,i],data_Z[:,i],step_down) #Calls spline function
 
 
 
@@ -86,7 +45,7 @@ data_Y = newData_Y
 data_Z = newData_Z
 
 
-nPoints = 10 #n*nPoints = number of new points
+nPoints = 100 #n*nPoints = number of new points
 n = newData_X.shape[1] #Number of points around the complete circle,
 theta = 360/n #degrees between the points
 thetaArray = np.linspace(0,360,n)
@@ -98,13 +57,12 @@ newData_Y = np.empty([data_Y.shape[0],n*nPoints])
 newData_Z = np.empty([data_Z.shape[0],n*nPoints])
 
 for i in range(data_X.shape[0]):
-    newData_X[i,:], newData_Y[i,:] = spline_circle(data_X[i,:],data_Y[i,:],newThetaArray,thetaArray)
+    newData_X[i,:], newData_Y[i,:] = spline.spline_circle(data_X[i,:],data_Y[i,:],newThetaArray,thetaArray)
     newData_Z[i,:] = mean(data_Z[i,:])
 
-points = fixPoints(newData_X,newData_Y,newData_Z)
+points = reshapeArr.fixPoints(newData_X,newData_Y,newData_Z)
 
 delaunay_tri = Delaunay(points); # Gets the Delaunay triangulation of the points 
-
 
 
 #fig = plt.figure() ##Plots the point cloud with the all new interpolated values INCLUDING Z 
@@ -112,18 +70,16 @@ delaunay_tri = Delaunay(points); # Gets the Delaunay triangulation of the points
 #ax.scatter3D(newData_X, newData_Y, newData_Z,c=newData_Z,cmap = 'Greens')
 #plt.show()
 
-h = sp.spatial.ConvexHull(points)
+h = sp.spatial.ConvexHull(points) #Gets convexhull object from Points
 
 faces = h.simplices # Gets the faces of the Delaunay triangulation
 
-mlab.triangular_mesh(points[:,0], points[:,1], points[:,2], faces) #Creates mesh from the Delaunay triangulation
-mlab.show() #Shows the mesh
 
+Triangular = pv.PolyData(points,force_float=False) #Uses poly data ?
 
+mesh = Triangular.delaunay_3d() # Creates mesh using delaunay 3d triangles
 
-
-
-
-
-
-
+#Plot the mesh
+plotter = pv.Plotter()
+plotter.add_mesh(mesh, color='white')
+plotter.show()
