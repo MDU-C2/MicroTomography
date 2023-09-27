@@ -1,3 +1,5 @@
 # Write reqirements that pip should install in the form
 # package==version
-# like pyserial==3.5
+# pandas == 1.5.3
+# PyQt5 == 5.15.9
+# matplotlib == 3.7.0
