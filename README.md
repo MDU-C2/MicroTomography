@@ -3,6 +3,27 @@
 
 Here is for the GUI for the system. The red point represent the position of laser.
 
+2023-09-27 Update:
+It shows a table. The items in the table are the position for where the robot move.
+
+It is able to insert the item to the table.
+
+Show the matplotlib toolbox. 
+
+Create a prototype scan button. It is read the data in the table and plot it. 
+
+If the item in the table are not a number, then auto break the scanning
+
+Add a “clear” button for clean “my list” table
+
+Modifier some code 
+
+Need to fix: 
+
+The plot cannot draw the position of the laser continuous. 
+
+Stop button.
+
 2023-09-26 Update: 
 It is able to save csv file
 
@@ -17,8 +38,7 @@ Minor code changes
 2023-09-25 Update: 
 It is able to load csv file and plot the point cloud now
 
-![GUI_ver 1 0](https://github.com/MDU-C2/MicroTomography/blob/2292ab387f7e4bdb100808e93182035fd9260724/Design_diagram/GUI_ver.1.0.png)
-
+![GUI_ver 1 1](https://github.com/MDU-C2/MicroTomography/assets/144024751/57e4b112-7a22-40ac-b46e-ff138bea6870)
 
 File description:
 
