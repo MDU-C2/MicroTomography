@@ -4,7 +4,7 @@ from time import sleep
 from serial import *
 
 
-class laser:
+class Laser:
     """Class for the laser
     call laser.measure() to measure the distance to the object.
     """
@@ -25,11 +25,11 @@ class laser:
             xonxoff=True,
             stopbits=1,
         )
-        self.no_Measurements = no_Measurements
+        self.noMeasurements = no_Measurements
         self.laserOff()
 
     # All the error codes from the laser with its corresponding error.
-    error_codes = {
+    errorCodes = {
         16370: "No object detected",
         16372: "Too close to the sensor",
         16374: "Too far from the sensor",
@@ -118,7 +118,7 @@ class laser:
         # Hence shift the H_Byte 7 steps and append the L_Byte
         return H_Byte << 7 | L_Byte
 
-    def get_info(self):
+    def getInfo(self):
         """Gets the info of the optoNCDT 1402
         Requests the parameters from the laser and returns a string of the parameters
         """

@@ -1,30 +1,14 @@
-import laser
+import optoNCDT1402
 from time import sleep
 
-l = laser.laser()
-distList = []
-# print(l)
-
-"""te = [0b10101010, 0b10101010]
-
-if [b&0x80 for b in te].count(0x80) > 1:
-    print("Two L-Bytes")
-
-l.setMovingAverage(1)
-"""
-# print(l.get_info())
-"""while True:
-    print(l.measure())
-    sleep(2)
-"""
+# Change the comPort to the connected port on the computer
+laser = optoNCDT1402.laser(comPort="/dev/ttyUSB0")
 
 for _ in range(1000):
     sleep(3)
-    print(f"Laser On: {l.laserOn()}")
-    a = l.measure()
+    print(f"Laser On: {laser.laserOn()}")
+    a = laser.measure()
     print(a)
     # print(type(a))
-    if type(a) == float:
-        distList.append(a)
-    print(f"Laser Off: {l.laserOff()}\n")
+    print(f"Laser Off: {laser.laserOff()}\n")
     # print(t)
