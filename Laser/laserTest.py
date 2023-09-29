@@ -1,10 +1,10 @@
 import unittest
-import optoNCDT1402
+from optoNCDT1402 import optoNCDT1402
 
 
 class TestLaser(unittest.TestCase):
     def setUp(self):
-        self.laser = optoNCDT1402.Laser("COM3", 1)
+        self.laser = optoNCDT1402("COM3", 1)
 
     def test_combineBytes(self):
         self.assertEqual(

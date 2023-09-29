@@ -1,20 +1,32 @@
+''' A class for the laser distance sensor optoNCDT1402
+functions include setting the moving average,
+measuring distance in mm,
+getting the info from the optoNCDT1402 and turning the laser on/off
+
+Author: Joel Josefsson
+'''
+
 import serial
 import math
 from time import sleep
 from serial import *
 
 
-class Laser:
+class optoNCDT1402:
     """Class for the laser
     call laser.measure() to measure the distance to the object.
     """
 
-    def __init__(self, comPort: str = "COM3", no_Measurements: int = 1):
+    def __init__(self, comPort: str = "COM3", noMeasurements: int = 1):
         """Initialize the serial communication with the parameters from the datasheet.
 
-        Keyword arguments:
-        comPort -- The COMPort on the computer where the laser is connected
-        no_Measurements -- The desired number of measurements to average over.
+        Parameters:
+        -----------
+        comPort : string
+            The COMPort on the computer where the laser is connected
+
+        noMeasurements : int
+            The desired number of measurements to average over in the measuring function.
         """
         self.ser = serial.Serial(
             comPort,
@@ -25,7 +37,7 @@ class Laser:
             xonxoff=True,
             stopbits=1,
         )
-        self.noMeasurements = no_Measurements
+        self.noMeasurements = noMeasurements
         self.laserOff()
 
     # All the error codes from the laser with its corresponding error.
@@ -45,11 +57,18 @@ class Laser:
     def distance(self, digitalValue):
         """Simple equation to get distance from the bits gotten from the laser.
 
-        Keyword arguments:
-        digitalValue -- The 14 bit number recieved from the laser
-        """
+        Parameters:
+        -----------
+        digitalValue : int
+            The 14 bit number recieved from the laser
 
-        return (digitalValue * (1.02 / 16368) - 0.01) * 100
+        Returns:
+        -----------
+        distance : float
+            The distance to the target in mm
+        """
+        distance = (digitalValue * (1.02 / 16368) - 0.01) * 100
+        return distance
 
     def measure(self):
         """Gets the data from the laser via serial port and returns the average distance in mm"""
@@ -93,8 +112,15 @@ class Laser:
         """Combine two 8 bit bytes into 14 bits.
         Makes sure there are 1 H_Byte and 1 L_Byte
 
-        Keyword arguments:
-        dataBytes -- List of two bytes
+        Parameters:
+        -----------
+        dataBytes : list
+            List of two bytes to be concatenated
+
+        Returns:
+        -----------
+        digitalValue : int
+            A 14 bit integeger represtenting the concatenation of the input bytes
         """
         countH = 0
         countL = 0
@@ -121,6 +147,11 @@ class Laser:
     def getInfo(self):
         """Gets the info of the optoNCDT 1402
         Requests the parameters from the laser and returns a string of the parameters
+
+        Returns:
+        -----------
+        data : string
+            A string describing the configurations in the optoNCDT1402
         """
 
         # Bytearray to get info from the laser, found in the datasheet
@@ -139,8 +170,15 @@ class Laser:
     def setMovingAverage(self, averagingNumber: int = 1):
         """Sets the averaging type to moving average with a specified averaging number
 
-        Keyword argumets:
-        averagingNumber -- The number of samples to be averaged over must be an integer
+        Parameters:
+        -----------
+        averagingNumber : int
+            The number of samples to be averaged over
+
+        Returns:
+        -----------
+        result : bool
+            True if it succeded and false if it did not
         """
 
         # Max samples are 64, lowest is 1
@@ -156,16 +194,17 @@ class Laser:
         self.ser.reset_input_buffer()
         self.ser.reset_output_buffer()
         b = self.ser.write(setAvg)
-        if b"ILD1\xA0\x7F\x00\x02\x20\x20\x0D\x0A" in self.ser.read_until(
+        return b"ILD1\xA0\x7F\x00\x02\x20\x20\x0D\x0A" in self.ser.read_until(
             b"ILD1\xA0\x7F\x00\x02\x20\x20\x0D\x0A"
-        ):
-            print("Moving average: Response ok.")
-        else:
-            print("Moving average: Response not found.")
+        )
 
     def laserOff(self):
         """Turns the laser off internally by sending a bytearray to the laser
-        Returns true or false depending if the command worked
+
+        Returns:
+        -----------
+        result : bool
+            True or false depending if the command worked
         """
         offBytes = bytearray(b"+++\x0dILD1\x20\x86\x00\x02")
 
@@ -174,16 +213,17 @@ class Laser:
         sleep(0.1)
         b = self.ser.write(offBytes)
 
-        # return self.ser.read_until(b"ILD1\xA0\x86\x00\x02\x20\x20\x0D\x0A")
-        # a = self.ser.read_until(b"ILD1")
-        # return self.ser.read_until(b"\xa0\x86\x00\x02\x20\x20\x0d\x0a")
         return b"ILD1\xa0\x86\x00\x02\x20\x20\x0d\x0a" in self.ser.read_until(
             b"ILD1\xa0\x86\x00\x02\x20\x20\x0d\x0a"
         )
 
     def laserOn(self):
         """Turns the laser on internally by sending a bytearray to the laser
-        Returns true or false depending if the command worked
+        
+        Returns:
+        -----------
+        result : bool
+            True or false depending if the command worked
         """
         onBytes = bytearray(b"+++\x0dILD1\x20\x87\x00\x02")
 
@@ -192,11 +232,6 @@ class Laser:
         sleep(0.1)
         b = self.ser.write(onBytes)
 
-        # print(b)
-        # print(self.ser.out_waiting)
-        # print(self.ser.in_waiting)
-        # a = self.ser.read_until(b"ILD1")
-        # return self.ser.read_until(b"\xA0\x87\x00\x02\x20\x20\x0D\x0A")
         return b"ILD1\xA0\x87\x00\x02\x20\x20\x0D\x0A" in self.ser.read_until(
             b"ILD1\xA0\x87\x00\x02\x20\x20\x0D\x0A"
         )
