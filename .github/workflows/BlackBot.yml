@@ -1,0 +1,40 @@
+
+name: BlackBot
+
+on: 
+  push:
+    branches:
+      - OrphanBranch2023
+
+permissions:
+  contents: write
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run black formatter
+        uses: psf/black@stable
+        id: black-format
+        with:
+          options: "--verbose"
+      - name: if value
+        run: |
+          if [[ $(git diff --shortstat) == '' ]]; then
+            echo "OUT=true" >> "$GITHUB_ENV"
+          else
+            echo "OUT=false" >> "$GITHUB_ENV"
+          fi
+      - name: commit and push
+        run: |
+          if [[ ${{ env.OUT }} == true ]]; then
+            echo "No changes made by Black"
+          else
+            git config user.name 'Black Bot'
+            git config user.email 'josefsson22@users.noreply.github.com'
+            git add -A
+            git commit -m "The python file(s) have been formatted using Black"
+            git push origin 
+          fi
+          
