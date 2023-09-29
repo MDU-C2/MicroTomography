@@ -1,10 +1,10 @@
-''' A class for the laser distance sensor optoNCDT1402
+""" A class for the laser distance sensor optoNCDT1402
 functions include setting the moving average,
 measuring distance in mm,
 getting the info from the optoNCDT1402 and turning the laser on/off
 
 Author: Joel Josefsson
-'''
+"""
 
 import serial
 import math
@@ -219,7 +219,7 @@ class optoNCDT1402:
 
     def laserOn(self):
         """Turns the laser on internally by sending a bytearray to the laser
-        
+
         Returns:
         -----------
         result : bool
