@@ -7,10 +7,14 @@ import matplotlib.pyplot as plt
 
 #My files
 import ScanningSystem
+import abb
+import Robot_YUMI
+import Button_MoveRobotArm
 from Button_LOAD import load_model
 from Button_SAVE import save_model_to_csv
 
 #global variables
+robot = None
 data = pd.DataFrame() #Global variable for store the data
 laser_x = 0 #laser position x
 laser_y = 0 #laser position y
@@ -36,6 +40,9 @@ class AppWindow(QMainWindow):
         self.ui.btn_clearTable.pressed.connect(self.clear_table)
         self.ui.btn_Scan.pressed.connect(self.scanModel)
 
+        #spinbox function
+        self.ui.spb_SampleSteps.valueChanged.connect(self.changeSteps)
+
         # Create a layout for the plot viwer
         layout = QVBoxLayout(self.ui.viewer_3d)
 
@@ -43,17 +50,16 @@ class AppWindow(QMainWindow):
         self.figure = plt.figure(figsize=(700,700))
         self.canvas = FigureCanvas(self.figure)
         layout.addWidget(self.canvas)
-
-        # Create a Matplotlib toolbar
-        self.toolbar = NavigationToolbar(self.canvas, self.ui.viewer_3d)
-        layout.addWidget(self.toolbar)
-
         self.ax= self.figure.add_subplot(111, projection='3d')
 
         # Set axis labels
         self.ax.set_xlabel('X')
         self.ax.set_ylabel('Y')
         self.ax.set_zlabel('Z')
+
+        # Create a Matplotlib toolbar
+        self.toolbar = NavigationToolbar(self.canvas, self.ui.viewer_3d)
+        layout.addWidget(self.toolbar)
 
         #Initial laser position (change it later after we connect the robot arm)
         self.laserPos(self.ax,0,0,0)
@@ -74,8 +80,6 @@ class AppWindow(QMainWindow):
         file_path = load_model()
   
         if(file_path != None):
-
-
             #print the message in the text browser
             message = f"Open model from: {file_path}"
             self.printLog(self.ui.tbx_log, message)
@@ -90,8 +94,7 @@ class AppWindow(QMainWindow):
             #Open the Save option
             self.ui.btn_Save.setEnabled(True)
         else:
-            message = "None file selected"
-            self.printLog(self.ui.tbx_log, message)
+            self.printLog(self.ui.tbx_log, "None file selected")
 
     #funciton: save file 
     def saveFile(self):
@@ -101,8 +104,7 @@ class AppWindow(QMainWindow):
             message = f"Model saved to: {file_path}"
             self.printLog(self.ui.tbx_log, message)
         else:
-            message = "Saving cancel"
-            self.printLog(self.ui.tbx_log, message)
+            self.printLog(self.ui.tbx_log, "Saving cancel")
 
     #function: print message in the text browser
     def printLog(self, txt_box, message):
@@ -125,34 +127,34 @@ class AppWindow(QMainWindow):
         self.ui.label_z_RobPos.setText(f"Z: {laser_z}")
 
     #functions: move robot arm position
-    def MoveRobotArm_XUp(self):
+    def MoveRobotArm_XUp(self):  
         global laser_x
-        laser_x = laser_x + 10
+        laser_x = Button_MoveRobotArm.MoveRobotArm_Up(laser_x)
         self.updatePlot()
 
     def MoveRobotArm_YUp(self):
         global laser_y
-        laser_y = laser_y + 10
+        laser_y = Button_MoveRobotArm.MoveRobotArm_Up(laser_y)
         self.updatePlot()
 
     def MoveRobotArm_ZUp(self):
         global laser_z
-        laser_z = laser_z + 10
+        laser_z = Button_MoveRobotArm.MoveRobotArm_Up(laser_z)
         self.updatePlot()
 
     def MoveRobotArm_XDown(self):
         global laser_x
-        laser_x = laser_x - 10
+        laser_x = Button_MoveRobotArm.MoveRobotArm_Down(laser_x)
         self.updatePlot()
     
     def MoveRobotArm_YDown(self):
         global laser_y
-        laser_y = laser_y - 10
+        laser_y = Button_MoveRobotArm.MoveRobotArm_Down(laser_y)
         self.updatePlot()
 
     def MoveRobotArm_ZDown(self):
         global laser_z
-        laser_z = laser_z - 10
+        laser_z = Button_MoveRobotArm.MoveRobotArm_Down(laser_z)
         self.updatePlot()
 
     #function: update the plot
@@ -160,7 +162,8 @@ class AppWindow(QMainWindow):
         global laser_x
         global laser_y
         global laser_z
-    
+
+        #Clean the axis
         self.ax.cla()
 
         # Set axis labels
@@ -175,6 +178,8 @@ class AppWindow(QMainWindow):
             x = data['X_value']  # Replace 'X_column_name' with the actual column name for X coordinates
             y = data['Y_value']  # Replace 'Y_column_name' with the actual column name for Y coordinates
             z = data['Z_value']  # Replace 'Z_column_name' with the actual column name for Z coordinates
+
+            #3D reconstruction here
 
             # Create a 3D scatter plot
             self.ax.scatter(x, y, z, c='b', marker='o')
@@ -234,6 +239,7 @@ class AppWindow(QMainWindow):
         global laser_y
         global laser_z
         global data
+        global robot
 
         NonNumericExist = 0
     
@@ -245,8 +251,7 @@ class AppWindow(QMainWindow):
         elif tabIndex == 1:
             table = self.ui.tbw_mylist
 
-        message = "Checking items in the table..."
-        self.printLog(self.ui.tbx_log, message)
+        self.printLog(self.ui.tbx_log, "Checking items in the table...")
 
         # Extract data from the QTableWidget
         tableData = []
@@ -256,7 +261,6 @@ class AppWindow(QMainWindow):
                 row_data = []
                 for column in range(table.columnCount()):
                     item = table.item(row, column)
-
 
                     if item is not None:
                         if self.isNumber(item.text()):
@@ -269,26 +273,50 @@ class AppWindow(QMainWindow):
 
                 tableData.append(row_data)
 
-            if NonNumericExist == 0:
+            #connect Yumi
+            connection_yumi = self.connectYumi()
+
+            #initial the position of Yumi
+            if(robot != None):
+                initPos = Robot_YUMI.initialPos(robot)
+                if initPos: 
+                    self.printLog(self.ui.tbx_log, "Moving Yumi arm to initial position")
+                else:
+                    self.printLog(self.ui.tbx_log, "Not able to move Yumi arm to initial position")
+            
+            if NonNumericExist == 0 and connection_yumi:
                 data = pd.DataFrame(tableData, columns=['X_value', 'Y_value','Z_value'])
 
                 #Can not be plot in real time. (this is a bug, may fix it in the future)
                 self.updatePlot()   
 
-                message = "Scanning complete"
-                self.printLog(self.ui.tbx_log, message)
-
+                self.printLog(self.ui.tbx_log, "Scanning complete")
+            else:
+                self.printLog(self.ui.tbx_log, "Scanning fail")
         else:
-            message = "No item in the table"
-            self.printLog(self.ui.tbx_log, message)
+            self.printLog(self.ui.tbx_log, "No item in the table")
         
-
     def isNumber(self, text):
         try:
             float(text)
             return True
         except ValueError:
             return False
+        
+    def connectYumi(self):
+        global robot
+        robot = Robot_YUMI.connectYumi()
+
+        if (robot != None):
+            self.printLog(self.ui.tbx_log, "Connect to the yumi robot arm")
+            return True
+        else:
+            self.printLog(self.ui.tbx_log, "unable to connect to the robot arm")
+            return False
+        
+    def changeSteps(self):
+        self.printLog(self.ui.tbx_log, f"step Change to {self.ui.spb_SampleSteps.value()}")
+        
 
 app = QApplication(sys.argv)
 w = AppWindow()
