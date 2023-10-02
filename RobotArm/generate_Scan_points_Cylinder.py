@@ -48,7 +48,7 @@ def generate_scan_points_cylinder(
 
 
 def generate_scan_points_halfSphere(
-    radius, azimuthPoints: int, elevationPoints: int, zMin=None
+    radius, azimuthPoints: int, elevationPoints: int, zMin=0
 ):
     """Generates points in a half-sphere below z=0 and the quaternion angles such that the z-axis always points to (0, 0, 0)
 
@@ -68,12 +68,12 @@ def generate_scan_points_halfSphere(
     points : list
         List of both the coordinates and the quaternion of the points
     """
-    if zMin >= 0:
+    if zMin > 0:
         raise AssertionError("zMin must be negative")
     azimuth = (np.pi * np.linspace(0, 360, azimuthPoints)) / 180
     elevation = (np.pi * np.linspace(-180, -90, elevationPoints)) / 180
     zParam = 1
-    if zMin:
+    if zMin != 0:
         zParam = zMin / radius
 
     points = []
@@ -89,3 +89,6 @@ def generate_scan_points_halfSphere(
             points.append([[x, y, z], quaternion_from_matrix(R)])
 
     return points
+
+
+generate_scan_points_halfSphere(10, 10, 10)
