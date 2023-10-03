@@ -12,7 +12,7 @@ import open3d as o3d
 
 class surface_Reconstruction():
     
-    def delaunay_original(points):
+    def delaunay_original(points,save):
 
         ############ Works fine but it's not perfect. Requires very good data to provide good results.#############
 
@@ -32,9 +32,12 @@ class surface_Reconstruction():
         plotter.add_mesh(mesh,show_edges=False, color='white')
         plotter.add_points(mesh.points,color='red',point_size=5)
         plotter.show()
+        if save == True:
+            mesh.triangle_normals = o3d.utility.Vector3dVector([])
+            o3d.io.write_triangle_mesh("mesh.obj", mesh, print_progress = True) # Writes the file without any warnings.
         
 
-    def alpha_Shape(points):
+    def alpha_Shape(points,save):
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(points)
         pcd.estimate_normals()
@@ -48,18 +51,24 @@ class surface_Reconstruction():
         #o3d.visualization.draw_geometries([pcd,tetra_mesh], mesh_show_back_face=True)
         o3d.visualization.draw_geometries([mesh], mesh_show_back_face=True)
         o3d.visualization.draw_geometries([pcd], point_show_normal=True)
+        if save == True:
+            mesh.triangle_normals = o3d.utility.Vector3dVector([])
+            o3d.io.write_triangle_mesh("mesh.obj", mesh, print_progress = True) # Writes the file without any warnings.
 
-    def ball_Pivoting(points):
-        ############ Not very good for unstructured data. Need to find good radius of the balls, which is hard?.#############
+    def ball_Pivoting(points,save):
+        ############ Not very good for unstructured data. Need to find good radius of the balls, which is hard?. (Super slow cause looping radius)#############
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(points)
         pcd.estimate_normals()
-        radii = [1,2,3,4,5,10]
+        radii = np.linspace(0.0001,20 ,num = 200)
         rec_mesh = o3d.geometry.TriangleMesh.create_from_point_cloud_ball_pivoting(
             pcd, o3d.utility.DoubleVector(radii))
-        o3d.visualization.draw_geometries([pcd, rec_mesh])
+        o3d.visualization.draw_geometries([pcd, rec_mesh],mesh_show_back_face = True)
+        if save == True:
+            mesh.triangle_normals = o3d.utility.Vector3dVector([])
+            o3d.io.write_triangle_mesh("mesh.obj", mesh, print_progress = True) # Writes the file without any warnings.
 
-    def poisson_surfRecon(points):
+    def poisson_surfRecon(points,save):
 
         ############ Works the best. Need to figure out how to mesh the top of the object where triangles are "too long".#############
         pcd = o3d.geometry.PointCloud()
@@ -68,20 +77,23 @@ class surface_Reconstruction():
         
        
         ##Orient normals to point "outward"
+        
+        pcd.orient_normals_consistent_tangent_plane(100)
         o3d.geometry.PointCloud.orient_normals_to_align_with_direction( 
             pcd, 
             orientation_reference=np.array([0., 0., -1.])
         )
-        o3d.visualization.draw_geometries([pcd], point_show_normal=True)
-
+        #o3d.visualization.draw_geometries([pcd], point_show_normal=False)
+        
         with o3d.utility.VerbosityContextManager(
                 o3d.utility.VerbosityLevel.Debug) as cm:
             mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(
-                pcd, depth=5)
+                pcd, depth=5) ## Depth increases the octree depth, basically giving more detail. Good data with many data points can have higher depth
+                              ## It gives a resolution of 2^depth  
         print(mesh)
         mesh.compute_vertex_normals()
         mesh.paint_uniform_color(np.array([[0.5],[0.5],[0.5]]))
-        o3d.visualization.draw_geometries([mesh],mesh_show_back_face=True)
+        #o3d.visualization.draw_geometries([mesh],mesh_show_back_face=True)
         densities = np.asarray(densities)
         density_colors = plt.get_cmap('plasma')(
             (densities - densities.min()) / (densities.max() - densities.min()))
@@ -91,8 +103,14 @@ class surface_Reconstruction():
         density_mesh.triangles = mesh.triangles
         density_mesh.triangle_normals = mesh.triangle_normals
         density_mesh.vertex_colors = o3d.utility.Vector3dVector(density_colors)
-        o3d.visualization.draw_geometries([density_mesh])                                       
-        vertices_to_remove = densities < np.quantile(densities, 0.1)
+       # o3d.visualization.draw_geometries([density_mesh])                                       
+        vertices_to_remove = densities < np.quantile(densities, 0.1) 
         mesh.remove_vertices_by_mask(vertices_to_remove)
-        print(mesh)
+        #V = o3d.geometry.TriangleMesh.get_volume(mesh)
+        #print("Volume of mesh is : " ,V)
         o3d.visualization.draw_geometries([mesh],mesh_show_back_face=True)
+        if save == True:
+            mesh.triangle_normals = o3d.utility.Vector3dVector([])
+            o3d.io.write_triangle_mesh("meshNew.obj", mesh, print_progress = True) # Writes the file without any warnings.
+
+       
