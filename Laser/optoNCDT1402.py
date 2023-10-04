@@ -58,7 +58,7 @@ class optoNCDT1402:
         16385: "Internal error: Too many L-Bytes",
     }
 
-    def distance(self, digitalValue:int):
+    def distance(self, digitalValue: int):
         """Simple equation to get distance from the bits gotten from the laser.
 
         Parameters:
@@ -74,9 +74,9 @@ class optoNCDT1402:
         distance = (digitalValue * (1.02 / 16368) - 0.01) * 100
         return distance
 
-    def measure(self) ->(float | str):
+    def measure(self) -> float | str:
         """Gets the data from the laser via serial port and returns the average distance in mm
-        
+
         Returns:
         -----------
         float or string
