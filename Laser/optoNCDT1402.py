@@ -90,7 +90,7 @@ class optoNCDT1402:
 
         i = 0
         # Loop until the desired amount of measurements are reached
-        while i < self.no_Measurements:
+        while i < self.noMeasurements:
             # Wait until atleast two values are in the buffer
             while self.ser.in_waiting < 2:
                 sleep(0.1)
@@ -112,7 +112,7 @@ class optoNCDT1402:
             elif digitalValue < 16386:
                 return self.error_codes.get(digitalValue, "Unknown error")
 
-        if self.no_Measurements == 1:
+        if self.noMeasurements == 1:
             return self.distanceList.pop()
 
         # Return the average distance

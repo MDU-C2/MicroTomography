@@ -5,7 +5,7 @@ from time import sleep
 laser = optoNCDT1402(comPort="/dev/ttyUSB0")
 
 for _ in range(1000):
-    sleep(3)
+    sleep(1)
     print(f"Laser On: {laser.laserOn()}")
     a = laser.measure()
     print(a)
