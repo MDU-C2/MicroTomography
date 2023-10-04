@@ -7,17 +7,16 @@ Author: Joel Josefsson
 """
 
 import serial
-import math
 from time import sleep
 from serial import *
 
 
 class optoNCDT1402:
     """Class for the laser
-    call laser.measure() to measure the distance to the object.
+    call optoNCDT1402.measure() to measure the distance to the object.
     """
 
-    def __init__(self, comPort: str = "COM3", noMeasurements: int = 1):
+    def __init__(self, comPort: str = "/dev/ttyUSB0", noMeasurements: int = 1):
         """Initialize the serial communication with the parameters from the datasheet.
 
         Parameters:
@@ -27,6 +26,11 @@ class optoNCDT1402:
 
         noMeasurements : int
             The desired number of measurements to average over in the measuring function.
+
+        Returns:
+        -----------
+        optoNCDT1402 : object
+            The object with initialized parameters
         """
         self.ser = serial.Serial(
             comPort,
@@ -54,7 +58,7 @@ class optoNCDT1402:
         16385: "Internal error: Too many L-Bytes",
     }
 
-    def distance(self, digitalValue):
+    def distance(self, digitalValue:int):
         """Simple equation to get distance from the bits gotten from the laser.
 
         Parameters:
@@ -70,8 +74,14 @@ class optoNCDT1402:
         distance = (digitalValue * (1.02 / 16368) - 0.01) * 100
         return distance
 
-    def measure(self):
-        """Gets the data from the laser via serial port and returns the average distance in mm"""
+    def measure(self) ->(float | str):
+        """Gets the data from the laser via serial port and returns the average distance in mm
+        
+        Returns:
+        -----------
+        float or string
+            The distance to the target in mm or an error message
+        """
 
         self.ser.reset_input_buffer()
         self.ser.reset_output_buffer()
@@ -120,7 +130,7 @@ class optoNCDT1402:
         Returns:
         -----------
         digitalValue : int
-            A 14 bit integeger represtenting the concatenation of the input bytes
+            A 14 bit integer represtenting the concatenation of the input bytes
         """
         countH = 0
         countL = 0
