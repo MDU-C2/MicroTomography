@@ -1,9 +1,10 @@
 # Write reqirements that pip should install in the form
 # package==version
 # like pyserial==3.5
-#Modules required for surface reconstruction
+#Modules required for surface reconstruction 
+#For installation write "pip3.10 install [package]"
 scpiy == 1.11.2
 matplotlib == 3.8.0
 numpy == 1.26.0
-mayavi == 4.7.3
-pyvista == 0.42.2
+pyvista == 0.42.0
+open3d == 0.17.0 

@@ -3,6 +3,7 @@ import scipy as sp
 from statistics import mean
 from math import sqrt
 import math
+import matplotlib.pyplot as plt
 
 class spline():
     def cubic_spline(data_X,data_Y,data_Z,step_down):
@@ -110,4 +111,42 @@ class spline():
 
         return newData_X, newData_Y, newData_Z    
 
+    def addTop(data_x,data_y,data_z,nPoints,topResolution,n):
+        
        
+        newThetaArray = np.linspace(0,360,n*nPoints)
+
+        completeTopZ = np.empty([topResolution,n*nPoints])
+        completeTopY = np.empty([topResolution,n*nPoints])
+        completeTopX = np.empty([topResolution,n*nPoints])
+        r_2 = np.empty([data_x.shape[1],1])
+        for j in range(data_x.shape[1]):
+            r_2[j] = sqrt(data_x[1,j]**2 + data_y[1,j]**2)
+
+        r = np.mean(r_2)
+        
+        r_com = np.linspace(0,r,topResolution)
+        
+        completeTopZ[:,:] = np.mean(data_z[1,:])
+        
+        for j in range(n*nPoints):
+            for i in range(topResolution):
+                completeTopX[i,j] = r_com[i] * math.cos(newThetaArray[j]) 
+                completeTopY[i,j] = r_com[i] * math.sin(newThetaArray[j]) 
+            
+            
+        data_x = np.append(completeTopX,data_x,axis=0)
+        data_y = np.append(completeTopY,data_y,axis=0)
+        data_z = np.append(completeTopZ,data_z,axis=0)
+     
+
+
+
+        #####Plots the point cloud with the all new interpolated values EXCLUDING Z 
+        #fig1 = plt.figure() 
+        #ax = plt.axes(projection='3d')
+        #ax.scatter3D(completeTopX, completeTopY, completeTopZ,c=completeTopZ,cmap = 'Greens')
+        #plt.show()
+        #####
+        return data_x,data_y,data_z
+
