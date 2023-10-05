@@ -30,7 +30,7 @@ def generate_scan_points_cylinder(
     if zMin > 0:
         raise AssertionError("zMin must be negative")
     R1 = matrix_from_axis_angle(np.array([0, 1, 0, np.pi / 2]))
-    azimuth = (np.pi * np.linspace(0, 360, azimuthPoints)) / 180
+    azimuth = (np.pi * np.linspace(0, 360 - (360/azimuthPoints), azimuthPoints)) / 180
     points = []
 
     z = [h for h in reversed(range(zMin, 0 + zStepSize, zStepSize))]
