@@ -6,7 +6,7 @@ MODULE SERVER
 
 !//Robot configuration
 PERS tooldata currentTool := [TRUE,[[0,0,0],[1,0,0,0]],[0.001,[0,0,0.001],[1,0,0,0],0,0,0]];    
-PERS wobjdata currentWobj := [FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0,0,0],[1,0,0,0]]];   
+PERS wobjdata currentWobj := [FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0,0,755],[1,0,0,0]]];   
 PERS speeddata currentSpeed;
 PERS zonedata currentZone;
 
@@ -33,6 +33,7 @@ VAR robtarget cartesianTarget;
 VAR jointtarget jointsTarget;
 VAR bool moveCompleted; !Set to true after finishing a Move instruction.
 
+
 !//Buffered move variables
 CONST num MAX_BUFFER := 512;
 VAR num BUFFER_POS := 0;
@@ -49,6 +50,9 @@ VAR robtarget circPoint;
 VAR num ok;
 CONST num SERVER_BAD_MSG :=  0;
 CONST num SERVER_OK := 1;
+    PERS tooldata Lase_TCP:=[TRUE,[[-46.987,-23.723,82.6],[0.92387953,0,0,0.38268343]],[0.3,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
+    PERS tooldata Antenna_TCP:=[TRUE,[[-20.86,-20.859,143],[0.923879533,0,0,0.382683431]],[0.3,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
+
 
 
 
@@ -143,6 +147,7 @@ PROC Initialize()
 	!Find the current external axis values so they don't move when we start
 	jointsTarget := CJointT();
 	externalAxis := jointsTarget.extax;
+    
 ENDPROC
 
 
@@ -158,6 +163,18 @@ PROC main()
     VAR bool reconnected;        !//Drop and reconnection happened during serving a command
     VAR robtarget cartesianPose;
     VAR jointtarget jointsPose;
+
+    
+    ! When traveling to new zone it should pass through these points 
+    VAR robtarget cartesianTargetZone1 := [[141.4213562373095, 141.4213562373095, 0], [0.27059805, 0.65328148, 0.27059805, -0.65328148], [-1,0,0,4], [0.000004418,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    VAR robtarget cartesianTargetZone2 := [[-141.42135623730948, 141.4213562373095, 0], [0.65328148, 0.27059805, 0.65328148, -0.27059805], [0,0,0,4], [-0.00000096,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    VAR robtarget cartesianTargetZone3 := [[-141.42135623730954, -141.42135623730948, 0], [0.65328148, -0.27059805, 0.65328148, 0.27059805], [1,1,-1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    VAR robtarget cartesianTargetZone4 := [[141.42135623730948, -141.42135623730954, 0], [-0.27059805, 0.65328148, -0.27059805, -0.65328148], [2,1,-1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
+
+    
+    
+    VAR robtarget currentZonePos := cartesianTargetZone2;
+    VAR robtarget newZonePos;
     			
     !//Motion configuration
     ConfL \Off;
@@ -182,7 +199,7 @@ PROC main()
         !//Wait for a command
         SocketReceive clientSocket \Str:=receivedString \Time:=WAIT_MAX;
         ParseMsg receivedString;
-	
+
         !//Execution of the command
         TEST instructionCode
             CASE 0: !Ping
@@ -194,13 +211,58 @@ PROC main()
 
             CASE 1: !Cartesian Move
                 IF nParams = 7 THEN
-                    cartesianTarget :=[[params{1},params{2},params{3}],
-                                       [params{4},params{5},params{6},params{7}],
-                                       [0,0,0,0],
-                                       externalAxis];
+                    
+                    IF params{1} >= 0 AND params{2} >= 0 THEN
+                        newZonePos := cartesianTargetZone1;
+                        cartesianTarget:=[[params{1},params{2},params{3}],
+                                           [params{4},params{5},params{6},params{7}],
+                                           [-1,0,0,4],
+                                           externalAxis];
+
+                    ELSEIF params{1} < 0 AND params{2} >= 0 THEN
+                        newZonePos := cartesianTargetZone2;
+                        cartesianTarget:=[[params{1},params{2},params{3}],
+                                           [params{4},params{5},params{6},params{7}],
+                                           [0,0,0,4],
+                                           externalAxis];
+
+                    ELSEIF params{1} < 0 AND params{2} < 0 THEN
+                        newZonePos := cartesianTargetZone3;
+                        cartesianTarget:=[[params{1},params{2},params{3}],
+                                           [params{4},params{5},params{6},params{7}],
+                                           [1,1,-1,4],
+                                           [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
+                    
+                    ELSE
+                        newZonePos := cartesianTargetZone4;
+                        cartesianTarget:=[[params{1},params{2},params{3}],
+                                           [params{4},params{5},params{6},params{7}],
+                                           [2,1,-1,4],
+                                           [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
+                    ENDIF
+                    
+
                     ok := SERVER_OK;
                     moveCompleted := FALSE;
-                    MoveL cartesianTarget, currentSpeed, currentZone, currentTool \WObj:=currentWobj ;
+                    
+                    IF newZonePos > currentZonePos THEN
+                        MoveL cartesianTargetZone1, currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
+                        WHILE newZonePos >= currentZonePos DO
+                            currentZonePos := currentZonePos + 1;
+                            IF
+                            
+                            MoveL cartesianTargetZone[currentZonePos], currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
+
+                    ELSEIF newZonePos < currentZonePos THEN
+                        MoveL cartesianTargetZone[currentZonePos], currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
+                         WHILE newZonePos <= currentZonePos DO
+                            currentZonePos := currentZonePos - 1;
+                            MoveL cartesianTargetZone[currentZonePos], currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
+                    
+                    ENDIF
+                    !Lase_TCP
+
+                    MoveL cartesianTarget, currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
                     moveCompleted := TRUE;
                 ELSE
                     ok := SERVER_BAD_MSG;
@@ -323,6 +385,24 @@ PROC main()
                     ok := SERVER_OK;
                 ELSE
                     ok:=SERVER_BAD_MSG;
+                ENDIF
+
+            CASE 10: !Unlock joint
+                IF nParams = 7 THEN
+                    cartesianTarget :=[[params{1},params{2},params{3}],
+                                       [params{4},params{5},params{6},params{7}],
+                                       [0,0,0,0],
+                                       externalAxis];
+                    ok := SERVER_OK;
+                    moveCompleted := FALSE;
+                    !SingArea \Wrist;
+                    !MoveL RelTool (cartesianTarget, 0, 0, 0 \Rx:=100), currentSpeed, currentZone, currentTool \WObj:=currentWobj;
+                    MoveL cartesianTargetZone1, currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
+                    !MoveJ cartesianTarget, currentSpeed, currentZone, currentTool \WObj:=currentWobj ;
+                    !SingArea \Off;
+                    moveCompleted := TRUE;
+                ELSE
+                    ok := SERVER_BAD_MSG;
                 ENDIF
 
             CASE 30: !Add Cartesian Coordinates to buffer
@@ -481,3 +561,4 @@ ERROR (LONG_JMP_ALL_ERR)
 ENDPROC
 
 ENDMODULE
+
