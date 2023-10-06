@@ -6,8 +6,6 @@ from pytransform3d.rotations import (
     matrix_from_quaternion,
 )
 
-import time
-
 
 def generate_scan_points_cylinder(
     diameter, zStepSize: int, zMin: int, azimuthPoints: int
@@ -73,7 +71,7 @@ def generate_scan_points_halfSphere(
     """
     if zMin > 0:
         raise AssertionError("zMin must be negative")
-    azimuth = (np.pi * np.linspace(0, 360, azimuthPoints)) / 180
+    azimuth = (np.pi * np.linspace(0, 360 - (360 / azimuthPoints), azimuthPoints)) / 180
     elevation = (np.pi * np.linspace(-180, -90, elevationPoints)) / 180
     zParam = 1
     if zMin != 0:
