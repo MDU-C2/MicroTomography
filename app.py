@@ -1,21 +1,29 @@
+##
+# Modules
+##
 import sys
 import pandas as pd
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QTableWidgetItem
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
-
-#My files
+import time
+import numpy as np
+##
+# Class files
+##
+from Spline import spline
+from reshapeArr import reshapeArr
+from Surface_Reconstruction import surface_Reconstruction
 import ScanningSystem
-import abb
 import Robot_YUMI
 import Button_MoveRobotArm
 from Button_LOAD import load_model
-from Button_SAVE import save_model_to_csv
+from Button_SAVE import save_model
 
 #global variables
 robot = None
-data = pd.DataFrame() #Global variable for store the data
+data = None #Global variable for store the data
 laser_x = 0 #laser position x
 laser_y = 0 #laser position y
 laser_z = 0 #laser position z
@@ -41,13 +49,14 @@ class AppWindow(QMainWindow):
         self.ui.btn_Scan.pressed.connect(self.scanModel)
 
         #spinbox function
-        self.ui.spb_SampleSteps.valueChanged.connect(self.changeSteps)
+        #self.ui.spb_SampleSteps.valueChanged.connect(self.changeSteps)
 
         # Create a layout for the plot viwer
-        layout = QVBoxLayout(self.ui.viewer_3d)
-
-        # Create a Matplotlib figure and add a 3D subplot
+        layout = QVBoxLayout(self.ui.viewer_scanning)
         self.figure = plt.figure(figsize=(700,700))
+
+        ##########################
+        # Create a Matplotlib figure and add a 3D subplot for Scanning
         self.canvas = FigureCanvas(self.figure)
         layout.addWidget(self.canvas)
         self.ax= self.figure.add_subplot(111, projection='3d')
@@ -58,11 +67,10 @@ class AppWindow(QMainWindow):
         self.ax.set_zlabel('Z')
 
         # Create a Matplotlib toolbar
-        self.toolbar = NavigationToolbar(self.canvas, self.ui.viewer_3d)
+        self.toolbar = NavigationToolbar(self.canvas, self.ui.viewer_scanning)
         layout.addWidget(self.toolbar)
 
-        #Initial laser position (change it later after we connect the robot arm)
-        self.laserPos(self.ax,0,0,0)
+        self.laserPos(self.ax, 0, 0, 0)
 
         #table label names
         self.ui.tbw_default.setHorizontalHeaderLabels(["X", "Y", "Z"])
@@ -77,34 +85,30 @@ class AppWindow(QMainWindow):
 
     #function load file
     def loadFile(self):
-        file_path = load_model()
-  
-        if(file_path != None):
-            #print the message in the text browser
-            message = f"Open model from: {file_path}"
-            self.printLog(self.ui.tbx_log, message)
-           
-            # Read data from CSV file
-            global data
-            data = pd.read_csv(file_path)
+        global data
+        data, message = load_model() # Load the data from .mat file
 
-            #update the plot
-            self.updatePlot()
+        self.printLog(self.ui.tbx_log, message)
+
+        try:
+            data_X = data[:,0,:] #Reorganize the data into rows 
+            data_Y = data[:,1,:]
+            data_Z = data[:,2,:]
+
+            self.dataPreprocessing(data_X, data_Y, data_Z)
+            self.updatePlot() #Plot the figure after spline
 
             #Open the Save option
             self.ui.btn_Save.setEnabled(True)
-        else:
-            self.printLog(self.ui.tbx_log, "None file selected")
+        except:
+            pass
 
     #funciton: save file 
     def saveFile(self):
         global data
-        file_path = save_model_to_csv(data)
-        if(file_path != None):
-            message = f"Model saved to: {file_path}"
-            self.printLog(self.ui.tbx_log, message)
-        else:
-            self.printLog(self.ui.tbx_log, "Saving cancel")
+
+        message = save_model(data)
+        self.printLog(self.ui.tbx_log, message)
 
     #function: print message in the text browser
     def printLog(self, txt_box, message):
@@ -120,11 +124,11 @@ class AppWindow(QMainWindow):
         laser_y = value_y
         laser_z = value_z
 
-        self_redpoint.scatter(laser_x, laser_y, laser_z, color='red', marker='o')
-
         self.ui.label_x_RobPos.setText(f"X: {laser_x}")
         self.ui.label_y_RobPos.setText(f"Y: {laser_y}")
         self.ui.label_z_RobPos.setText(f"Z: {laser_z}")
+
+        self_redpoint.scatter(laser_x, laser_y, laser_z, color = "red")
 
     #functions: move robot arm position
     def MoveRobotArm_XUp(self):  
@@ -162,6 +166,7 @@ class AppWindow(QMainWindow):
         global laser_x
         global laser_y
         global laser_z
+        global data
 
         #Clean the axis
         self.ax.cla()
@@ -171,18 +176,26 @@ class AppWindow(QMainWindow):
         self.ax.set_ylabel('Y')
         self.ax.set_zlabel('Z')
 
-        self.laserPos(self.ax, laser_x, laser_y, laser_z)
-
-        if data.empty != True:
-            # Extract X, Y, and Z coordinates from the CSV columns
-            x = data['X_value']  # Replace 'X_column_name' with the actual column name for X coordinates
-            y = data['Y_value']  # Replace 'Y_column_name' with the actual column name for Y coordinates
-            z = data['Z_value']  # Replace 'Z_column_name' with the actual column name for Z coordinates
-
-            #3D reconstruction here
+        self.laserPos(self.ax, laser_x, laser_y, laser_z) #plot laser position
+    
+        try:
+            data_X = data[:,0,:] #Reorganize the data into rows 
+            data_Y = data[:,1,:]
+            data_Z = data[:,2,:]
 
             # Create a 3D scatter plot
-            self.ax.scatter(x, y, z, c='b', marker='o')
+            self.ax.scatter(data_X, data_Y, data_Z, c=data_Z, cmap = 'Greens', color = "blue")
+
+        except:
+            try:
+                data_X = data[0,:] #Reorganize the data into rows 
+                data_Y = data[1,:]
+                data_Z = data[2,:]
+
+                # Create a 3D scatter plot
+                self.ax.scatter(data_X, data_Y, data_Z, c=data_Z, cmap = 'Greens', color = "blue")
+            except:
+                print("fail to read data")
 
         self.canvas.draw()
 
@@ -273,24 +286,30 @@ class AppWindow(QMainWindow):
 
                 tableData.append(row_data)
 
+            
             #connect Yumi
             connection_yumi = self.connectYumi()
 
             #initial the position of Yumi
-            if(robot != None):
+            """ if(robot != None):
                 initPos = Robot_YUMI.initialPos(robot)
                 if initPos: 
                     self.printLog(self.ui.tbx_log, "Moving Yumi arm to initial position")
                 else:
                     self.printLog(self.ui.tbx_log, "Not able to move Yumi arm to initial position")
             
-            if NonNumericExist == 0 and connection_yumi:
-                data = pd.DataFrame(tableData, columns=['X_value', 'Y_value','Z_value'])
-
+            if NonNumericExist == 0 and connection_yumi: """
+            if NonNumericExist == 0:
+                #data = pd.DataFrame(tableData, columns=['X_value', 'Y_value','Z_value'])
+                
+                data = tableData
+                print(data)
                 #Can not be plot in real time. (this is a bug, may fix it in the future)
                 self.updatePlot()   
 
                 self.printLog(self.ui.tbx_log, "Scanning complete")
+                #Open the Save option
+                self.ui.btn_Save.setEnabled(True)
             else:
                 self.printLog(self.ui.tbx_log, "Scanning fail")
         else:
@@ -314,10 +333,37 @@ class AppWindow(QMainWindow):
             self.printLog(self.ui.tbx_log, "unable to connect to the robot arm")
             return False
         
-    def changeSteps(self):
-        self.printLog(self.ui.tbx_log, f"step Change to {self.ui.spb_SampleSteps.value()}")
-        
+    #def changeSteps(self):
+        #for robot moves 
 
+    def dataPreprocessing(self, data_X, data_Y, data_Z):
+        global data
+        step_down = 0.001 #Step size for spline interpolation with x,y in Z direction. The smaller this value is, the more values will be added, duh. 
+        totalTime = time.time()
+
+        t = time.time()
+        #newData_X,newData_Y,newData_Z = spline.spline_xy(data_X,data_Y,data_Z,step_down) ##Runs the spline in z direction
+        newData_X,newData_Y,newData_Z = spline.cubic_spline(data_X,data_Y,data_Z,step_down)
+        elapsed = time.time()-t
+        self.printLog(self.ui.tbx_log, f"Time to do spline:: {elapsed}")
+
+        nPoints = 10 #n*nPoints = number of new points
+        t = time.time()
+        newData_X, newData_Y, newData_Z = spline.splinePerfectCircle(newData_X,newData_Y,newData_Z,nPoints) # Runs the spline in aximuth direction creates perfect circle slices
+        #newData_X,newData_Y,newData_Z = spline.spline_circle(newData_X,newData_Y,newData_Z,nPoints) #Runs the spline in aximuth direction Change the data less 
+        elapsed = time.time() - t
+        self.printLog(self.ui.tbx_log, f"Time to do horizontal spline: {elapsed}")
+
+        points = reshapeArr.fixPoints(newData_X,newData_Y,newData_Z) #Reshapes the array into a points array
+        save = False # Save file? #Takes pretty long time to save .obj file, about 5-10 minutes
+        
+        surface_Reconstruction.poisson_surfRecon(points,save)
+
+        totalElapsed = time.time() - totalTime
+        self.printLog(self.ui.tbx_log, f"Time to complete surface reconstruction: {totalElapsed}")
+
+        self.updatePlot() #Plot the figure after spline
+        
 app = QApplication(sys.argv)
 w = AppWindow()
 w.show()

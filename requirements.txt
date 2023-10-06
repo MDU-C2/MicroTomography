@@ -1,5 +1,12 @@
 # Write reqirements that pip should install in the form
 # package==version
-# pandas == 1.5.3
-# PyQt5 == 5.15.9
-# matplotlib == 3.7.0
+# like pyserial==3.5
+#Modules required for surface reconstruction
+scipy==1.11.2
+matplotlib==3.8.0
+numpy==1.26.0
+mayavi==4.7.3 //build for wheel - fail 
+pyvista==0.42.2
+open3d
+
+To install mayavi successly. You muste install Python 3.10 in the homepage. Not work in 3.11. 
