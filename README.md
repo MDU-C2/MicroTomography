@@ -3,6 +3,12 @@
 
 Here is for the GUI for the system. The red point represent the position of laser.
 
+## Focus on robot arm now. THe GUI is not going to update even it has a bug.
+
+2023-10-06
+Add 3D-reconstruction algorithm in code
+Change the save and load .csv to save and load .mat because 3d- construction algorithm need it
+
 2023-09-29 Update (GUI v1.0 -> GUI v1.1):
 According the abb.py, we don't have function for check the connection status of Yumi. Thus, I change the system design.
 ![ScanningSystem_Ver1 1](https://github.com/MDU-C2/MicroTomography/assets/144024751/2183cf76-5c3e-4f3a-ad3c-d1dfe11190f9)
@@ -12,8 +18,6 @@ Add code for connect Yumi robot in a simulation enviroment in robotstudion. This
 Unsolved bug:
 50024 Corner path failure in Robotstudion
 ![bug](https://github.com/MDU-C2/MicroTomography/assets/144024751/c6653f9f-5f0b-4050-8eec-3ef9d5d38d71)
-
-
 
 
 2023-09-27 Update:
