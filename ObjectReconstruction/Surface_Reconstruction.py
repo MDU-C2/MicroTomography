@@ -24,14 +24,15 @@ class surface_Reconstruction:
         Triangular = pv.PolyData(points, force_float=False)  # Uses poly data ?
 
         mesh = Triangular.delaunay_3d()  # Creates mesh using delaunay 3d triangles
+
         # mesh = delaunay_tri
         # Plot the mesh
         elapsed = time.time() - t
         print("Time to do surface reconstruction:", elapsed)
-        # plotter = pv.Plotter()
-        ##plotter.add_mesh(mesh,show_edges=False, color='white')
-        # plotter.add_points(mesh.points,color='red',point_size=5)
-        # plotter.show()
+        plotter = pv.Plotter()
+        plotter.add_mesh(mesh, show_edges=False, color="white")
+        plotter.add_points(mesh.points, color="red", point_size=5)
+        plotter.show()
         if save == True:
             mesh.triangle_normals = o3d.utility.Vector3dVector([])
             o3d.io.write_triangle_mesh(
