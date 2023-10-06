@@ -3,18 +3,19 @@ import numpy as np
 from pytransform3d.rotations import (
     matrix_from_axis_angle,
     quaternion_from_matrix,
+    matrix_from_quaternion,
 )
 
 
 def generate_scan_points_cylinder(
-    diameter, zStepSize: int, zMin: int, azimuthPoints: int
+    radius: (int | float), zStepSize: int, zMin: int, azimuthPoints: int
 ):
     """Generates points in a cylindrical pattern with quaternion angles pointing inwards toward (0, 0) in each z plane
 
     Parameters
     ----------
-    diameter
-        The diameter of the cylinder
+    radius : int or float
+        The radius of the cylinder
     zStepSize : int
         The number of mm between each z-plane
     zMin : int
@@ -24,7 +25,7 @@ def generate_scan_points_cylinder(
 
     Returns
     -------
-    points : list
+    points : list, shape [(3,), (4,)]
         List of coordinates for each point and the corresponding quaternion
     """
     if zMin > 0:
@@ -37,24 +38,24 @@ def generate_scan_points_cylinder(
 
     for angle in azimuth:
         for h in z:
-            x = diameter * np.cos(angle)
-            y = diameter * np.sin(angle)
+            x = radius * np.cos(angle)
+            y = radius * np.sin(angle)
             R2 = matrix_from_axis_angle(np.array([1, 0, 0, np.pi - angle]))
             R = np.matmul(R1, R2)
 
-            points.append([[x, y, h], quaternion_from_matrix(R)])
+            points.append([np.array([x, y, h]), quaternion_from_matrix(R)])
 
     return points
 
 
 def generate_scan_points_halfSphere(
-    radius, azimuthPoints: int, elevationPoints: int, zMin=0
+    radius: (int | float), azimuthPoints: int, elevationPoints: int, zMin=0
 ):
     """Generates points in a half-sphere below z=0 and the quaternion angles such that the z-axis always points to (0, 0, 0)
 
     Parameters
     ----------
-    radius
+    radius: int or float
         The radius of the half-sphere
     azimouthPoints : int
         Number of points in the azimouth plane
@@ -65,12 +66,12 @@ def generate_scan_points_halfSphere(
 
     Returns
     -------
-    points : list
+    points : list, shape [(3,), (4,)]
         List of both the coordinates and the quaternion of the points
     """
     if zMin > 0:
         raise AssertionError("zMin must be negative")
-    azimuth = (np.pi * np.linspace(0, 360, azimuthPoints)) / 180
+    azimuth = (np.pi * np.linspace(0, 360 - (360 / azimuthPoints), azimuthPoints)) / 180
     elevation = (np.pi * np.linspace(-180, -90, elevationPoints)) / 180
     zParam = 1
     if zMin != 0:
@@ -86,9 +87,30 @@ def generate_scan_points_halfSphere(
             R2 = matrix_from_axis_angle(np.array([0, 1, 0, np.pi + phi]))
             R1 = matrix_from_axis_angle(np.array([0, 0, 1, theta]))
             R = np.matmul(R1, R2)
-            points.append([[x, y, z], quaternion_from_matrix(R)])
+            points.append([np.array([x, y, z]), quaternion_from_matrix(R)])
 
     return points
 
 
-generate_scan_points_halfSphere(10, 10, 10)
+def transformLaserDistance(point: list, laserDistance: (int | float)):
+    """Transform the point measured by the laser from the user frame to the tool frame
+
+    Parameters
+    ----------
+    point : array-like, shape [(3,), (4,)]
+        A list containing the coordinates of the laser and the quaternions of the laser in the form [[Coordinates], [Quaternions]]
+    laserDistance : int or float
+        The distance measured by the laser in mm
+
+    Returns
+    -------
+    list, shape(3,)
+        A list of coordinates for the point measured by the laser
+    """
+    p = np.array([0, 0, laserDistance])
+    laserCoordinates = point[0]
+    R = matrix_from_quaternion(point[1])
+
+    p_new = (R @ p) + laserCoordinates
+
+    return p_new
