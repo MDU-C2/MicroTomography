@@ -3,7 +3,10 @@ import numpy as np
 from pytransform3d.rotations import (
     matrix_from_axis_angle,
     quaternion_from_matrix,
+    matrix_from_quaternion,
 )
+
+import time
 
 
 def generate_scan_points_cylinder(
@@ -24,13 +27,13 @@ def generate_scan_points_cylinder(
 
     Returns
     -------
-    points : list
+    points : list, shape [(3,), (4,)]
         List of coordinates for each point and the corresponding quaternion
     """
     if zMin > 0:
         raise AssertionError("zMin must be negative")
     R1 = matrix_from_axis_angle(np.array([0, 1, 0, np.pi / 2]))
-    azimuth = (np.pi * np.linspace(0, 360 - (360/azimuthPoints), azimuthPoints)) / 180
+    azimuth = (np.pi * np.linspace(0, 360 - (360 / azimuthPoints), azimuthPoints)) / 180
     points = []
 
     z = [h for h in reversed(range(zMin, 0 + zStepSize, zStepSize))]
@@ -42,7 +45,7 @@ def generate_scan_points_cylinder(
             R2 = matrix_from_axis_angle(np.array([1, 0, 0, np.pi - angle]))
             R = np.matmul(R1, R2)
 
-            points.append([[x, y, h], quaternion_from_matrix(R)])
+            points.append([np.array([x, y, h]), quaternion_from_matrix(R)])
 
     return points
 
@@ -65,7 +68,7 @@ def generate_scan_points_halfSphere(
 
     Returns
     -------
-    points : list
+    points : list, shape [(3,), (4,)]
         List of both the coordinates and the quaternion of the points
     """
     if zMin > 0:
@@ -86,9 +89,30 @@ def generate_scan_points_halfSphere(
             R2 = matrix_from_axis_angle(np.array([0, 1, 0, np.pi + phi]))
             R1 = matrix_from_axis_angle(np.array([0, 0, 1, theta]))
             R = np.matmul(R1, R2)
-            points.append([[x, y, z], quaternion_from_matrix(R)])
+            points.append([np.array([x, y, z]), quaternion_from_matrix(R)])
 
     return points
 
 
-generate_scan_points_halfSphere(10, 10, 10)
+def transformLaserDistance(point: list, laserDistance: float):
+    """Transform the point measured by the laser from the user frame to the tool frame
+
+    Parameters
+    ----------
+    point : array-like, shape [(3,), (4,)]
+        A list containing the coordinates of the laser and the quaternions of the laser in the form [[Coordinates], [Quaternions]]
+    laserDistance : float
+        The distance measured by the laser in mm
+
+    Returns
+    -------
+    list, shape(3,)
+        A list of coordinates for the point measured by the laser
+    """
+    p = np.array([0, 0, laserDistance])
+    laserCoordinates = point[0]
+    R = matrix_from_quaternion(point[1])
+
+    p_new = (R @ p) + laserCoordinates
+
+    return p_new
