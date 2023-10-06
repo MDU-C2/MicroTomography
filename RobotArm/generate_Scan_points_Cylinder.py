@@ -8,14 +8,14 @@ from pytransform3d.rotations import (
 
 
 def generate_scan_points_cylinder(
-    diameter, zStepSize: int, zMin: int, azimuthPoints: int
+    radius: (int | float), zStepSize: int, zMin: int, azimuthPoints: int
 ):
     """Generates points in a cylindrical pattern with quaternion angles pointing inwards toward (0, 0) in each z plane
 
     Parameters
     ----------
-    diameter
-        The diameter of the cylinder
+    radius : int or float
+        The radius of the cylinder
     zStepSize : int
         The number of mm between each z-plane
     zMin : int
@@ -38,8 +38,8 @@ def generate_scan_points_cylinder(
 
     for angle in azimuth:
         for h in z:
-            x = diameter * np.cos(angle)
-            y = diameter * np.sin(angle)
+            x = radius * np.cos(angle)
+            y = radius * np.sin(angle)
             R2 = matrix_from_axis_angle(np.array([1, 0, 0, np.pi - angle]))
             R = np.matmul(R1, R2)
 
@@ -49,13 +49,13 @@ def generate_scan_points_cylinder(
 
 
 def generate_scan_points_halfSphere(
-    radius, azimuthPoints: int, elevationPoints: int, zMin=0
+    radius: (int | float), azimuthPoints: int, elevationPoints: int, zMin=0
 ):
     """Generates points in a half-sphere below z=0 and the quaternion angles such that the z-axis always points to (0, 0, 0)
 
     Parameters
     ----------
-    radius
+    radius: int or float
         The radius of the half-sphere
     azimouthPoints : int
         Number of points in the azimouth plane
@@ -92,14 +92,14 @@ def generate_scan_points_halfSphere(
     return points
 
 
-def transformLaserDistance(point: list, laserDistance: float):
+def transformLaserDistance(point: list, laserDistance: (int | float)):
     """Transform the point measured by the laser from the user frame to the tool frame
 
     Parameters
     ----------
     point : array-like, shape [(3,), (4,)]
         A list containing the coordinates of the laser and the quaternions of the laser in the form [[Coordinates], [Quaternions]]
-    laserDistance : float
+    laserDistance : int or float
         The distance measured by the laser in mm
 
     Returns
