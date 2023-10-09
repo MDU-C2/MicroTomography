@@ -31,20 +31,21 @@ class surface_Reconstruction:
         print("Time to do surface reconstruction:", elapsed)
         plotter = pv.Plotter()
         plotter.add_mesh(mesh, show_edges=False, color="white")
-        plotter.add_points(mesh.points, color="red", point_size=5)
+        plotter.add_points(mesh.points, color="red", point_size=10)
         plotter.show()
         if save == True:
             mesh.triangle_normals = o3d.utility.Vector3dVector([])
             o3d.io.write_triangle_mesh(
                 "mesh.obj", mesh, print_progress=True
             )  # Writes the file without any warnings.
+        return mesh
 
     def alpha_Shape(points, save):
         t = time.time()
         pcd = o3d.geometry.PointCloud()
         pcd.points = o3d.utility.Vector3dVector(points)
         pcd.estimate_normals()
-        alpha = 20
+        alpha = 50
         # o3d.visualization.draw_geometries([pcd])
         # print(pcd)
         norm_Radius = 100
@@ -72,7 +73,7 @@ class surface_Reconstruction:
         elapsed = time.time() - t
         print("Time to do surface reconstruction:", elapsed)
         # o3d.visualization.draw_geometries([pcd,tetra_mesh], mesh_show_back_face=True)
-        # o3d.visualization.draw_geometries([mesh], mesh_show_back_face=True)
+        o3d.visualization.draw_geometries([mesh], mesh_show_back_face=True)
         # o3d.visualization.draw_geometries([pcd], point_show_normal=True)
 
         if save == True:
@@ -154,9 +155,10 @@ class surface_Reconstruction:
         elapsed = time.time() - t
         print("Time to do surface reconstruction:", elapsed)
         # o3d.visualization.draw_geometries([pcd], point_show_normal=True)
-        # o3d.visualization.draw_geometries([mesh],mesh_show_back_face=True)
+        # o3d.visualization.draw_geometries([mesh], mesh_show_back_face=True)
         if save == True:
             mesh.triangle_normals = o3d.utility.Vector3dVector([])
             o3d.io.write_triangle_mesh(
                 "meshNew.obj", mesh, print_progress=True
             )  # Writes the file without any warnings.
+        return mesh
