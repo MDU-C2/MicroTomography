@@ -30,6 +30,7 @@ PERS num serverPort:= 5000;
 
 !//Motion of the robot
 VAR robtarget cartesianTarget;
+VAR robtarget currentCartesianPose;
 VAR jointtarget jointsTarget;
 VAR bool moveCompleted; !Set to true after finishing a Move instruction.
 
@@ -53,8 +54,22 @@ CONST num SERVER_OK := 1;
     PERS tooldata Lase_TCP:=[TRUE,[[-46.987,-23.723,82.6],[0.92387953,0,0,0.38268343]],[0.3,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
     PERS tooldata Antenna_TCP:=[TRUE,[[-20.86,-20.859,143],[0.923879533,0,0,0.382683431]],[0.3,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
 
+VAR num x;
+VAR num y;
 
+    ! When traveling to new zone it should pass through these points 
+VAR robtarget cartesianTargetZone1 := [[141.4213562373095, 141.4213562373095, -100], [0.27059805, 0.65328148, 0.27059805, -0.65328148], [-1,0,0,4], [0.000004418,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR robtarget cartesianTargetZone2 := [[-141.42135623730948, 141.4213562373095, -100], [0.65328148, 0.27059805, 0.65328148, -0.27059805], [0,0,0,4], [-0.00000096,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR robtarget cartesianTargetZone3 := [[-141.42135623730954, -141.42135623730948, -100], [0.65328148, -0.27059805, 0.65328148, 0.27059805], [1,1,-1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR robtarget cartesianTargetZone4 := [[141.42135623730948, -141.42135623730954, -100], [-0.27059805, 0.65328148, -0.27059805, -0.65328148], [2,1,-1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
 
+VAR robtarget resetPosition := [[-38.859585784,0.000707752,416.889532938],[0.53729967,-0.00000001,0.843391406,-0.000000007],[0,0,0,4],[90,9E+09,9E+09,9E+09,9E+09,9E+09]];
+
+VAR robtarget currentZonePos;
+VAR robtarget newZonePos;
+    
+VAR num currentZonePosID := 2;
+VAR num newZonePosID;
 
 	
 !////////////////
@@ -150,6 +165,30 @@ PROC Initialize()
     
 ENDPROC
 
+FUNC num zonePlacement()
+    currentCartesianPose := CRobT(\WObj:=currentWObj);
+    x := round(currentCartesianPose.trans.x);
+    y := round(currentCartesianPose.trans.y);
+
+    IF x >= 0 AND y >= 0 THEN
+        currentZonePos := cartesianTargetZone1;
+        RETURN 1;
+
+    ELSEIF x < 0 AND y >= 0 THEN
+        currentZonePos := cartesianTargetZone2;
+        RETURN 2;
+    
+    ELSEIF x < 0 AND y < 0 THEN
+        currentZonePos := cartesianTargetZone3;
+        RETURN 3;
+    
+    ELSE
+        currentZonePos := cartesianTargetZone4;
+        RETURN 4;
+    
+    ENDIF
+ENDFUNC
+
 
 !////////////////////////
 !//SERVER: Main procedure
@@ -163,20 +202,11 @@ PROC main()
     VAR bool reconnected;        !//Drop and reconnection happened during serving a command
     VAR robtarget cartesianPose;
     VAR jointtarget jointsPose;
-
     
-    ! When traveling to new zone it should pass through these points 
-    VAR robtarget cartesianTargetZone1 := [[141.4213562373095, 141.4213562373095, 0], [0.27059805, 0.65328148, 0.27059805, -0.65328148], [-1,0,0,4], [0.000004418,9E+09,9E+09,9E+09,9E+09,9E+09]];
-    VAR robtarget cartesianTargetZone2 := [[-141.42135623730948, 141.4213562373095, 0], [0.65328148, 0.27059805, 0.65328148, -0.27059805], [0,0,0,4], [-0.00000096,9E+09,9E+09,9E+09,9E+09,9E+09]];
-    VAR robtarget cartesianTargetZone3 := [[-141.42135623730954, -141.42135623730948, 0], [0.65328148, -0.27059805, 0.65328148, 0.27059805], [1,1,-1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
-    VAR robtarget cartesianTargetZone4 := [[141.42135623730948, -141.42135623730954, 0], [-0.27059805, 0.65328148, -0.27059805, -0.65328148], [2,1,-1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
-
+    VAR num currentZone1;
     
     
-    VAR robtarget currentZonePos;
     
-    VAR num currentZonePosID := 2;
-    VAR num newZonePosID;
     			
     !//Motion configuration
     ConfL \Off;
@@ -217,7 +247,7 @@ PROC main()
                     IF params{1} >= 0 AND params{2} >= 0 THEN
                         
                         newZonePosID := 1;
-                        currentZonePos := cartesianTargetZone1;
+                        !currentZonePos := cartesianTargetZone1;
                         cartesianTarget:=[[params{1},params{2},params{3}],
                                            [params{4},params{5},params{6},params{7}],
                                            [-1,0,0,4],
@@ -225,7 +255,7 @@ PROC main()
 
                     ELSEIF params{1} < 0 AND params{2} >= 0 THEN
                         newZonePosID := 2;
-                        currentZonePos := cartesianTargetZone2;
+                        !currentZonePos := cartesianTargetZone2;
                         cartesianTarget:=[[params{1},params{2},params{3}],
                                            [params{4},params{5},params{6},params{7}],
                                            [0,0,0,4],
@@ -233,7 +263,7 @@ PROC main()
 
                     ELSEIF params{1} < 0 AND params{2} < 0 THEN
                         newZonePosID := 3;
-                        currentZonePos := cartesianTargetZone3;
+                        !currentZonePos := cartesianTargetZone3;
                         cartesianTarget:=[[params{1},params{2},params{3}],
                                            [params{4},params{5},params{6},params{7}],
                                            [1,1,-1,4],
@@ -241,7 +271,7 @@ PROC main()
                     
                     ELSE
                         newZonePosID := 4;
-                        currentZonePos := cartesianTargetZone4;
+                        !currentZonePos := cartesianTargetZone4;
                         cartesianTarget:=[[params{1},params{2},params{3}],
                                            [params{4},params{5},params{6},params{7}],
                                            [2,1,-1,4],
@@ -252,31 +282,39 @@ PROC main()
                     ok := SERVER_OK;
                     moveCompleted := FALSE;
                     
-                    IF newZonePosID > currentZonePosID THEN
+                    currentZone1 := zonePlacement();
+                    IF newZonePosID > zonePlacement() THEN
                         MoveL currentZonePos, currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
-                        WHILE newZonePosID > currentZonePosID DO
-                            currentZonePosID := currentZonePosID + 1;
+                        WHILE newZonePosID > zonePlacement() DO                           
                             
-                            IF currentZonePosID = 2 THEN
-                                currentZonePos := cartesianTargetZone2;
-                            ELSEIF currentZonePosID = 3 THEN
-                                currentZonePos := cartesianTargetZone3;
+                            IF zonePlacement() = 1 THEN
+                                newZonePos := cartesianTargetZone2;
+                            
+                            ELSEIF zonePlacement() = 2 THEN
+                                newZonePos := cartesianTargetZone3;
+                            
                             ELSE
-                                currentZonePos := cartesianTargetZone4;
+                                newZonePos := cartesianTargetZone4;
                             ENDIF
+                            
+                            MoveL newZonePos, currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
                         ENDWHILE
-                    ELSEIF newZonePosID < currentZonePosID THEN
+                    
+                    ELSEIF newZonePosID < zonePlacement() THEN
                         MoveL currentZonePos, currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
-                         WHILE newZonePosID <= currentZonePosID DO
-                            currentZonePosID := currentZonePosID - 1;
+                         
+                        WHILE newZonePosID < zonePlacement() DO
+                            !currentZonePosID := currentZonePosID - 1;
                             
-                            IF currentZonePosID = 3 THEN
-                                currentZonePos := cartesianTargetZone3;
-                            ELSEIF currentZonePosID = 2 THEN
-                                currentZonePos := cartesianTargetZone2;
+                            IF zonePlacement() = 4 THEN
+                                newZonePos := cartesianTargetZone3;
+                                
+                            ELSEIF zonePlacement() = 3 THEN
+                                newZonePos := cartesianTargetZone2;
                             ELSE
-                                currentZonePos := cartesianTargetZone4;
+                                newZonePos := cartesianTargetZone1;
                             ENDIF
+                            MoveL newZonePos, currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
                          ENDWHILE
                          
                     ENDIF
@@ -409,22 +447,11 @@ PROC main()
                 ENDIF
 
             CASE 10: !Unlock joint
-                IF nParams = 7 THEN
-                    cartesianTarget :=[[params{1},params{2},params{3}],
-                                       [params{4},params{5},params{6},params{7}],
-                                       [0,0,0,0],
-                                       externalAxis];
-                    ok := SERVER_OK;
-                    moveCompleted := FALSE;
-                    !SingArea \Wrist;
-                    !MoveL RelTool (cartesianTarget, 0, 0, 0 \Rx:=100), currentSpeed, currentZone, currentTool \WObj:=currentWobj;
-                    MoveL cartesianTargetZone1, currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
-                    !MoveJ cartesianTarget, currentSpeed, currentZone, currentTool \WObj:=currentWobj ;
-                    !SingArea \Off;
-                    moveCompleted := TRUE;
-                ELSE
-                    ok := SERVER_BAD_MSG;
-                ENDIF
+        
+                ok := SERVER_OK;
+                moveCompleted := FALSE;
+                MoveL resetPosition, currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
+                moveCompleted := TRUE;
 
             CASE 30: !Add Cartesian Coordinates to buffer
                 IF nParams = 7 THEN
