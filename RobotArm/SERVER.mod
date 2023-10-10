@@ -51,8 +51,9 @@ VAR robtarget circPoint;
 VAR num ok;
 CONST num SERVER_BAD_MSG :=  0;
 CONST num SERVER_OK := 1;
-    PERS tooldata Lase_TCP:=[TRUE,[[-46.987,-23.723,82.6],[0.92387953,0,0,-0.38268343]],[0.3,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
+    PERS tooldata Laser_TCP:=[TRUE,[[-46.987,-23.723,82.6],[0.92387953,0,0,-0.38268343]],[0.3,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
     PERS tooldata Antenna_TCP:=[TRUE,[[-20.86,-20.859,143],[0.923879533,0,0,-0.382683431]],[0.3,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
+    PERS tooldata calibration_TCP:=[TRUE,[[-41.72,-43.133,58.227],[0.653281482,0.27059805,-0.653281482,0.27059805]],[0.1,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
 
 VAR num x;
 VAR num y;
@@ -62,6 +63,8 @@ VAR robtarget cartesianTargetZone1 := [[141.4213562373095, 141.4213562373095, -1
 VAR robtarget cartesianTargetZone2 := [[-141.42135623730948, 141.4213562373095, -100], [0.65328148, 0.27059805, 0.65328148, -0.27059805], [0,0,0,4], [-0.00000096,9E+09,9E+09,9E+09,9E+09,9E+09]];
 VAR robtarget cartesianTargetZone3 := [[-141.42135623730954, -141.42135623730948, -100], [0.65328148, -0.27059805, 0.65328148, 0.27059805], [1,1,-1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
 VAR robtarget cartesianTargetZone4 := [[141.42135623730948, -141.42135623730954, -100], [-0.27059805, 0.65328148, -0.27059805, -0.65328148], [2,1,-1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
+
+VAR robtarget calibrationCoordinate;
 
 VAR robtarget resetPosition := [[-38.859585784,0.000707752,416.889532938],[0.53729967,-0.00000001,0.843391406,-0.000000007],[0,0,0,4],[90,9E+09,9E+09,9E+09,9E+09,9E+09]];
 
@@ -284,7 +287,7 @@ PROC main()
                     
                     currentZone1 := zonePlacement();
                     IF newZonePosID > zonePlacement() THEN
-                        MoveL currentZonePos, currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
+                        MoveL currentZonePos, currentSpeed, currentZone, Laser_TCP \WObj:=currentWobj;
                         WHILE newZonePosID > zonePlacement() DO                           
                             
                             IF zonePlacement() = 1 THEN
@@ -297,11 +300,11 @@ PROC main()
                                 newZonePos := cartesianTargetZone4;
                             ENDIF
                             
-                            MoveL newZonePos, currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
+                            MoveL newZonePos, currentSpeed, currentZone, Laser_TCP \WObj:=currentWobj;
                         ENDWHILE
                     
                     ELSEIF newZonePosID < zonePlacement() THEN
-                        MoveL currentZonePos, currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
+                        MoveL currentZonePos, currentSpeed, currentZone, Laser_TCP \WObj:=currentWobj;
                          
                         WHILE newZonePosID < zonePlacement() DO
                             !currentZonePosID := currentZonePosID - 1;
@@ -314,14 +317,14 @@ PROC main()
                             ELSE
                                 newZonePos := cartesianTargetZone1;
                             ENDIF
-                            MoveL newZonePos, currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
+                            MoveL newZonePos, currentSpeed, currentZone, Laser_TCP \WObj:=currentWobj;
                          ENDWHILE
                          
                     ENDIF
                     
-                    !Lase_TCP
-                    !MoveL cartesianTarget, currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
-                    MoveL cartesianTarget, currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
+                    !Laser_TCP
+                    !MoveL cartesianTarget, currentSpeed, currentZone, Laser_TCP \WObj:=currentWobj;
+                    MoveL cartesianTarget, currentSpeed, currentZone, Laser_TCP \WObj:=currentWobj;
                     moveCompleted := TRUE;
                 ELSE
                     ok := SERVER_BAD_MSG;
@@ -450,8 +453,25 @@ PROC main()
         
                 ok := SERVER_OK;
                 moveCompleted := FALSE;
-                MoveL resetPosition, currentSpeed, currentZone, Lase_TCP \WObj:=currentWobj;
+                MoveL resetPosition, currentSpeed, currentZone, Laser_TCP \WObj:=currentWobj;
                 moveCompleted := TRUE;
+
+            CASE 11: !Set current coordinates as new workspace
+                IF nParams = 0 THEN
+                    calibrationCoordinate := CRobT(\Tool:=calibration_TCP \WObj:=currentWObj);
+                    currentWobj.oframe.trans.x := calibrationCoordinate.trans.x;
+                    currentWobj.oframe.trans.y := calibrationCoordinate.trans.y;
+                    currentWobj.oframe.trans.z := calibrationCoordinate.trans.z;
+                    currentWobj.oframe.rot.q1 := 1;
+                    currentWobj.oframe.rot.q2 := 0;
+                    currentWobj.oframe.rot.q3 := 0;
+                    currentWobj.oframe.rot.q4 := 0;
+                    ok := SERVER_OK;
+                ELSE
+                    ok:=SERVER_BAD_MSG;
+                ENDIF
+            
+            
 
             CASE 30: !Add Cartesian Coordinates to buffer
                 IF nParams = 7 THEN
