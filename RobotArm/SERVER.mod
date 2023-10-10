@@ -470,6 +470,17 @@ PROC main()
                 ELSE
                     ok:=SERVER_BAD_MSG;
                 ENDIF
+
+            CASE 12: !Change the current TCP tool
+                IF nParams = 1 THEN
+                    IF params{1} = 1 THEN
+                        currentTool := Laser_TCP;
+                    ELSE
+                        currentTool := Antenna_TCP;
+                    ENDIF
+                ELSE
+                    ok:=SERVER_BAD_MSG;
+                ENDIF
             
             
 

@@ -31,6 +31,16 @@ def set_Calibration(robot):
     robot.set_calibration()
 
 
+def set_Robot_Tool(robot, tool):
+    """Change the tool TCP of the robot.
+
+    1 for LASER TCP
+
+    2 for Antenna TCP
+    """
+    robot.change_current_tool(tool)
+
+
 def close_Connection(robot):
     "Close TCP connection to robot"
     robot.close()

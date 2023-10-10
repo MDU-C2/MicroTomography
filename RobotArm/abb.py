@@ -219,6 +219,21 @@ class Robot:
         msg += format(zone[2], "+08.4f") + " #"
         self.send(msg)
 
+    def set_calibration(self):
+        """
+        Calibrates the robot according to the position of the calibration TCP
+        """
+        msg = "11 #"
+        self.send(msg)
+
+    def change_current_tool(self, tool):
+        """
+        Calibrates the robot according to the position of the calibration TCP
+        """
+        msg = "12 "
+        msg += format(tool, "+08.2f") + " #"
+        self.send(msg)
+
     def buffer_add(self, pose):
         """
         Appends single pose to the remote buffer
@@ -266,7 +281,7 @@ class Robot:
         return self.send(msg)
 
     def set_external_axis(self, axis_input):
-        #if len(axis_input) != 1:
+        # if len(axis_input) != 1:
         #    return False
         axis_unscaled = [axis_input, 0, 0, 0, 0, 0]
         msg = "34 "
