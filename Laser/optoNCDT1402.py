@@ -5,11 +5,8 @@ getting the info from the optoNCDT1402 and turning the laser on/off
 
 Author: Joel Josefsson
 """
-
-import serial
-import math
 from time import sleep
-from serial import *
+from serial import Serial, PARITY_NONE
 
 
 class optoNCDT1402:
@@ -29,8 +26,11 @@ class optoNCDT1402:
             The desired number of measurements to average over in the measuring function.
         """
         if noMeasurements < 1:
-            AssertionError("noMeasurements can not be lower than 1")
-        self.ser = serial.Serial(
+            raise ValueError("noMeasurements can not be lower than 1")
+        if not isinstance(noMeasurements, int):
+            raise TypeError("noMeasurements must be of type int")
+
+        self.ser = Serial(
             comPort,
             115200,
             timeout=5,
@@ -78,11 +78,11 @@ class optoNCDT1402:
         self.ser.reset_input_buffer()
         self.ser.reset_output_buffer()
 
-        self.distanceList = []
+        distanceList = []
 
         i = 0
         # Loop until the desired amount of measurements are reached
-        while i < self.no_Measurements:
+        while i < self.noMeasurements:
             # Wait until atleast two values are in the buffer
             while self.ser.in_waiting < 2:
                 sleep(0.1)
@@ -97,18 +97,18 @@ class optoNCDT1402:
             if digitalValue < 161:
                 return "SMR back up"
             elif digitalValue < 16208:
-                self.distanceList.append(self.distance(digitalValue) + 50)
+                distanceList.append(self.distance(digitalValue) + 50)
                 i = i + 1  # Only increment i when a distance is appended
             elif digitalValue < 16370:
                 return "EMR back-up"
             elif digitalValue < 16386:
-                return self.error_codes.get(digitalValue, "Unknown error")
+                return self.errorCodes.get(digitalValue, "Unknown error")
 
-        if self.no_Measurements == 1:
-            return self.distanceList.pop()
+        if self.noMeasurements == 1:
+            return distanceList.pop()
 
         # Return the average distance
-        return sum(self.distanceList) / len(self.distanceList)
+        return sum(distanceList) / len(distanceList)
 
     def combineBytes(self, dataBytes: list):
         """Combine two 8 bit bytes into 14 bits.
@@ -163,7 +163,7 @@ class optoNCDT1402:
         self.ser.reset_output_buffer()
 
         # Write the bytearray to the laser and wait until reading
-        sentBytes = self.ser.write(requestBits)
+        self.ser.write(requestBits)
         sleep(0.2)
         self.ser.read_until(b"\xA0\x49\x00\x83")  # The last row before the info string
         data = self.ser.read_until(b"\x20\x20\x0D\x0A")  # The last row in the message
@@ -195,7 +195,7 @@ class optoNCDT1402:
 
         self.ser.reset_input_buffer()
         self.ser.reset_output_buffer()
-        b = self.ser.write(setAvg)
+        self.ser.write(setAvg)
         return b"ILD1\xA0\x7F\x00\x02\x20\x20\x0D\x0A" in self.ser.read_until(
             b"ILD1\xA0\x7F\x00\x02\x20\x20\x0D\x0A"
         )
@@ -213,7 +213,7 @@ class optoNCDT1402:
         self.ser.reset_input_buffer()
         self.ser.reset_output_buffer()
         sleep(0.1)
-        b = self.ser.write(offBytes)
+        self.ser.write(offBytes)
 
         return b"ILD1\xa0\x86\x00\x02\x20\x20\x0d\x0a" in self.ser.read_until(
             b"ILD1\xa0\x86\x00\x02\x20\x20\x0d\x0a"
@@ -232,7 +232,7 @@ class optoNCDT1402:
         self.ser.reset_input_buffer()
         self.ser.reset_output_buffer()
         sleep(0.1)
-        b = self.ser.write(onBytes)
+        self.ser.write(onBytes)
 
         return b"ILD1\xA0\x87\x00\x02\x20\x20\x0D\x0A" in self.ser.read_until(
             b"ILD1\xA0\x87\x00\x02\x20\x20\x0D\x0A"
