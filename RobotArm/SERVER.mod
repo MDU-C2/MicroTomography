@@ -157,8 +157,8 @@ ENDPROC
 !// - Zone.
 !// - Speed.
 PROC Initialize()
-    currentTool := [TRUE,[[0,0,0],[1,0,0,0]],[0.001,[0,0,0.001],[1,0,0,0],0,0,0]];    
-    currentWobj := [FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0,0,0],[1,0,0,0]]];
+    currentTool := [TRUE,[[-46.987,-23.723,82.6],[0.92387953,0,0,-0.38268343]],[0.3,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]]; !Is initialized to laser TCP 
+    currentWobj := [FALSE,TRUE,"",[[4.76, -62.64, 696.66],[1,0,0,0]],[[0,0,0],[1,0,0,0]]]; !Set to frame of OUS
     currentSpeed := [100, 50, 0, 0];
     currentZone := [FALSE, 0.3, 0.3,0.3,0.03,0.3,0.03]; !z0
 	
@@ -168,6 +168,7 @@ PROC Initialize()
     
 ENDPROC
 
+!Find the current zone the tool is currently in
 FUNC num zonePlacement()
     currentCartesianPose := CRobT(\WObj:=currentWObj);
     x := round(currentCartesianPose.trans.x);
@@ -248,9 +249,7 @@ PROC main()
                 IF nParams = 7 THEN
                     
                     IF params{1} >= 0 AND params{2} >= 0 THEN
-                        
                         newZonePosID := 1;
-                        !currentZonePos := cartesianTargetZone1;
                         cartesianTarget:=[[params{1},params{2},params{3}],
                                            [params{4},params{5},params{6},params{7}],
                                            [-1,0,0,4],
@@ -258,7 +257,6 @@ PROC main()
 
                     ELSEIF params{1} < 0 AND params{2} >= 0 THEN
                         newZonePosID := 2;
-                        !currentZonePos := cartesianTargetZone2;
                         cartesianTarget:=[[params{1},params{2},params{3}],
                                            [params{4},params{5},params{6},params{7}],
                                            [0,0,0,4],
@@ -266,7 +264,6 @@ PROC main()
 
                     ELSEIF params{1} < 0 AND params{2} < 0 THEN
                         newZonePosID := 3;
-                        !currentZonePos := cartesianTargetZone3;
                         cartesianTarget:=[[params{1},params{2},params{3}],
                                            [params{4},params{5},params{6},params{7}],
                                            [1,1,-1,4],
@@ -274,7 +271,6 @@ PROC main()
                     
                     ELSE
                         newZonePosID := 4;
-                        !currentZonePos := cartesianTargetZone4;
                         cartesianTarget:=[[params{1},params{2},params{3}],
                                            [params{4},params{5},params{6},params{7}],
                                            [2,1,-1,4],
@@ -287,7 +283,7 @@ PROC main()
                     
                     currentZone1 := zonePlacement();
                     IF newZonePosID > zonePlacement() THEN
-                        MoveL currentZonePos, currentSpeed, currentZone, Laser_TCP \WObj:=currentWobj;
+                        MoveL currentZonePos, currentSpeed, currentZone, currentTool \WObj:=currentWobj;
                         WHILE newZonePosID > zonePlacement() DO                           
                             
                             IF zonePlacement() = 1 THEN
@@ -300,14 +296,14 @@ PROC main()
                                 newZonePos := cartesianTargetZone4;
                             ENDIF
                             
-                            MoveL newZonePos, currentSpeed, currentZone, Laser_TCP \WObj:=currentWobj;
+                            MoveL newZonePos, currentSpeed, currentZone, currentTool \WObj:=currentWobj;
                         ENDWHILE
                     
                     ELSEIF newZonePosID < zonePlacement() THEN
-                        MoveL currentZonePos, currentSpeed, currentZone, Laser_TCP \WObj:=currentWobj;
+                        MoveL currentZonePos, currentSpeed, currentZone, currentTool \WObj:=currentWobj;
                          
                         WHILE newZonePosID < zonePlacement() DO
-                            !currentZonePosID := currentZonePosID - 1;
+                            
                             
                             IF zonePlacement() = 4 THEN
                                 newZonePos := cartesianTargetZone3;
@@ -317,14 +313,12 @@ PROC main()
                             ELSE
                                 newZonePos := cartesianTargetZone1;
                             ENDIF
-                            MoveL newZonePos, currentSpeed, currentZone, Laser_TCP \WObj:=currentWobj;
+                            MoveL newZonePos, currentSpeed, currentZone, currentTool \WObj:=currentWobj;
                          ENDWHILE
                          
                     ENDIF
                     
-                    !Laser_TCP
-                    !MoveL cartesianTarget, currentSpeed, currentZone, Laser_TCP \WObj:=currentWobj;
-                    MoveL cartesianTarget, currentSpeed, currentZone, Laser_TCP \WObj:=currentWobj;
+                    MoveL cartesianTarget, currentSpeed, currentZone, currentTool \WObj:=currentWobj;
                     moveCompleted := TRUE;
                 ELSE
                     ok := SERVER_BAD_MSG;

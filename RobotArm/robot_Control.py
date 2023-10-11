@@ -10,7 +10,7 @@ def connect_To_Robot():
 
 def set_Reference_Coordinate_System(robot):
     "Changes the reference coordinate system of the robot, offset in relation to the robots origin(base)"
-    robot.set_workobject([[0, 0, 755], [1, 0, 0, 0]])
+    robot.set_workobject([[4.76, -62.64, 696.66], [1, 0, 0, 0]])
 
 
 def move_Robot_Linear(robot, coordinates):
@@ -26,8 +26,12 @@ def set_Robot_Speed(robot, speed):
     robot.set_speed(speed)
 
 
+# Under construction
 def set_Calibration(robot):
     "Set the current calibration TCP to new workframe"
+    input(
+        "Press enter when arm is in calibration position to set new calibration point..."
+    )
     robot.set_calibration()
 
 
