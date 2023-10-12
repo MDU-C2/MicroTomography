@@ -51,19 +51,23 @@ VAR robtarget circPoint;
 VAR num ok;
 CONST num SERVER_BAD_MSG :=  0;
 CONST num SERVER_OK := 1;
-    PERS tooldata Laser_TCP:=[TRUE,[[-46.987,-23.723,82.6],[0.92387953,0,0,-0.38268343]],[0.3,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
-    PERS tooldata Antenna_TCP:=[TRUE,[[-20.86,-20.859,143],[0.923879533,0,0,-0.382683431]],[0.3,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
-    PERS tooldata calibration_TCP:=[TRUE,[[-41.72,-43.133,58.227],[0.653281482,0.27059805,-0.653281482,0.27059805]],[0.1,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
 
+!//TCP data in relation to the end effector
+PERS tooldata Laser_TCP:=[TRUE,[[-46.987,-23.723,82.6],[0.92387953,0,0,-0.38268343]],[0.3,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
+PERS tooldata Antenna_TCP:=[TRUE,[[-20.86,-20.859,143],[0.923879533,0,0,-0.382683431]],[0.3,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
+PERS tooldata calibration_TCP:=[TRUE,[[-41.72,-43.133,58.227],[0.653281482,0.27059805,-0.653281482,0.27059805]],[0.1,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
+
+!//Used to determine the x and y coordinates when determining the current zone of the TCP
 VAR num x;
 VAR num y;
 
-    ! When traveling to new zone it should pass through these points 
+!//When traveling to new zone it should pass through these points 
 VAR robtarget cartesianTargetZone1 := [[141.4213562373095, 141.4213562373095, -100], [0.27059805, 0.65328148, 0.27059805, -0.65328148], [-1,0,0,4], [0.000004418,9E+09,9E+09,9E+09,9E+09,9E+09]];
 VAR robtarget cartesianTargetZone2 := [[-141.42135623730948, 141.4213562373095, -100], [0.65328148, 0.27059805, 0.65328148, -0.27059805], [0,0,0,4], [-0.00000096,9E+09,9E+09,9E+09,9E+09,9E+09]];
 VAR robtarget cartesianTargetZone3 := [[-141.42135623730954, -141.42135623730948, -100], [0.65328148, -0.27059805, 0.65328148, 0.27059805], [1,1,-1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
 VAR robtarget cartesianTargetZone4 := [[141.42135623730948, -141.42135623730954, -100], [-0.27059805, 0.65328148, -0.27059805, -0.65328148], [2,1,-1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
 
+!//Coordinate of the point the user wants to calibrate from
 VAR robtarget calibrationCoordinate;
 
 VAR robtarget resetPosition := [[-38.859585784,0.000707752,416.889532938],[0.53729967,-0.00000001,0.843391406,-0.000000007],[0,0,0,4],[90,9E+09,9E+09,9E+09,9E+09,9E+09]];
@@ -71,7 +75,7 @@ VAR robtarget resetPosition := [[-38.859585784,0.000707752,416.889532938],[0.537
 VAR robtarget currentZonePos;
 VAR robtarget newZonePos;
     
-VAR num currentZonePosID := 2;
+
 VAR num newZonePosID;
 
 	
@@ -158,7 +162,7 @@ ENDPROC
 !// - Speed.
 PROC Initialize()
     currentTool := [TRUE,[[-46.987,-23.723,82.6],[0.92387953,0,0,-0.38268343]],[0.3,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]]; !Is initialized to laser TCP 
-    currentWobj := [FALSE,TRUE,"",[[4.76, -62.64, 696.66],[1,0,0,0]],[[0,0,0],[1,0,0,0]]]; !Set to frame of OUS
+    currentWobj := [FALSE,TRUE,"",[[4.76, -62.64, 696.66],[1,0,0,0]],[[0,0,0],[1,0,0,0]]]; !Set to frame of OUS, currently hardcoded coordinates
     currentSpeed := [100, 50, 0, 0];
     currentZone := [FALSE, 0.3, 0.3,0.3,0.03,0.3,0.03]; !z0
 	
@@ -171,6 +175,8 @@ ENDPROC
 !Find the current zone the tool is currently in
 FUNC num zonePlacement()
     currentCartesianPose := CRobT(\WObj:=currentWObj);
+
+    !Rounded to avoid misreading when coordinate close to 0
     x := round(currentCartesianPose.trans.x);
     y := round(currentCartesianPose.trans.y);
 
@@ -206,11 +212,7 @@ PROC main()
     VAR bool reconnected;        !//Drop and reconnection happened during serving a command
     VAR robtarget cartesianPose;
     VAR jointtarget jointsPose;
-    
-    VAR num currentZone1;
-    
-    
-    
+        
     			
     !//Motion configuration
     ConfL \Off;
@@ -248,6 +250,7 @@ PROC main()
             CASE 1: !Cartesian Move
                 IF nParams = 7 THEN
                     
+                    !Determine zone it currently is in and set correct joint parameters for the zone
                     IF params{1} >= 0 AND params{2} >= 0 THEN
                         newZonePosID := 1;
                         cartesianTarget:=[[params{1},params{2},params{3}],
@@ -281,7 +284,10 @@ PROC main()
                     ok := SERVER_OK;
                     moveCompleted := FALSE;
                     
-                    currentZone1 := zonePlacement();
+                    !If coordinate is in different zone than the current zone
+                    !Move through zones before move to target coordinate
+                    
+                    !Move up through the zones
                     IF newZonePosID > zonePlacement() THEN
                         MoveL currentZonePos, currentSpeed, currentZone, currentTool \WObj:=currentWobj;
                         WHILE newZonePosID > zonePlacement() DO                           
@@ -299,6 +305,7 @@ PROC main()
                             MoveL newZonePos, currentSpeed, currentZone, currentTool \WObj:=currentWobj;
                         ENDWHILE
                     
+                    !Move down through the zones
                     ELSEIF newZonePosID < zonePlacement() THEN
                         MoveL currentZonePos, currentSpeed, currentZone, currentTool \WObj:=currentWobj;
                          
@@ -379,10 +386,10 @@ PROC main()
 		
             CASE 6: !Set Tool
                 IF nParams = 7 THEN
-		   WHILE (frameMutex) DO
-		        WaitTime .01; !// If the frame is being used by logger, wait here
-		   ENDWHILE
-		frameMutex:= TRUE;
+		            WHILE (frameMutex) DO
+		                WaitTime .01; !// If the frame is being used by logger, wait here
+		            ENDWHILE
+		            frameMutex:= TRUE;
                     currentTool.tframe.trans.x:=params{1};
                     currentTool.tframe.trans.y:=params{2};
                     currentTool.tframe.trans.z:=params{3};
@@ -391,7 +398,7 @@ PROC main()
                     currentTool.tframe.rot.q3:=params{6};
                     currentTool.tframe.rot.q4:=params{7};
                     ok := SERVER_OK;
-		    frameMutex:= FALSE;
+		            frameMutex:= FALSE;
                 ELSE
                     ok:=SERVER_BAD_MSG;
                 ENDIF
@@ -443,7 +450,7 @@ PROC main()
                     ok:=SERVER_BAD_MSG;
                 ENDIF
 
-            CASE 10: !Unlock joint
+            CASE 10: !Unlock joint, NOT currently implemented
         
                 ok := SERVER_OK;
                 moveCompleted := FALSE;
@@ -600,7 +607,7 @@ PROC main()
         ENDIF
     ENDWHILE
 
-ERROR (LONG_JMP_ALL_ERR)
+    ERROR (LONG_JMP_ALL_ERR)
     TPWrite "SERVER: ------";
     TPWrite "SERVER: Error Handler:" + NumtoStr(ERRNO,0);
     TEST ERRNO
