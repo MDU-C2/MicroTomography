@@ -86,7 +86,7 @@ print("Number of datapoint :", len(points))
 save = False  # Save file? #Takes pretty long time to save .obj file, about 5-10 minutes
 saveImage = False  # Save plot image?
 
-"""recon_mesh = surface_Reconstruction.delaunay_original(
+"""recon_mesh_2 = surface_Reconstruction.delaunay_original(
     points, save
 )"""  ##tight cocone variant
 #

@@ -3,7 +3,7 @@ from stl import mesh
 
 
 def loadSTLFile():
-    your_mesh = mesh.Mesh.from_file("Data\Symmetric-221015.STL")
+    your_mesh = mesh.Mesh.from_file("Data\Symmetric-test.STL")
 
     your_mesh.rotate(np.array([1, 0, 0]), -np.pi / 2)
     your_mesh.translate(
