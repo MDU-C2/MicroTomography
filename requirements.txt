@@ -2,3 +2,4 @@
 # package==version
 # like pyserial==3.5
 pytransform3d==3.4.0
+pyserial==3.5
