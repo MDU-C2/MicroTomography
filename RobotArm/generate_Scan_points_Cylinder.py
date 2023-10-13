@@ -37,7 +37,7 @@ def generate_scan_points_cylinder(
     if zMin > 0:
         raise ValueError("zMin must be negative")
     q1 = quaternion_from_axis_angle(np.array([0, 1, 0, np.pi / 2]))
-    azimuth = np.linspace(0, np.pi - (np.pi / azimuthPoints), azimuthPoints)
+    azimuth = np.linspace(0, 2 * np.pi - (np.pi / azimuthPoints), azimuthPoints)
     points = []
 
     z = [h for h in reversed(range(zMin, zOffset + zStepSize, zStepSize))]
@@ -83,7 +83,7 @@ def generate_scan_points_halfSphere(
     """
     if zMin > 0:
         raise ValueError("zMin must be negative")
-    azimuth = np.linspace(0, np.pi - (np.pi / azimuthPoints), azimuthPoints)
+    azimuth = np.linspace(0, 2 * np.pi - (np.pi / azimuthPoints), azimuthPoints)
     elevation = np.linspace(np.pi / 2, np.pi, elevationPoints)
     zParam = 1
     if zMin != 0:
@@ -105,7 +105,7 @@ def generate_scan_points_halfSphere(
     return points
 
 
-def transformLaserDistance(point: list, laserDistance: (int | float)):
+def transform_laser_distance(point: list, laser_distance: (int | float)):
     """Transform the point measured by the laser from the user frame to the tool frame
 
     Parameters
@@ -120,10 +120,10 @@ def transformLaserDistance(point: list, laserDistance: (int | float)):
     list, shape(3,)
         A list of coordinates for the point measured by the laser
     """
-    p = np.array([0, 0, laserDistance])
-    laserCoordinates = point[0]
+    p = np.array([0, 0, laser_distance])
+    laser_coordinates = point[0]
     R = matrix_from_quaternion(point[1])
 
-    p_new = (R @ p) + laserCoordinates
+    p_new = (R @ p) + laser_coordinates
 
     return p_new
