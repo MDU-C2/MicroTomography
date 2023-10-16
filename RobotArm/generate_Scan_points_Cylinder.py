@@ -37,7 +37,8 @@ def generate_scan_points_cylinder(
     if zMin > 0:
         raise ValueError("zMin must be negative")
     q1 = quaternion_from_axis_angle(np.array([0, 1, 0, np.pi / 2]))
-    azimuth = np.linspace(0, 2 * np.pi - (np.pi / azimuthPoints), azimuthPoints)
+    azimuth = np.linspace(0, 2 * np.pi - ((2 * np.pi) / azimuthPoints), azimuthPoints)
+    print(np.linspace(0, 360 - (360 / azimuthPoints), azimuthPoints))
     points = []
 
     z = [h for h in reversed(range(zMin, zOffset + zStepSize, zStepSize))]
@@ -83,7 +84,7 @@ def generate_scan_points_halfSphere(
     """
     if zMin > 0:
         raise ValueError("zMin must be negative")
-    azimuth = np.linspace(0, 2 * np.pi - (np.pi / azimuthPoints), azimuthPoints)
+    azimuth = np.linspace(0, 2 * np.pi - ((2 * np.pi) / azimuthPoints), azimuthPoints)
     elevation = np.linspace(np.pi / 2, np.pi, elevationPoints)
     zParam = 1
     if zMin != 0:
