@@ -7,12 +7,16 @@ Here is for the GUI for the system. The red point represent the position of lase
 
 2023-10-17
 Add Calibration button
+
 Update with new 3D reconstruction code
+
 Update minor code and fix minor problem
+
 ""Can not be test in robot studio because dynamics error"
 
 2023-10-06
 Add 3D-reconstruction algorithm in code
+
 Change the save and load .csv to save and load .mat because 3d- construction algorithm need it
 
 2023-09-29 Update (GUI v1.0 -> GUI v1.1):
