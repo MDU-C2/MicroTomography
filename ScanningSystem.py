@@ -15,7 +15,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setEnabled(True)
-        MainWindow.resize(1658, 1136)
+        MainWindow.resize(1681, 1232)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.label_x_RobPos = QtWidgets.QLabel(self.centralwidget)
@@ -178,6 +178,9 @@ class Ui_MainWindow(object):
         self.viewer_scanning.setGeometry(QtCore.QRect(30, 20, 961, 781))
         self.viewer_scanning.setContextMenuPolicy(QtCore.Qt.DefaultContextMenu)
         self.viewer_scanning.setObjectName("viewer_scanning")
+        self.btn_Calibration = QtWidgets.QPushButton(self.centralwidget)
+        self.btn_Calibration.setGeometry(QtCore.QRect(1520, 50, 111, 71))
+        self.btn_Calibration.setObjectName("btn_Calibration")
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -217,3 +220,4 @@ class Ui_MainWindow(object):
         self.btn_zDown.setText(_translate("MainWindow", "Down"))
         self.label_SampleStep.setText(_translate("MainWindow", "Sample Step:"))
         self.btn_clearTable.setText(_translate("MainWindow", "Clear"))
+        self.btn_Calibration.setText(_translate("MainWindow", "Calibration"))

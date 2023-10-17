@@ -3,12 +3,11 @@
 ##
 import sys
 import pandas as pd
-from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QTableWidgetItem
+from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QTableWidgetItem, QMessageBox
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 import time
-import numpy as np
 ##
 # Class files
 ##
@@ -20,10 +19,11 @@ import Robot_YUMI
 import Button_MoveRobotArm
 from Button_LOAD import load_model
 from Button_SAVE import save_model
+import robot_Control
 
 #global variables
 robot = None
-data = None #Global variable for store the data
+#data = None #Global variable for store the data
 laser_x = 0 #laser position x
 laser_y = 0 #laser position y
 laser_z = 0 #laser position z
@@ -47,6 +47,7 @@ class AppWindow(QMainWindow):
         self.ui.btn_zDown.pressed.connect(self.MoveRobotArm_ZDown)
         self.ui.btn_clearTable.pressed.connect(self.clear_table)
         self.ui.btn_Scan.pressed.connect(self.scanModel)
+        self.ui.btn_Calibration.pressed.connect(self.calibration)
 
         #spinbox function
         #self.ui.spb_SampleSteps.valueChanged.connect(self.changeSteps)
@@ -80,26 +81,45 @@ class AppWindow(QMainWindow):
         self.printLog(self.ui.tbx_log, "System open")
 
         #Read defalut data
-        self.readDefaultTable()
-        self.printLog(self.ui.tbx_log, "Default table read")
+        #self.readDefaultTable()
+        #self.printLog(self.ui.tbx_log, "Default table read")
+
+    #Set Calibration
+    def calibration(self):
+        global robot
+
+        calibration_message = QMessageBox()
+        calibration_message.setText("Press Ok when arm is in calibration position to set new calibration point...")
+        calibration_message.setWindowTitle("Calibration")
+        calibration_message.setStandardButtons(QMessageBox.Ok)
+        calibration_message.exec_()
+
+        if robot != None:
+            robot_Control.set_Calibration(robot)
+        else:
+            self.printLog(self.ui.tbx_log, "No robot connect")
+        
 
     #function load file
     def loadFile(self):
         global data
         data, message = load_model() # Load the data from .mat file
 
-        self.printLog(self.ui.tbx_log, message)
+        self.printLog(self.ui.tbx_log, message)     
 
         try:
             data_X = data[:,0,:] #Reorganize the data into rows 
             data_Y = data[:,1,:]
             data_Z = data[:,2,:]
 
-            self.dataPreprocessing(data_X, data_Y, data_Z)
+            self.writeDefaultTable()
             self.updatePlot() #Plot the figure after spline
-
+            
+            self.dataPreprocessing(data_X, data_Y, data_Z)
+           
             #Open the Save option
             self.ui.btn_Save.setEnabled(True)
+            
         except:
             pass
 
@@ -166,7 +186,7 @@ class AppWindow(QMainWindow):
         global laser_x
         global laser_y
         global laser_z
-        global data
+        #global data
 
         #Clean the axis
         self.ax.cla()
@@ -179,23 +199,19 @@ class AppWindow(QMainWindow):
         self.laserPos(self.ax, laser_x, laser_y, laser_z) #plot laser position
     
         try:
-            data_X = data[:,0,:] #Reorganize the data into rows 
-            data_Y = data[:,1,:]
-            data_Z = data[:,2,:]
+            tableData = self.readTable()
+
+            data = pd.DataFrame(tableData, columns=['X_value', 'Y_value','Z_value'])
+
+            data_X = data['X_value']  #Reorganize the data into rows 
+            data_Y = data['Y_value']
+            data_Z = data['Z_value']
 
             # Create a 3D scatter plot
-            self.ax.scatter(data_X, data_Y, data_Z, c=data_Z, cmap = 'Greens', color = "blue")
+            self.ax.scatter(data_X, data_Y, data_Z, c='b', marker='o')
 
         except:
-            try:
-                data_X = data[0,:] #Reorganize the data into rows 
-                data_Y = data[1,:]
-                data_Z = data[2,:]
-
-                # Create a 3D scatter plot
-                self.ax.scatter(data_X, data_Y, data_Z, c=data_Z, cmap = 'Greens', color = "blue")
-            except:
-                print("fail to read data")
+            print("fail to read data")
 
         self.canvas.draw()
 
@@ -225,27 +241,69 @@ class AppWindow(QMainWindow):
             #change tab in the tab table from default to my list
             self.ui.twg_table.setCurrentIndex(1)
         else:
-            message = "Error on input. Include alphabets or empty input"
-            self.printLog(self.ui.tbx_log, message)
+            self.printLog(self.ui.tbx_log, "Error on input. Include alphabets or empty input")
 
     def clear_table(self):
         self.ui.tbw_mylist.setRowCount(0)  # Remove all rows from the table
 
-    def readDefaultTable(self):
-        df = pd.read_csv('testCSV.csv')
-                
-        # Set the number of rows and columns in the table
-        self.ui.tbw_default.setRowCount(df.shape[0])
-        self.ui.tbw_default.setColumnCount(df.shape[1])
+    def writeDefaultTable(self):
+        global data
+        x_count = 0
 
-         # Populate the table with DataFrame data
-        for i, row in df.iterrows():
-            for j, value in enumerate(row):
-                item = QTableWidgetItem(str(value))
-                self.ui.tbw_default.setItem(i, j, item)
+        try: 
+            (num_rows, num_cols, num_depth) = data.shape
+            # Populate the table with X, Y, and Z values
+            for depth in range(num_depth):
+                for row in range(num_rows):
+                    # Get the current number of rows in the tableWidget
+                    current_row_count = self.ui.tbw_default.rowCount()
 
-        #change tab in the tab table to default
-        self.ui.twg_table.setCurrentIndex(0)
+                    # Insert a new row at the end of the table
+                    self.ui.tbw_default.insertRow(current_row_count) 
+                    x_count = 0
+                    for col in range(num_cols):                       
+                        x_item = QTableWidgetItem(str(round(data[row, col, depth],2)))
+                        self.ui.tbw_default.setItem(current_row_count, x_count, x_item)
+                        x_count = x_count + 1
+        except:
+            self.printLog(self.ui.tbx_log, "fail to write data to the table")
+            pass
+    
+    def readTable(self):
+        tableData = []
+
+        # read which tab is on now
+        tabIndex = self.ui.twg_table.currentIndex()
+
+        if tabIndex == 0:
+            table = self.ui.tbw_default
+        elif tabIndex == 1:
+            table = self.ui.tbw_mylist
+
+        try: 
+             # Extract data from the QTableWidget
+            if table.rowCount() != 0:
+                for row in range(table.rowCount()):
+                    row_data = []
+                    for column in range(table.columnCount()):
+                        item = table.item(row, column)
+
+                        if item is not None:
+                            if self.isNumber(item.text()):
+                                row_data.append(float(item.text()))
+                            else:
+                                message = f"The item [{row + 1},{column + 1}] include is non-numeric value. Scanning breaks."
+                                self.printLog(self.ui.tbx_log, message)
+                                NonNumericExist = 1
+                                break
+
+                    tableData.append(row_data)
+            
+                return tableData
+        except:
+            self.printLog(self.ui.tbx_log, "fail to read data from the table")
+            pass
+            
     
     def scanModel(self):
         global laser_x
@@ -291,19 +349,18 @@ class AppWindow(QMainWindow):
             connection_yumi = self.connectYumi()
 
             #initial the position of Yumi
-            """ if(robot != None):
+            if(robot != None):
                 initPos = Robot_YUMI.initialPos(robot)
                 if initPos: 
                     self.printLog(self.ui.tbx_log, "Moving Yumi arm to initial position")
                 else:
                     self.printLog(self.ui.tbx_log, "Not able to move Yumi arm to initial position")
             
-            if NonNumericExist == 0 and connection_yumi: """
+            #if NonNumericExist == 0 and connection_yumi:  (use for robot studio simulation)
             if NonNumericExist == 0:
                 #data = pd.DataFrame(tableData, columns=['X_value', 'Y_value','Z_value'])
                 
                 data = tableData
-                print(data)
                 #Can not be plot in real time. (this is a bug, may fix it in the future)
                 self.updatePlot()   
 
@@ -338,31 +395,56 @@ class AppWindow(QMainWindow):
 
     def dataPreprocessing(self, data_X, data_Y, data_Z):
         global data
-        step_down = 0.001 #Step size for spline interpolation with x,y in Z direction. The smaller this value is, the more values will be added, duh. 
+        step_down = 0.005  # Step size for spline interpolation with x,y in Z direction. The smaller this value is, the more values will be added, duh.
         totalTime = time.time()
-
         t = time.time()
-        #newData_X,newData_Y,newData_Z = spline.spline_xy(data_X,data_Y,data_Z,step_down) ##Runs the spline in z direction
-        newData_X,newData_Y,newData_Z = spline.cubic_spline(data_X,data_Y,data_Z,step_down)
-        elapsed = time.time()-t
-        self.printLog(self.ui.tbx_log, f"Time to do spline:: {elapsed}")
 
-        nPoints = 10 #n*nPoints = number of new points
-        t = time.time()
-        newData_X, newData_Y, newData_Z = spline.splinePerfectCircle(newData_X,newData_Y,newData_Z,nPoints) # Runs the spline in aximuth direction creates perfect circle slices
-        #newData_X,newData_Y,newData_Z = spline.spline_circle(newData_X,newData_Y,newData_Z,nPoints) #Runs the spline in aximuth direction Change the data less 
+        ##Runs the spline in z direction
+        newData_X, newData_Y, newData_Z = spline.spline_xy(data_X, data_Y, data_Z, step_down)
+
+        # newData_X,newData_Y,newData_Z = spline.cubic_spline(data_X,data_Y,data_Z,step_down) #Different spline
+
         elapsed = time.time() - t
-        self.printLog(self.ui.tbx_log, f"Time to do horizontal spline: {elapsed}")
+        print("Time to do spline:", elapsed)
 
-        points = reshapeArr.fixPoints(newData_X,newData_Y,newData_Z) #Reshapes the array into a points array
-        save = False # Save file? #Takes pretty long time to save .obj file, about 5-10 minutes
-        
-        surface_Reconstruction.poisson_surfRecon(points,save)
+
+        nPoints = 10  # n*nPoints = number of new points
+        n = data_X.shape[1]
+        t = time.time()
+
+
+        # Runs the spline in aximuth direction creates perfect circle slices
+        newData_X, newData_Y, newData_Z = spline.splinePerfectCircle(
+            newData_X, newData_Y, newData_Z, nPoints
+        )
+
+        print(newData_X)
+
+        # Runs the spline in aximuth direction Change the data less
+        """newData_X, newData_Y, newData_Z = spline.spline_circle(
+            newData_X, newData_Y, newData_Z, nPoints
+        )"""
+        elapsed = time.time() - t
+        print("Time to do horizontal spline:", elapsed)
+
+        # Reshapes the array into a points array
+        points = reshapeArr.fixPoints(newData_X, newData_Y, newData_Z)
+
+
+        #################################################################################
+        print("Number of datapoint :", len(points))
+
+        save = False  # Save file? #Takes pretty long time to save .obj file, about 5-10 minutes
+        saveImage = False  # Save plot image?
+
+        surface_Reconstruction.delaunay_original(points, save)  ##tight cocone variant
+        # surface_Reconstruction.alpha_Shape(points,save)
+        # surface_Reconstruction.ball_Pivoting(points,save)
+        # surface_Reconstruction.poisson_surfRecon(points, save)
 
         totalElapsed = time.time() - totalTime
-        self.printLog(self.ui.tbx_log, f"Time to complete surface reconstruction: {totalElapsed}")
+        print("Time to complete Sample + reconstruction : ", totalElapsed)
 
-        self.updatePlot() #Plot the figure after spline
         
 app = QApplication(sys.argv)
 w = AppWindow()

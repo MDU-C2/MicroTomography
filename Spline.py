@@ -74,10 +74,6 @@ class spline():
             newData_X[i,:] = cx(newThetaArray)
             newData_Z[i,:] = mean(data_z[i,:])
             
-            
-
-        
-
         return newData_Y,newData_X,newData_Z
     
     def splinePerfectCircle(data_x,data_y,data_z,nPoints):

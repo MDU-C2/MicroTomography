@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1658</width>
-    <height>1136</height>
+    <width>1681</width>
+    <height>1232</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -543,6 +543,19 @@
     </property>
     <property name="contextMenuPolicy">
      <enum>Qt::DefaultContextMenu</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_Calibration">
+    <property name="geometry">
+     <rect>
+      <x>1520</x>
+      <y>50</y>
+      <width>111</width>
+      <height>71</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Calibration</string>
     </property>
    </widget>
   </widget>
