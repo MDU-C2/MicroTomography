@@ -5,8 +5,9 @@ MODULE SERVER
 !////////////////
 
 !//Robot configuration
-PERS tooldata currentTool := [TRUE,[[0,0,0],[1,0,0,0]],[0.001,[0,0,0.001],[1,0,0,0],0,0,0]];    
-PERS wobjdata currentWobj := [FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0,0,755],[1,0,0,0]]];   
+PERS tooldata currentTool := [TRUE,[[0,0,0],[1,0,0,0]],[0.001,[0,0,0.001],[1,0,0,0],0,0,0]];     
+PERS wobjdata currentWobj := [FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0,0,755],[1,0,0,0]]];    
+
 PERS speeddata currentSpeed;
 PERS zonedata currentZone;
 
@@ -24,8 +25,8 @@ VAR num instructionCode;
 VAR num params{10};
 VAR num nParams;
 
-!PERS string ipController:= "192.168.125.1"; !robot default IP
-PERS string ipController:= "127.0.0.1"; !local IP for testing in simulation
+PERS string ipController:= "192.168.125.1"; !robot default IP
+!PERS string ipController:= "127.0.0.1"; !local IP for testing in simulation
 PERS num serverPort:= 5000;
 
 !//Motion of the robot
@@ -53,19 +54,20 @@ CONST num SERVER_BAD_MSG :=  0;
 CONST num SERVER_OK := 1;
 
 !//TCP data in relation to the end effector
-PERS tooldata Laser_TCP:=[TRUE,[[-46.987,-23.723,82.6],[0.92387953,0,0,-0.38268343]],[0.3,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
-PERS tooldata Antenna_TCP:=[TRUE,[[-20.86,-20.859,143],[0.923879533,0,0,-0.382683431]],[0.3,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
-PERS tooldata calibration_TCP:=[TRUE,[[-41.72,-43.133,58.227],[0.653281482,0.27059805,-0.653281482,0.27059805]],[0.1,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
+PERS tooldata Laser_TCP:=[TRUE,[[-23.814169149,47.149271525,82.600058472],[0.923879111,0.000003369,-0.000001235,-0.382684451]],[0.1,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
+PERS tooldata Antenna_TCP:=[TRUE,[[-20.971722827,20.759890928,133],[0.923879532,0,0,-0.382683433]],[0.1,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
+PERS tooldata calibration_TCP:=[TRUE,[[-42.965319309,41.887351095,58.040950916],[0.653279496,0.270603155,-0.653281448,0.270597824]],[0.1,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
+
 
 !//Used to determine the x and y coordinates when determining the current zone of the TCP
 VAR num x;
 VAR num y;
 
 !//When traveling to new zone it should pass through these points 
-VAR robtarget cartesianTargetZone1 := [[141.4213562373095, 141.4213562373095, -100], [0.27059805, 0.65328148, 0.27059805, -0.65328148], [-1,0,0,4], [0.000004418,9E+09,9E+09,9E+09,9E+09,9E+09]];
-VAR robtarget cartesianTargetZone2 := [[-141.42135623730948, 141.4213562373095, -100], [0.65328148, 0.27059805, 0.65328148, -0.27059805], [0,0,0,4], [-0.00000096,9E+09,9E+09,9E+09,9E+09,9E+09]];
-VAR robtarget cartesianTargetZone3 := [[-141.42135623730954, -141.42135623730948, -100], [0.65328148, -0.27059805, 0.65328148, 0.27059805], [1,1,-1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
-VAR robtarget cartesianTargetZone4 := [[141.42135623730948, -141.42135623730954, -100], [-0.27059805, 0.65328148, -0.27059805, -0.65328148], [2,1,-1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR robtarget cartesianTargetZone1 := [[141.4213562373095, 141.4213562373095, -150], [0.27059805, 0.65328148, 0.27059805, -0.65328148], [-1,0,0,4], [0.000004418,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR robtarget cartesianTargetZone2 := [[-141.42135623730948, 141.4213562373095, -150], [0.65328148, 0.27059805, 0.65328148, -0.27059805], [0,0,0,4], [-0.00000096,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR robtarget cartesianTargetZone3 := [[-141.42135623730954, -141.42135623730948, -150], [0.65328148, -0.27059805, 0.65328148, 0.27059805], [1,1,-1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR robtarget cartesianTargetZone4 := [[141.42135623730948, -141.42135623730954, -150], [-0.27059805, 0.65328148, -0.27059805, -0.65328148], [2,1,-1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
 
 !//Coordinate of the point the user wants to calibrate from
 VAR robtarget calibrationCoordinate;
@@ -161,8 +163,8 @@ ENDPROC
 !// - Zone.
 !// - Speed.
 PROC Initialize()
-    currentTool := [TRUE,[[-46.987,-23.723,82.6],[0.92387953,0,0,-0.38268343]],[0.3,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]]; !Is initialized to laser TCP 
-    currentWobj := [FALSE,TRUE,"",[[4.76, -62.64, 696.66],[1,0,0,0]],[[0,0,0],[1,0,0,0]]]; !Set to frame of OUS, currently hardcoded coordinates
+    currentTool := [TRUE,[[0,0,0],[1,0,0,0]],[0.001,[0,0,0.001],[1,0,0,0],0,0,0]]; 
+    currentWobj := [FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0, 0, 695.88],[1,0,0,0]]]; !Set to frame of OUS, currently hardcoded coordinates
     currentSpeed := [100, 50, 0, 0];
     currentZone := [FALSE, 0.3, 0.3,0.3,0.03,0.3,0.03]; !z0
 	
