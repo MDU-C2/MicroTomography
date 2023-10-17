@@ -5,6 +5,12 @@ Here is for the GUI for the system. The red point represent the position of lase
 
 ## Focus on robot arm now. THe GUI is not going to update even it has a bug.
 
+2023-10-17
+Add Calibration button
+Update with new 3D reconstruction code
+Update minor code and fix minor problem
+""Can not be test in robot studio because dynamics error"
+
 2023-10-06
 Add 3D-reconstruction algorithm in code
 Change the save and load .csv to save and load .mat because 3d- construction algorithm need it
@@ -13,12 +19,7 @@ Change the save and load .csv to save and load .mat because 3d- construction alg
 According the abb.py, we don't have function for check the connection status of Yumi. Thus, I change the system design.
 ![ScanningSystem_Ver1 1](https://github.com/MDU-C2/MicroTomography/assets/144024751/2183cf76-5c3e-4f3a-ad3c-d1dfe11190f9)
 
-Add code for connect Yumi robot in a simulation enviroment in robotstudion. This will cause disconnection of robotic arm Yumi.
-
-Unsolved bug:
-50024 Corner path failure in Robotstudion
-![bug](https://github.com/MDU-C2/MicroTomography/assets/144024751/c6653f9f-5f0b-4050-8eec-3ef9d5d38d71)
-
+Add code for connect Yumi robot in a simulation enviroment in robotstudion.
 
 2023-09-27 Update:
 It shows a table. The items in the table are the position for where the robot move.
