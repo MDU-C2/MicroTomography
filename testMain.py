@@ -43,47 +43,46 @@ for point in pointsCylinder:
     if round(point[0][0], 4) != 0 or round(point[0][1], 4):
         print(point)
         robot_Control.move_Robot_Linear(robot, point)
-        sleep(1)
+        sleep(0.5)
         print("Robot Coordinate: ", robot_Control.fetch_Robot_Coordinates(robot))
 
     elif not visitedOrigin:
         print(point)
         robot_Control.move_Robot_Linear(robot, point)
-        sleep(1)
+        sleep(0.5)
         print("Robot Coordinate: ", robot_Control.fetch_Robot_Coordinates(robot))
         visitedOrigin = True
     else:
         print("Skipping origin...")
 
     laser.laserOn()
-    if isinstance(laser.measure(), float):
-        laser_point = laser.measure()
+    laser_point = laser.measure()
+    if isinstance(laser_point, float):
+        laser_data.append(
+            generate_Scan_points_Cylinder.transform_laser_distance(point, laser_point)
+        )
     laser.laserOff()
     print("Laser measurement: " + str(laser_point))
 
-    laser_data.append(
-        generate_Scan_points_Cylinder.transform_laser_distance(point, laser_point)
-    )
 
 print(laser_data)
 
 
-
-data = pd.DataFrame(laser_data, columns=['X_value', 'Y_value','Z_value'])
+data = pd.DataFrame(laser_data, columns=["X_value", "Y_value", "Z_value"])
 
 file_path = filedialog.asksaveasfilename(
-    defaultextension=".csv",
-    filetypes=[("CSV Files", "*.csv")]
+    defaultextension=".csv", filetypes=[("CSV Files", "*.csv")]
 )
 
 if file_path:
-    with open(file_path, 'w', newline='') as csvfile:
-
+    with open(file_path, "w", newline="") as csvfile:
         df = pd.DataFrame(data)
 
         # Save the DataFrame to a CSV file
 
-        df.to_csv(csvfile, index=False)  # Specify index=False to avoid writing row numbers as a column
+        df.to_csv(
+            csvfile, index=False
+        )  # Specify index=False to avoid writing row numbers as a column
 
 
 robot_Control.return_Robot_To_Start(robot)
