@@ -22,7 +22,7 @@ log.addHandler(logging.NullHandler())
 
 
 class Robot:
-    def __init__(self, ip="192.168.125.1", port_motion=5000, port_logger=5001):
+    def __init__(self, ip="192.168.0.100", port_motion=5000, port_logger=5001):
         self.delay = 0.08
 
         self.connect_motion((ip, port_motion))

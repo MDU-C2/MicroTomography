@@ -54,10 +54,9 @@ CONST num SERVER_BAD_MSG :=  0;
 CONST num SERVER_OK := 1;
 
 !//TCP data in relation to the end effector
-PERS tooldata Laser_TCP:=[TRUE,[[-23.814169149,47.149271525,82.600058472],[0.923879111,0.000003369,-0.000001235,-0.382684451]],[0.1,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
-PERS tooldata Antenna_TCP:=[TRUE,[[-20.971722827,20.759890928,133],[0.923879532,0,0,-0.382683433]],[0.1,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
-PERS tooldata calibration_TCP:=[TRUE,[[-42.965319309,41.887351095,58.040950916],[0.653279496,0.270603155,-0.653281448,0.270597824]],[0.1,[-18.786,-18.883,43.148],[1,0,0,0],0,0,0]];
-
+PERS tooldata Laser_TCP:=[TRUE,[[-23.723,46.987,82.6],[0.923879533,0,0,-0.382683432]],[0.1,[-18.883,18.786,43.148],[1,0,0,0],0,0,0]];
+PERS tooldata Antenna_TCP:=[TRUE,[[-20.859,20.86,110],[0.923879533,0,0,-0.382683432]],[0.1,[-18.883,18.786,43.148],[1,0,0,0],0,0,0]];
+PERS tooldata calibration_TCP:=[TRUE,[[-43.133,41.72,58.227],[0.653281482,-0.27059805,-0.653281482,-0.27059805]],[0.1,[-18.883,18.786,43.148],[1,0,0,0],0,0,0]];
 
 !//Used to determine the x and y coordinates when determining the current zone of the TCP
 VAR num x;
@@ -65,9 +64,9 @@ VAR num y;
 
 !//When traveling to new zone it should pass through these points 
 VAR robtarget cartesianTargetZone1 := [[141.4213562373095, 141.4213562373095, -150], [0.27059805, 0.65328148, 0.27059805, -0.65328148], [-1,0,0,4], [0.000004418,9E+09,9E+09,9E+09,9E+09,9E+09]];
-VAR robtarget cartesianTargetZone2 := [[-141.42135623730948, 141.4213562373095, -150], [0.65328148, 0.27059805, 0.65328148, -0.27059805], [0,0,0,4], [-0.00000096,9E+09,9E+09,9E+09,9E+09,9E+09]];
-VAR robtarget cartesianTargetZone3 := [[-141.42135623730954, -141.42135623730948, -150], [0.65328148, -0.27059805, 0.65328148, 0.27059805], [1,1,-1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
-VAR robtarget cartesianTargetZone4 := [[141.42135623730948, -141.42135623730954, -150], [-0.27059805, 0.65328148, -0.27059805, -0.65328148], [2,1,-1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR robtarget cartesianTargetZone2 := [[-141.42135623730948, 141.4213562373095, -150], [0.65328148, 0.27059805, 0.65328148, -0.27059805], [0,0,0,4], [61.00,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR robtarget cartesianTargetZone3 := [[-141.42135623730954, -141.42135623730948, -150], [0.65328148, -0.27059805, 0.65328148, 0.27059805], [1,0,0,4], [118.81,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR robtarget cartesianTargetZone4 := [[141.42135623730948, -141.42135623730954, -150], [-0.27059805, 0.65328148, -0.27059805, -0.65328148], [2,1,1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
 
 !//Coordinate of the point the user wants to calibrate from
 VAR robtarget calibrationCoordinate;
@@ -217,7 +216,7 @@ PROC main()
         
     			
     !//Motion configuration
-    ConfL \Off;
+    ConfL \On;
     SingArea \Wrist;
     moveCompleted:= TRUE;
 	
@@ -264,21 +263,21 @@ PROC main()
                         newZonePosID := 2;
                         cartesianTarget:=[[params{1},params{2},params{3}],
                                            [params{4},params{5},params{6},params{7}],
-                                           [0,0,0,4],
-                                           externalAxis];
+                                           [0,0,1,4],
+                                           [61.00,9E+09,9E+09,9E+09,9E+09,9E+09]];
 
                     ELSEIF params{1} < 0 AND params{2} < 0 THEN
                         newZonePosID := 3;
                         cartesianTarget:=[[params{1},params{2},params{3}],
                                            [params{4},params{5},params{6},params{7}],
-                                           [1,1,-1,4],
-                                           [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
+                                           [0,0,0,4],
+                                           [118.81,9E+09,9E+09,9E+09,9E+09,9E+09]];
                     
                     ELSE
                         newZonePosID := 4;
                         cartesianTarget:=[[params{1},params{2},params{3}],
                                            [params{4},params{5},params{6},params{7}],
-                                           [2,1,-1,4],
+                                           [2,1,1,4],
                                            [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
                     ENDIF
                     
