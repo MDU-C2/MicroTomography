@@ -5,8 +5,11 @@
 scipy==1.11.2
 matplotlib==3.8.0
 numpy==1.26.0
-mayavi==4.7.3 //build for wheel - fail 
+mayavi==4.7.3
 pyvista==0.42.2
 open3d
+optoNCDT1402
+pytransform3d==3.4.0
+pyserial==3.5
 
-To install mayavi successly. You muste install Python 3.10 in the homepage. Not work in 3.11. 
+#To install mayavi successly. You muste install Python 3.10 in the homepage. Not work in 3.11. 

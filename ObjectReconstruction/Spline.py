@@ -18,7 +18,6 @@ class spline():
             test_x = data_X[:,i]
             test_y = data_Y[:,i]
 
-
             tck_X = sp.interpolate.splrep(test_z[::-1], test_x[::-1], s=1)
             tck_Y = sp.interpolate.splrep(test_z[::-1], test_y[::-1], s=1)
             xnew = sp.interpolate.splev(znew[:,i], tck_X, der=0)

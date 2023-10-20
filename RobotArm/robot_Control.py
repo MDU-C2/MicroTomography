@@ -1,6 +1,6 @@
 #!/bin/python3
 
-import abb
+from . import abb
 
 
 def connect_To_Robot():
@@ -8,9 +8,14 @@ def connect_To_Robot():
     return abb.Robot()
 
 
-def set_Reference_Coordinate_System(robot):
+def fetch_Robot_Coordinates(robot):
+    return robot.get_cartesian()
+
+
+def set_Reference_Coordinate_System(robot, reference_Coordinate):
     "Changes the reference coordinate system of the robot, offset in relation to the robots origin(base)"
-    robot.set_workobject([[4.76, -62.64, 696.66], [1, 0, 0, 0]])
+    robot.set_workobject([reference_Coordinate, [1, 0, 0, 0]])
+    # 0.11, 64, 694.98
 
 
 def move_Robot_Linear(robot, coordinates):
@@ -43,6 +48,12 @@ def set_Robot_Tool(robot, tool):
     2 for Antenna TCP
     """
     robot.change_current_tool(tool)
+
+
+def return_Robot_To_Start(robot):
+    # robot.set_joints([0, -100, 0, 0, 105, 45])
+    robot.set_joints([0, -135, 55, 0, 105, 45])
+    robot.set_external_axis(0)
 
 
 def close_Connection(robot):

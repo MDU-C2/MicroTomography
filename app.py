@@ -8,18 +8,21 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
 import time
+from time import sleep
 ##
 # Class files
 ##
-from Spline import spline
-from reshapeArr import reshapeArr
-from Surface_Reconstruction import surface_Reconstruction
-import ScanningSystem
-import Robot_YUMI
-import Button_MoveRobotArm
-from Button_LOAD import load_model
-from Button_SAVE import save_model
-import robot_Control
+from ObjectReconstruction.Spline import spline
+from ObjectReconstruction.reshapeArr import reshapeArr
+from ObjectReconstruction.Surface_Reconstruction import surface_Reconstruction
+from GUI import ScanningSystem
+from GUI.ButtonCode import Button_MoveRobotArm
+from GUI.ButtonCode.Button_LOAD import load_model
+from GUI.ButtonCode.Button_SAVE import save_model
+from RobotArm import robot_Control
+from RobotArm import generate_Scan_points_Cylinder
+from RobotArm import abb
+from Laser import optoNCDT1402
 
 #global variables
 robot = None
@@ -99,7 +102,6 @@ class AppWindow(QMainWindow):
         else:
             self.printLog(self.ui.tbx_log, "No robot connect")
         
-
     #function load file
     def loadFile(self):
         global data
@@ -108,14 +110,10 @@ class AppWindow(QMainWindow):
         self.printLog(self.ui.tbx_log, message)     
 
         try:
-            data_X = data[:,0,:] #Reorganize the data into rows 
-            data_Y = data[:,1,:]
-            data_Z = data[:,2,:]
-
-            self.writeDefaultTable()
+            self.writeDefaultTable(data)
             self.updatePlot() #Plot the figure after spline
             
-            self.dataPreprocessing(data_X, data_Y, data_Z)
+            self.dataPreprocessing(data)
            
             #Open the Save option
             self.ui.btn_Save.setEnabled(True)
@@ -244,10 +242,17 @@ class AppWindow(QMainWindow):
             self.printLog(self.ui.tbx_log, "Error on input. Include alphabets or empty input")
 
     def clear_table(self):
-        self.ui.tbw_mylist.setRowCount(0)  # Remove all rows from the table
+        # read which tab is on now
+        tabIndex = self.ui.twg_table.currentIndex()
 
-    def writeDefaultTable(self):
-        global data
+        if tabIndex == 0:
+            table = self.ui.tbw_default
+        elif tabIndex == 1:
+            table = self.ui.tbw_mylist
+
+        table.setRowCount(0)  # Remove all rows from the table
+
+    def writeDefaultTable(self, data):
         x_count = 0
 
         try: 
@@ -303,17 +308,25 @@ class AppWindow(QMainWindow):
         except:
             self.printLog(self.ui.tbx_log, "fail to read data from the table")
             pass
-            
-    
+             
     def scanModel(self):
         global laser_x
         global laser_y
         global laser_z
-        global data
         global robot
 
         NonNumericExist = 0
-    
+        robotSpeed = [75, 25, 50, 25]
+        points = []
+        laser_data = []
+        visitedOrigin = False
+
+        #connect Yumi
+        robot = self.connectYumi()
+
+        #connect Laser
+        laser = self.connectLaser()
+
         # read which tab is on now
         tabIndex = self.ui.twg_table.currentIndex()
 
@@ -322,55 +335,84 @@ class AppWindow(QMainWindow):
         elif tabIndex == 1:
             table = self.ui.tbw_mylist
 
-        self.printLog(self.ui.tbx_log, "Checking items in the table...")
-
-        # Extract data from the QTableWidget
-        tableData = []
-
-        if table.rowCount() != 0:
-            for row in range(table.rowCount()):
-                row_data = []
-                for column in range(table.columnCount()):
-                    item = table.item(row, column)
-
-                    if item is not None:
-                        if self.isNumber(item.text()):
-                            row_data.append(float(item.text()))
-                        else:
-                            message = f"The item [{row + 1},{column + 1}] include is non-numeric value. Scanning breaks."
-                            self.printLog(self.ui.tbx_log, message)
-                            NonNumericExist = 1
-                            break
-
-                tableData.append(row_data)
-
-            
-            #connect Yumi
-            connection_yumi = self.connectYumi()
-
-            #initial the position of Yumi
-            if(robot != None):
-                initPos = Robot_YUMI.initialPos(robot)
-                if initPos: 
-                    self.printLog(self.ui.tbx_log, "Moving Yumi arm to initial position")
-                else:
-                    self.printLog(self.ui.tbx_log, "Not able to move Yumi arm to initial position")
-            
-            #if NonNumericExist == 0 and connection_yumi:  (use for robot studio simulation)
-            if NonNumericExist == 0:
-                #data = pd.DataFrame(tableData, columns=['X_value', 'Y_value','Z_value'])
-                
-                data = tableData
-                #Can not be plot in real time. (this is a bug, may fix it in the future)
-                self.updatePlot()   
-
-                self.printLog(self.ui.tbx_log, "Scanning complete")
-                #Open the Save option
-                self.ui.btn_Save.setEnabled(True)
+        #Generate points for laser scanning if no item in the table or read data from table
+            if table.rowCount == 0:
+                points = self.autoGenPoints()
             else:
-                self.printLog(self.ui.tbx_log, "Scanning fail")
+                self.printLog(self.ui.tbx_log, "Checking items in the table...")
+
+                for row in range(table.rowCount()):
+                    row_data = []
+                    for column in range(table.columnCount()):
+                        item = table.item(row, column)
+                        if item is not None:
+                            if self.isNumber(item.text()):
+                                row_data.append(float(item.text()))
+                            else:
+                                message = f"The item [{row + 1},{column + 1}] include is non-numeric value."
+                                self.printLog(self.ui.tbx_log, message)
+                                NonNumericExist = 1
+                                break
+
+                points.append(row_data)
+    
+        #check status before start scanning
+        if (NonNumericExist == 0) and (robot != None) and (laser != None):
+            #Robot setting
+            robot_Control.set_Reference_Coordinate_System(robot, [0.6, -3.85, 758.01])
+
+            robot_Control.set_Robot_Tool(robot, 1)
+
+            robot_Control.set_Robot_Speed(robot, robotSpeed)
+
+            #move to default position (initial position)
+            robot_Control.return_Robot_To_Start(robot)
+
+            #move robot to scanning points
+            for point in points:
+                if round(point[0][0], 4) != 0 or round(point[0][1], 4):
+                    print(point)
+                    robot_Control.move_Robot_Linear(robot, point)
+                    sleep(0.5)
+                    print("Robot Coordinate: ", robot_Control.fetch_Robot_Coordinates(robot))
+
+                elif not visitedOrigin:
+                    print(point)
+                    robot_Control.move_Robot_Linear(robot, point)
+                    sleep(0.5)
+                    print("Robot Coordinate: ", robot_Control.fetch_Robot_Coordinates(robot))
+                    visitedOrigin = True
+                else:
+                    print("Skipping origin...")
+
+                while not laser.laserOn():
+                    continue
+
+                laser_point = laser.measure()
+                if isinstance(laser_point, float):
+                    laser_data.append(
+                        generate_Scan_points_Cylinder.transform_laser_distance(
+                            point, laser_point
+                        )
+                    )
+                
+                while not laser.laserOff():
+                    continue
+                    
+            #Write laser data to the default table
+            self.writeDefaultTable(laser_data)
+
+            #Plot the point cloud
+            self.updatePlot()
+
+            #3D reconstruction
+            self.reconstruction3D(laser_data)
+
+            self.printLog(self.ui.tbx_log, "Scanning complete")
+            #Open the Save option
+            self.ui.btn_Save.setEnabled(True)
         else:
-            self.printLog(self.ui.tbx_log, "No item in the table")
+            self.printLog(self.ui.tbx_log, "Scanning breaks.")
         
     def isNumber(self, text):
         try:
@@ -380,7 +422,15 @@ class AppWindow(QMainWindow):
             return False
         
     def connectYumi(self):
-        global robot
+        try: 
+            robot = abb.Robot()
+            self.printLog(self.ui.tbx_log, "Connect to the yumi robot arm")
+            return robot
+        except:
+            self.printLog(self.ui.tbx_log, "unable to connect to the robot arm")
+            return None
+
+        """global robot
         robot = Robot_YUMI.connectYumi()
 
         if (robot != None):
@@ -388,16 +438,25 @@ class AppWindow(QMainWindow):
             return True
         else:
             self.printLog(self.ui.tbx_log, "unable to connect to the robot arm")
-            return False
-        
-    #def changeSteps(self):
-        #for robot moves 
+            return False"""
 
-    def dataPreprocessing(self, data_X, data_Y, data_Z):
-        global data
+    def connectLaser(self):
+        try: 
+            laser = optoNCDT1402.optoNCDT1402("COM3")
+            self.printLog(self.ui.tbx_log, "Connect to the laser")
+            return laser
+        except:
+            self.printLog(self.ui.tbx_log, "unable to connect to the laser")
+            return None
+
+    def reconstruction3D(self, data):
         step_down = 0.005  # Step size for spline interpolation with x,y in Z direction. The smaller this value is, the more values will be added, duh.
         totalTime = time.time()
         t = time.time()
+
+        data_X = data[:,0,:] #Reorganize the data into rows 
+        data_Y = data[:,1,:]
+        data_Z = data[:,2,:]
 
         ##Runs the spline in z direction
         newData_X, newData_Y, newData_Z = spline.spline_xy(data_X, data_Y, data_Z, step_down)
@@ -445,7 +504,18 @@ class AppWindow(QMainWindow):
         totalElapsed = time.time() - totalTime
         print("Time to complete Sample + reconstruction : ", totalElapsed)
 
-        
+    def autoGenPoints(self):
+        global points
+        circle_diameter = 120
+        z_stepsize = 10
+        max_depth = -50
+        azimuthPoints = 16
+
+        points = generate_Scan_points_Cylinder.generate_scan_points_cylinder(circle_diameter, z_stepsize, max_depth, azimuthPoints)
+
+        return points
+
+
 app = QApplication(sys.argv)
 w = AppWindow()
 w.show()
