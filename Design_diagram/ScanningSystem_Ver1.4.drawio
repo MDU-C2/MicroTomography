@@ -1,4 +1,4 @@
-<mxfile host="app.diagrams.net" modified="2023-10-20T12:20:08.565Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/118.0" etag="nJNlnJbMmZOiUdoxDDTv" version="22.0.5" type="device">
+<mxfile host="app.diagrams.net" modified="2023-10-20T12:26:17.992Z" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:109.0) Gecko/20100101 Firefox/118.0" etag="HiI5LG29QMUzayMIxuGX" version="22.0.5" type="device">
   <diagram name="Page-1" id="y5EkqkRGudmOyvRt5nkQ">
     <mxGraphModel dx="2412" dy="1926" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="850" pageHeight="1100" math="0" shadow="0">
       <root>
@@ -31,10 +31,10 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="B72tMtw-QqEQN7ghL_KD-4" value="Connect Yumi" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+        <mxCell id="B72tMtw-QqEQN7ghL_KD-4" value="Connect Yumi" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
           <mxGeometry x="-60" y="140" width="120" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="B72tMtw-QqEQN7ghL_KD-9" value="Display log: fail" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+        <mxCell id="B72tMtw-QqEQN7ghL_KD-9" value="Display log: fail" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
           <mxGeometry x="-60" y="270" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="B72tMtw-QqEQN7ghL_KD-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="B72tMtw-QqEQN7ghL_KD-17" target="Y8i0nsSM6AcdfNey4lcR-3" edge="1">
@@ -56,10 +56,10 @@
             <mxPoint as="offset" />
           </mxGeometry>
         </mxCell>
-        <mxCell id="B72tMtw-QqEQN7ghL_KD-17" value="Connect Laser" style="ellipse;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;" parent="1" vertex="1">
+        <mxCell id="B72tMtw-QqEQN7ghL_KD-17" value="Connect Laser" style="ellipse;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
           <mxGeometry x="160" y="140" width="120" height="80" as="geometry" />
         </mxCell>
-        <mxCell id="B72tMtw-QqEQN7ghL_KD-18" value="Display log: fail" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+        <mxCell id="B72tMtw-QqEQN7ghL_KD-18" value="Display log: fail" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
           <mxGeometry x="160" y="270" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="B72tMtw-QqEQN7ghL_KD-25" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;" parent="1" source="B72tMtw-QqEQN7ghL_KD-21" target="B72tMtw-QqEQN7ghL_KD-24" edge="1">
