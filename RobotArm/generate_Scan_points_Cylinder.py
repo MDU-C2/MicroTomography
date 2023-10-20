@@ -13,8 +13,10 @@ def generate_scan_points_cylinder(
     zMin: int,
     azimuthPoints: int,
     zOffset: (int | float) = 0,
+    laser_angle: (int | float) = 0,
 ):
-    """Generates points in a cylindrical pattern with quaternion angles pointing inwards toward (0, 0) in each z plane
+    """Generates points in a cylindrical pattern with quaternion angles pointing inwards toward
+    (0, 0) in each z plane
 
     Parameters
     ----------
@@ -26,8 +28,11 @@ def generate_scan_points_cylinder(
         The lowest point of the cylinder
     azimuthPoints : int
         Number of points in the azimuth angle
-    zOffset: int or float
+    zOffset: int or float, default: 0
         Sets an offset in the z-axis
+    laser_angle: int or float, default: 0
+        Sets the angle of the end effector to point up wards by a certain angle.
+
 
     Returns
     -------
@@ -36,9 +41,8 @@ def generate_scan_points_cylinder(
     """
     if zMin > 0:
         raise ValueError("zMin must be negative")
-    q1 = quaternion_from_axis_angle(np.array([0, 1, 0, np.pi / 2]))
+    q1 = quaternion_from_axis_angle(np.array([0, 1, 0, np.pi / 2 - laser_angle]))
     azimuth = np.linspace(0, 2 * np.pi - ((2 * np.pi) / azimuthPoints), azimuthPoints)
-    print(np.linspace(0, 360 - (360 / azimuthPoints), azimuthPoints))
     points = []
 
     z = [h for h in reversed(range(zMin, zOffset + zStepSize, zStepSize))]
@@ -47,8 +51,8 @@ def generate_scan_points_cylinder(
         for h in z:
             x = radius * np.cos(angle)
             y = radius * np.sin(angle)
-            q2 = quaternion_from_axis_angle(np.array([1, 0, 0, np.pi - angle]))
-            q = concatenate_quaternions(q1=q1, q2=q2)
+            q2 = quaternion_from_axis_angle(np.array([0, 0, 1, np.pi + angle]))
+            q = concatenate_quaternions(q1=q2, q2=q1)
 
             points.append([np.array([x, y, h]), q])
 
@@ -62,7 +66,8 @@ def generate_scan_points_halfSphere(
     zMin=0,
     zOffset: (int | float) = 0,
 ):
-    """Generates points in a half-sphere below z=0 and the quaternion angles such that the z-axis of the end effector always points to (0, 0, 0)
+    """Generates points in a half-sphere below z=0 and the quaternion angles such that the
+    z-axis of the end effector always points to (0, 0, 0)
 
     Parameters
     ----------
@@ -74,7 +79,7 @@ def generate_scan_points_halfSphere(
         Number of points in the elevation plane
     zMin : optional
         Sets how low the half-sphere should go in the z-axis
-    zOffset: int or float
+    zOffset: int or float, default: 0
         Sets an offset in the z-axis
 
     Returns
@@ -112,7 +117,8 @@ def transform_laser_distance(point: list, laser_distance: (int | float)):
     Parameters
     ----------
     point : array-like, shape [(3,), (4,)]
-        A list containing the coordinates of the laser and the quaternions of the laser in the form [[Coordinates], [Quaternions]]
+        A list containing the coordinates of the laser and the quaternions of the
+        laser in the form [[Coordinates], [Quaternions]]
     laserDistance : int or float
         The distance measured by the laser in mm
 

@@ -87,11 +87,9 @@ class optoNCDT1402:
             while self.ser.in_waiting < 2:
                 sleep(0.1)
 
-            # Read from serial port and get a 14 bit number
+            # Read from serial port and pick the 2 latest to combine
             data = self.ser.read_all()
-            digitalValue = self.combineBytes(
-                data[-2:]
-            )  # Combine the last two bytes in the list
+            digitalValue = self.combineBytes(data[-2:])
 
             # Decide what the number means, taken from the datasheet
             if digitalValue < 161:
@@ -101,8 +99,10 @@ class optoNCDT1402:
                 i = i + 1  # Only increment i when a distance is appended
             elif digitalValue < 16370:
                 return "EMR back-up"
-            elif digitalValue < 16386:
+            elif digitalValue < 16384:
                 return self.errorCodes.get(digitalValue, "Unknown error")
+            elif digitalValue < 16386:
+                continue
 
         if self.noMeasurements == 1:
             return distanceList.pop()
