@@ -25,6 +25,8 @@ class surface_Reconstruction:
 
         mesh = Triangular.delaunay_3d()  # Creates mesh using delaunay 3d triangles
 
+        points = mesh.GetPoints().GetData()
+        triangles = mesh.cell_data_to_point_data()
         # mesh = delaunay_tri
         # Plot the mesh
         elapsed = time.time() - t

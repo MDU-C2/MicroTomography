@@ -17,6 +17,8 @@ from reshapeArr import reshapeArr
 from Surface_Reconstruction import surface_Reconstruction
 from LoadCADfile import loadSTLFile as lstl
 from TraceError import TraceError as TE
+from ChoosePoints import ChoosePoints as cP
+from ChoosePoints import rayCastPoints as rcP
 
 
 fileName = "Data\surfacePoint12061105_5.625deg_10stepWITHOUTNAN.mat"
@@ -87,7 +89,7 @@ save = False  # Save file? #Takes pretty long time to save .obj file, about 5-10
 saveImage = False  # Save plot image?
 
 """recon_mesh_2 = surface_Reconstruction.delaunay_original(
-    points, save
+    points_2, save
 )"""  ##tight cocone variant
 #
 # surface_Reconstruction.alpha_Shape(points, save)
@@ -99,6 +101,13 @@ print("Time to complete Sample + reconstruction : ", totalElapsed)
 
 GT_mesh = surface_Reconstruction.poisson_surfRecon(points, save)
 TE.lineTrace(GT_mesh, recon_mesh)
+
+cP = [10, 10, -10]  # ChosenPoints Functions gets the closes
+
+newPoints = rcP(
+    recon_mesh, cP
+)  # Recon mesh is reconstructed mesh, cP is the chosen points where to put the antenna.
+
 
 if saveImage:
     fig2 = plt.figure(dpi=400)
