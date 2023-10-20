@@ -5,6 +5,10 @@ Here is for the GUI for the system. The red point represent the position of lase
 
 ## Focus on robot arm now. THe GUI is not going to update even it has a bug.
 
+2023-10-20
+Update the design diagram
+relocate the files and update some code
+
 2023-10-17
 Add Calibration button
 
@@ -21,7 +25,6 @@ Change the save and load .csv to save and load .mat because 3d- construction alg
 
 2023-09-29 Update (GUI v1.0 -> GUI v1.1):
 According the abb.py, we don't have function for check the connection status of Yumi. Thus, I change the system design.
-![ScanningSystem_Ver1 1](https://github.com/MDU-C2/MicroTomography/assets/144024751/2183cf76-5c3e-4f3a-ad3c-d1dfe11190f9)
 
 Add code for connect Yumi robot in a simulation enviroment in robotstudion.
 

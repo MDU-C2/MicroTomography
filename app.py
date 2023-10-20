@@ -83,10 +83,6 @@ class AppWindow(QMainWindow):
         #print message in the text browser
         self.printLog(self.ui.tbx_log, "System open")
 
-        #Read defalut data
-        #self.readDefaultTable()
-        #self.printLog(self.ui.tbx_log, "Default table read")
-
     #Set Calibration
     def calibration(self):
         global robot
@@ -429,16 +425,6 @@ class AppWindow(QMainWindow):
         except:
             self.printLog(self.ui.tbx_log, "unable to connect to the robot arm")
             return None
-
-        """global robot
-        robot = Robot_YUMI.connectYumi()
-
-        if (robot != None):
-            self.printLog(self.ui.tbx_log, "Connect to the yumi robot arm")
-            return True
-        else:
-            self.printLog(self.ui.tbx_log, "unable to connect to the robot arm")
-            return False"""
 
     def connectLaser(self):
         try: 
