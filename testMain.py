@@ -1,7 +1,7 @@
 from RobotArm import robot_Control, generate_Scan_points_Cylinder
 from Laser import optoNCDT1402
+from RaspberryPi import transistor
 from time import sleep
-from tkinter import filedialog
 
 import os.path
 import pandas as pd
@@ -24,11 +24,12 @@ pointsSphere = generate_Scan_points_Cylinder.generate_scan_points_halfSphere(
     circle_radius, azimuthPoints, elevationPoints, zMin, offset
 )
 
-laser = optoNCDT1402.optoNCDT1402("COM3")
+laser = optoNCDT1402.optoNCDT1402("/dev/ttyUSB0")  # Serial port of the Raspberry
+transistor.init()
 
 robot = robot_Control.connect_To_Robot()
 
-robot_Control.set_Reference_Coordinate_System(robot, [0.6, -3.85, 758.01])
+robot_Control.set_Reference_Coordinate_System(robot, [0, 0, 758.01])
 
 robot_Control.set_Robot_Tool(robot, 1)
 
@@ -59,8 +60,7 @@ for filename in filenameArray:
         else:
             print("Skipping origin...")
 
-        while not laser.laserOn():
-            continue
+        transistor.laserON()
 
         laser_point = laser.measure()
         if isinstance(laser_point, float):
@@ -69,8 +69,8 @@ for filename in filenameArray:
                     point, laser_point
                 )
             )
-        while not laser.laserOff():
-            continue
+        transistor.laserOff()
+
         # laser.laserOff()
         print("Laser measurement: " + str(laser_point))
 

@@ -40,7 +40,7 @@ class optoNCDT1402:
             stopbits=1,
         )
         self.noMeasurements = noMeasurements
-        self.laserOff()
+        # self.laserOff()
 
     # All the error codes from the laser with its corresponding error.
     errorCodes = {

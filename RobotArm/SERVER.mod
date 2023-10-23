@@ -163,7 +163,7 @@ ENDPROC
 !// - Speed.
 PROC Initialize()
     currentTool := [TRUE,[[0,0,0],[1,0,0,0]],[0.001,[0,0,0.001],[1,0,0,0],0,0,0]]; 
-    currentWobj := [FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0, 0, 695.88],[1,0,0,0]]]; !Set to frame of OUS, currently hardcoded coordinates
+    currentWobj := [FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0, 0, 755],[1,0,0,0]]]; !Set to frame of OUS, currently hardcoded coordinates
     currentSpeed := [100, 50, 0, 0];
     currentZone := [FALSE, 0.3, 0.3,0.3,0.03,0.3,0.03]; !z0
 	
@@ -303,7 +303,7 @@ PROC main()
                                 newZonePos := cartesianTargetZone4;
                             ENDIF
                             
-                            MoveL newZonePos, currentSpeed, currentZone, currentTool \WObj:=currentWobj;
+                            MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
                         ENDWHILE
                     
                     !Move down through the zones
@@ -321,7 +321,7 @@ PROC main()
                             ELSE
                                 newZonePos := cartesianTargetZone1;
                             ENDIF
-                            MoveL newZonePos, currentSpeed, currentZone, currentTool \WObj:=currentWobj;
+                            MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
                          ENDWHILE
                          
                     ENDIF

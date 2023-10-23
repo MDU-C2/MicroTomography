@@ -52,6 +52,8 @@ def set_Robot_Tool(robot, tool):
 
 def return_Robot_To_Start(robot):
     # robot.set_joints([0, -100, 0, 0, 105, 45])
+    # robot.set_joints([0, -135, 55, 0, 105, 45])
+    # robot.set_cartesian([[-86.04, 16.4, -292.5], [0.54, 0.001, 0.842, 0.001]])
     robot.set_joints([0, -135, 55, 0, 105, 45])
     robot.set_external_axis(0)
 

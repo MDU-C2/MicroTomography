@@ -3,3 +3,5 @@
 # like pyserial==3.5
 pytransform3d==3.4.0
 pyserial==3.5
+pandas==1.5.3
+numpy==1.24.2
