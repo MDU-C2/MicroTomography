@@ -41,6 +41,8 @@ def generate_scan_points_cylinder(
     """
     if zMin > 0:
         raise ValueError("zMin must be negative")
+
+    laser_angle = np.deg2rad(laser_angle)
     q1 = quaternion_from_axis_angle(np.array([0, 1, 0, np.pi / 2 - laser_angle]))
     azimuth = np.linspace(0, 2 * np.pi - ((2 * np.pi) / azimuthPoints), azimuthPoints)
     points = []
