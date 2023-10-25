@@ -1,0 +1,451 @@
+MODULE MainModule
+
+    TASK PERS wobjdata wBreast:=[FALSE,TRUE,"",[[160,0,625],[1,0,0,0]],[[0,0,0],[1,0,0,0]]];
+    !630!
+    TASK PERS tooldata treciever:=[TRUE,[[-16,16,177.76],[1,0,0,0]],[0.3,[0,0,1],[1,0,0,0],0,0,0]];
+    TASK Pers tooldata tLaser:=[TRUE,[[-16,-14,105.5],[1,0,0,0]],[0.3,[0,0,1],[1,0,0,0],0,0,0]];
+    TASK pers tooldata t_tool:=[TRUE,[[-16,-14,105.5],[1,0,0,0]],[0.3,[0,0,1],[1,0,0,0],0,0,0]];
+
+    VAR socketdev server;
+    VAR socketdev client;
+    VAR string coord;
+
+    VAR robtarget posCurrent;
+
+    CONST jointtarget joint_0:=[[-0.922412,-87.5728,39.5902,1.28255,47.9964,-1.26446],[-0.406489,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    CONST jointtarget joint_H1:=[[90,-92.5693,10.3568,-0.958225,82.0454,-26.9854],[-27.1434,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    CONST jointtarget joint_H2:=[[148.225,-76.509,-26.4003,38.1584,129.284,-34.9158],[-52.4397,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    CONST jointtarget joint_V1:=[[-89.9143,-92.6658,10.3735,1.14357,82.0432,26.7935],[26.9776,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    CONST jointtarget joint_V2:=[[-148.82,-77.3192,-26.187,-37.0968,128.61,34.1383],[51.0912,9E+09,9E+09,9E+09,9E+09,9E+09]];
+
+    PERS robtarget rob_0:=[[-200,0,0],[0.7071,0,0.7071,0],[0,0,0,4],[88.9788,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget rob_H1:=[[0,-200,0],[0.5,-0.5,0.5,0.5],[1,0,0,4],[-179.906,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget rob_H2:=[[200,0,0],[0,-0.7071,0,0.7071],[2,0,0,4],[-155.008,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget rob_V1:=[[0,200,0],[0.5,0.5,0.5,-0.5],[-1,0,0,4],[-0.0544933,9E+09,9E+09,9E+09,9E+09,9E+09]];
+    PERS robtarget rob_V2:=[[200,0,0],[0,-0.7071,0,0.7071],[-2,0,0,4],[-26.7821,9E+09,9E+09,9E+09,9E+09,9E+09]];
+
+    PERS robtarget robPos:=[[-200,0,0],[1,0,0,0],[0,0,0,4],[88.9788,9E+09,9E+09,9E+09,9E+09,9E+09]];
+
+    VAR speeddata vSpeed:=[100,30,200,15];
+    PERS wobjdata wBreast1:=[FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0,0,0],[1,0,0,0]]];
+
+    VAR num standardMovingHeight:=-100;
+    VAR num standardDist:=90;
+
+    PROC main()
+        VAR bool moved;
+        VAR num dist:=90;
+
+        VAR robtarget p;
+        VAR num teta;
+        VAR num angtest;
+        VAR num tetatest;
+        VAR num angle{3};
+
+        AccSet 50,50;
+        tpwrite "START";
+
+        ConfJ\On;
+
+        MoveToStartPosition 200;
+        connectmatlab;
+        !SendCurrentPosition;
+
+        WHILE TRUE DO
+            GetAndMoveToNewPosition dist;
+            SendCurrentPosition;
+        ENDWHILE
+
+        SocketClose server;
+
+    ENDPROC
+
+    PROC connectmatlab()
+        SocketCreate server;
+        SocketBind server,"10.132.158.88",55000;
+        SocketListen server;
+        SocketAccept server,client;
+        VelSet 100,8000;
+    ERROR
+        IF ERRNO=ERR_SOCK_TIMEOUT THEN
+            TPWrite "SOCK_TIMEOUT";
+            RETRY;
+        ELSEIF ERRNO=ERR_SOCK_CLOSED THEN
+            TPWrite "SOCKET CLOSED";
+            RETURN ;
+        ELSE
+            ! No error recovery handling
+        ENDIF
+    ENDPROC
+
+    PROC MoveToStartPosition(num dist)
+        VAR robtarget pPosition;
+
+        pPosition:=CRobT(\WObj:=wBreast);
+
+        IF pPosition.trans.x>0 THEN
+            IF pPosition.trans.y<0 THEN
+                pPosition.trans.y:=-dist;
+            ELSE
+                pPosition.trans.y:=dist;
+            ENDIF
+            MoveJ pPosition,vSpeed,z0,tLaser\WObj:=wBreast;
+        ENDIF
+
+        pPosition.trans.x:=-dist;
+        MoveJ pPosition,vSpeed,z0,tLaser\WObj:=wBreast;
+
+        pPosition.trans.z:=0;
+        MoveJ pPosition,vSpeed,z0,tLaser\WObj:=wBreast;
+
+        MoveJ reltool(robPos,0,0,0\Ry:=90),v100,fine,treciever\WObj:=wBreast;
+    ENDPROC
+
+    FUNC robtarget calcXYwithdistance(robtarget posisiton,num dist)
+        VAR robtarget rPos;
+        VAR num teta;
+        VAR num newXY{2};
+
+        teta:=calcTeta(posisiton);
+        rPos:=posisiton;
+
+        rPos.trans.x:=dist*cos(teta);
+        rPos.trans.y:=dist*sin(teta);
+
+        IF posisiton.trans.x<0 THEN
+            rPos.trans.x:=-rPos.trans.x;
+            rPos.trans.y:=-rPos.trans.y;
+        ENDIF
+
+        RETURN rPos;
+    ENDFUNC
+
+    FUNC num calcTeta(robtarget posisiton)
+        return ATan(posisiton.trans.y/posisiton.trans.x);
+    ENDFUNC
+
+    FUNC num TetaToangle(num teta,robtarget robT)
+        VAR num angle;
+
+        IF robT.trans.y<0 THEN
+            IF teta>0 THEN
+                angle:=-teta;
+            ELSE
+                angle:=-180-teta;
+            ENDIF
+        ELSE
+            IF teta<0 THEN
+                angle:=-teta;
+            ELSE
+                angle:=180-teta;
+            ENDIF
+        ENDIF
+
+        RETURN angle;
+    ENDFUNC
+
+    FUNC num angleToTeta(num angle)
+        VAR num teta;
+
+        IF angle<-90 THEN
+            teta:=-(-180-angle);
+        ELSEIF angle<90 THEN
+            teta:=-angle;
+        ELSE
+            teta:=-(180-angle);
+        ENDIF
+
+        RETURN teta;
+    ENDFUNC
+
+    PROC GetAndMoveToNewPosition(num dist)
+        VAR bool ok;
+        VAR pos trans;
+        VAR bool moved;
+        VAR string rString;
+        VAR num R{3,3};
+
+        rString:=receive();
+        ok:=StrToVal(rString,R);
+
+        TPwrite "From matlab: ";
+        TPWrite rString;
+
+        trans.x:=R{1,1};
+        trans.y:=R{1,2};
+        trans.z:=R{1,3};
+
+        !!R{2,3}:=R{2,3}+180; INGRID CHANGE BEFORE AMANDA GUI CODE
+        IF R{2,3}>180 R{2,3}:=R{2,3}-360;
+
+        IF R{3,1}=1 THEN
+            t_tool:=tLaser;
+        ELSE
+            t_tool:=treciever;
+        ENDIF
+
+        moved:=move(trans,R{2,1},R{2,2},R{2,3},dist);
+    ENDPROC
+
+    PROC SendCurrentPosition()
+        VAR string stat;
+        VAR num angle{3};
+
+        VAR string rString;
+        VAR num R{2,3};
+
+        posCurrent:=CRobT(\WObj:=wBreast);
+        angle:=[EulerZYX(\X,posCurrent.rot),EulerZYX(\Y,posCurrent.rot),EulerZYX(\Z,posCurrent.rot)];
+
+        R{1,1}:=posCurrent.trans.x;
+        R{1,2}:=posCurrent.trans.y;
+        R{1,3}:=posCurrent.trans.z;
+        R{2,1}:=angle{1};
+        R{2,2}:=angle{2};
+        R{2,3}:=angle{3};
+
+        TPWrite "To matlab: ";
+        TPWrite valToStr(R);
+        stat:=send(valToStr(R));
+    ENDPROC
+
+    func string Send(string c)
+        SocketSend client\Str:=c;
+        RETURN "";
+    ERROR
+        IF ERRNO=ERR_SOCK_CLOSED THEN
+            TPWrite "error socket closed";
+            RETRY;
+
+        ELSEIF ERRNO=ERR_SOCK_NET_UNREACH THEN
+            TPWrite "error socket uncreachable";
+            RETRY;
+
+        ELSEIF ERRNO=ERR_SOCK_NOT_CONN THEN
+            TPWrite "error socket not con";
+            RETRY;
+        ELSEIF ERRNO=ERR_SOCK_UNSPEC THEN
+            TPWrite "error unspec";
+            RETRY;
+        ENDIF
+    ENDFUNC
+
+    func string receive()
+        coord:="";
+        SocketReceive client\Str:=coord;
+        RETURN coord;
+    ENDFUNC
+
+    FUNC bool move(pos trans,num rotx,num roty,num rotz,num dist)
+        VAR robtarget tStartPos;
+        VAR robtarget tDistStartPos;
+        VAR robtarget tDistStartPosStandardHeight;
+
+        VAR robtarget tGoalPos;
+        VAR robtarget tDistGoalPos;
+        VAR robtarget tDistGoalPosStandardHeight;
+
+        VAR num startDegree;
+        VAR num goalDegree;
+
+        VAR num degreeStep:=5;
+
+        tGoalPos:=goalposition(trans,rotx,roty,rotz);
+        goalDegree:=calcTeta(tGoalPos);
+        goalDegree:=TetaToangle(goalDegree,tGoalPos);
+
+        tStartPos:=CRobT(\WObj:=wBreast);
+        startDegree:=calcTeta(tStartPos);
+        startDegree:=TetaToangle(startDegree,tStartPos);
+
+        IF startDegree<-170 AND tStartPos.robconf.cf1<0 THEN
+            startDegree:=startDegree+360;
+        ELSEIF startDegree>170 AND tStartPos.robconf.cf1>0 THEN
+            startDegree:=startDegree-360;
+        ENDIF
+
+        IF abs(startDegree-goalDegree)>degreeStep OR abs(tStartPos.trans.z-tGoalPos.trans.z)>10 THEN
+
+            !!Calc Start point above surface withouht standard height
+            tDistStartPos:=calcXYwithdistance(tStartPos,dist);
+
+            !!Calc Start point above surface with standard height
+            tDistStartPosStandardHeight:=tDistStartPos;
+            tDistStartPosStandardHeight.trans.z:=standardMovingHeight;
+
+            !!Calc Goal point above surface withouht standard height
+            tDistGoalPos:=calcXYwithdistance(tGoalPos,dist);
+
+            !!Calc Goal point above surface with standard height
+            tDistGoalPosStandardHeight:=tDistGoalPos;
+            tDistGoalPosStandardHeight.trans.z:=standardMovingHeight;
+
+            !!Move to start pos above surface without standard height:
+            MoveL tDistStartPos,vSpeed,z100,treciever\WObj:=wBreast;
+
+            !!Move to start pos above surface with standard height:
+            MoveL tDistStartPosStandardHeight,vSpeed,z100,treciever\WObj:=wBreast;
+
+            !!move to position <degreeStep in degreees from goal position
+            IF abs(startDegree-goalDegree)>degreeStep MoveCirc CRobT(\WObj:=wBreast),tDistGoalPos,startDegree,goalDegree,degreeStep;
+
+            !Move to dist pos with standard height
+            MoveL reltool(reltool(tDistGoalPosStandardHeight,0,0,0\Rz:=rotz),0,0,0\Ry:=roty),vSpeed,z100,treciever\WObj:=wBreast; !INGRID Rz:=-rotz
+
+            !Move to dist pos
+            MoveL reltool(reltool(tDistGoalPos,0,0,0\Rz:=rotz),0,0,0\Ry:=roty),vSpeed,z100,treciever\WObj:=wBreast; !INGRID Rz:=-rotz
+        ENDIF
+
+        !roty:=roty-10; !!INGRID
+        TPWrite "rot x: "+valtostr(rotx)+" rot y: "+valtostr(roty);
+        MoveJ reltool(reltool(tGoalPos,0,0,0\Rz:=rotz),0,0,0\Ry:=roty),vSpeed,z100,t_tool\WObj:=wBreast; !INGRID Rz:=-rotz
+
+        WaitRob\InPos;
+        WaitRob\zerospeed;
+        waittime 0.2;
+        !waittime 1;
+
+        RETURN true;
+    ENDFUNC
+
+    PROC MoveCirc(robtarget tStartPos,robtarget tDistGoalPos,num xrot,num goalDegree,num degreeStep)
+        VAR robtarget pPos;
+        !VAR num yrot:=90;
+        !VAR num zrot:=0;
+        VAR num teta;
+
+        VAR robtarget testp;
+
+        VAR num avs;
+
+        avs:=abs(xrot-goalDegree);
+
+        WHILE abs(xrot-goalDegree)>degreeStep DO
+            IF xrot<goalDegree THEN
+                xrot:=xrot+degreeStep;
+            ELSE
+                xrot:=xrot-degreeStep;
+            ENDIF
+
+            teta:=angleToTeta(xrot);
+
+
+            pPos.trans.x:=standardDist*cos(teta);
+            pPos.trans.y:=standardDist*sin(teta);
+
+            IF pPos.trans.x>0 AND abs(xrot)<90 THEN
+                pPos.trans.x:=-pPos.trans.x;
+                pPos.trans.y:=-pPos.trans.y;
+            ELSEIF pPos.trans.x>0 AND abs(xrot)>90 THEN
+                pPos.trans.y:=-pPos.trans.y;
+            ENDIF
+
+            pPos.trans.z:=standardMovingHeight;
+            pPos:=goalposition(pPos.trans,0,0,xrot);
+
+            MoveL reltool(reltool(pPos,0,0,0\Rz:=-xrot),0,0,0\Ry:=90),vSpeed,z100,treciever\WObj:=wBreast;
+
+        ENDWHILE
+
+        waittime 2;
+    ENDPROC
+
+    FUNC robtarget CalcCircPos(robtarget tStartPos,robtarget tDistGoalPos,num startDegree,num goalDegree)
+        VAR robtarget circpos;
+        VAR num xrot:=0;
+        VAR num yrot:=0;
+        VAR num zrot:=0;
+        VAR num teta;
+
+        VAR num avs;
+
+        avs:=abs(startDegree-goalDegree);
+
+        IF startDegree<goalDegree THEN
+            xrot:=startDegree+(avs/2);
+        ELSE
+            xrot:=goalDegree+(avs/2);
+        ENDIF
+
+        teta:=angleToTeta(xrot);
+
+        circpos.trans.x:=standardDist*cos(teta);
+        circpos.trans.y:=standardDist*sin(teta);
+        IF circpos.trans.x>0 THEN
+            circpos.trans.x:=-circpos.trans.x;
+            circpos.trans.y:=-circpos.trans.y;
+        ENDIF
+
+        circpos.trans.z:=standardMovingHeight;
+
+        circpos:=goalposition(circpos.trans,xrot,yrot,zrot);
+
+        RETURN reltool(circpos,0,0,0\Rx:=xrot\Ry:=yrot\Rz:=0);
+
+    ENDFUNC
+
+    FUNC robtarget goalposition(pos trans,num rotx,num roty,num rotz)
+        VAR robtarget tpos;
+        VAR num z;
+
+        tpos.trans:=trans;
+        tpos.rot:=robPos.rot;
+        tpos.extax:=[90,9E+09,9E+09,9E+09,9E+09,9E+09];
+
+        IF rotz<-135 THEN
+            tpos.robconf:=[2,0,0,4];
+        ELSEIF rotz<-45 THEN
+            tpos.robconf:=[1,0,0,4];
+        ELSEIF rotz>135 THEN
+            tpos.robconf:=[-2,0,0,4];
+        ELSEIF rotz>45 THEN
+            tpos.robconf:=[-1,0,0,4];
+        ELSE
+            tpos.robconf:=[0,0,0,4];
+        ENDIF
+
+        IF rotz<90 AND rotz>0 THEN
+            tpos.extax.eax_a:=90-rotz;
+        ELSEIF rotz<135 AND rotz>0 THEN
+            tpos.extax.eax_a:=0;
+        ELSEIF rotz>134 THEN
+            z:=((rotz-135)-10);
+            IF z>0 THEN
+                tpos.extax.eax_a:=-z;
+            ELSE
+                tpos.extax.eax_a:=0;
+            ENDIF
+        ELSEIF rotz>-90 AND rotz<0 THEN
+            tpos.extax.eax_a:=90-rotz;
+            IF tpos.extax.eax_a=180 tpos.extax.eax_a:=-180;
+        ELSEIF rotz>-135 AND rotz<0 THEN
+            tpos.extax.eax_a:=-180;
+        ELSEIF rotz<-135 THEN
+            z:=((abs(rotz)-135)-10);
+            IF z>0 THEN
+                tpos.extax.eax_a:=-z;
+            ELSE
+                tpos.extax.eax_a:=0;
+            ENDIF
+            tpos.extax.eax_a:=-180+z;
+        ELSE
+            tpos.extax:=robPos.extax;
+        ENDIF
+
+        RETURN tpos;
+    ENDFUNC
+
+
+    PROC JointSpecificData()
+        !        VAR num position;
+        !        VAR num speed;
+        !        VAR num torque;
+        !        VAR num exttorque;
+
+        !        GetJointData\MechUnit:=ROB_1,1\Position:=position\Speed:=speed\Torque:=torque\ExtTorque:=exttorque;
+
+        !        The current position,speed,torque,and estimated external torque of the first axis of ROB_1 is read.
+    ENDPROC
+
+
+ENDMODULE
