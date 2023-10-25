@@ -1,11 +1,11 @@
+from time import sleep
+import os.path
+import pandas as pd
+import numpy as np
+
 from RobotArm import robot_Control, generate_Scan_points_Cylinder
 from Laser import optoNCDT1402
 from RaspberryPi import transistor
-from time import sleep
-
-import os.path
-import pandas as pd
-
 
 circle_radius = 120
 z_stepsize = 10
@@ -14,7 +14,6 @@ azimuthPoints = 8
 offset = -25
 elevationPoints = 5
 zMin = -90
-
 
 pointsCylinder = generate_Scan_points_Cylinder.generate_scan_points_cylinder(
     circle_radius, z_stepsize, max_depth, azimuthPoints, offset
@@ -36,9 +35,11 @@ robot_Control.set_Robot_Tool(robot, 1)
 robotSpeed = [75, 25, 50, 25]
 
 filenameArray = ["file" + str(x) + ".csv" for x in range(10)]
+rawfilenameArray = ["rawfile" + str(x) + ".csv" for x in range(10)]
 
-for filename in filenameArray:
+for filename, rawfilename in zip(filenameArray, rawfilenameArray):
     laser_data = []
+    raw_laser_data = []
     visitedOrigin = False
     robot_Control.set_Robot_Speed(robot, robotSpeed)
 
@@ -69,6 +70,7 @@ for filename in filenameArray:
                     point, laser_point
                 )
             )
+            raw_laser_data.append(np.append(point[0], laser_point))
         transistor.laserOff()
 
         # laser.laserOff()
@@ -77,18 +79,27 @@ for filename in filenameArray:
     print(laser_data)
 
     data = pd.DataFrame(laser_data, columns=["X_value", "Y_value", "Z_value"])
+    rawdata = pd.DataFrame(
+        raw_laser_data, columns=["X_value", "Y_value", "Z_value", "Laser Distance"]
+    )
     file_path = os.path.join("testData", filename)
+    file_path_raw = os.path.join("testData", rawfilename)
     # file_path = filedialog.asksaveasfilename(
     #    defaultextension=".csv", filetypes=[("CSV Files", "*.csv")]
     # )
 
     # if file_path:
     with open(file_path, "w", newline="") as csvfile:
-        df = pd.DataFrame(data)
-
         # Save the DataFrame to a CSV file
 
-        df.to_csv(
+        data.to_csv(
+            csvfile, index=False
+        )  # Specify index=False to avoid writing row numbers as a column
+
+    with open(file_path_raw, "w", newline="") as csvfile:
+        # Save the DataFrame to a CSV file
+
+        rawdata.to_csv(
             csvfile, index=False
         )  # Specify index=False to avoid writing row numbers as a column
 
