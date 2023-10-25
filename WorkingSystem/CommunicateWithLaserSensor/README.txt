@@ -1,2 +1,0 @@
-The matlab script shows how to interact with the python script. Python does not have to be installed.
-The python code reads the sensor until it has setteled (stopped oscillating) and returns the error code or distance in mm.
