@@ -9,20 +9,21 @@ from RaspberryPi import transistor
 
 circle_radius = 120
 z_stepsize = 10
-max_depth = -55
-azimuthPoints = 8
-offset = -25
+max_depth = -60
+azimuthPoints = 16
+offset = -60
 elevationPoints = 5
 zMin = -90
+laser_angle = 90
 
 pointsCylinder = generate_Scan_points_Cylinder.generate_scan_points_cylinder(
-    circle_radius, z_stepsize, max_depth, azimuthPoints, offset
+    circle_radius, z_stepsize, max_depth, azimuthPoints, offset, laser_angle
 )
 
 pointsSphere = generate_Scan_points_Cylinder.generate_scan_points_halfSphere(
     circle_radius, azimuthPoints, elevationPoints, zMin, offset
 )
-
+print(pointsCylinder)
 laser = optoNCDT1402.optoNCDT1402("/dev/ttyUSB0")  # Serial port of the Raspberry
 transistor.init()
 
