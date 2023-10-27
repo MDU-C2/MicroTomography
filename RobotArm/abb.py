@@ -22,7 +22,7 @@ log.addHandler(logging.NullHandler())
 
 
 class Robot:
-    def __init__(self, ip="192.168.0.50", port_motion=5000, port_logger=5001):
+    def __init__(self, ip="127.0.0.1", port_motion=5000, port_logger=5001):
         self.delay = 0.08
 
         self.connect_motion((ip, port_motion))
@@ -80,7 +80,7 @@ class Robot:
         Executes a move immediately, from current joint angles,
         to 'joints', in degrees.
         """
-        if len(joints) != 6:
+        if len(joints) != 7:
             return False
         msg = "02 "
         for joint in joints:
@@ -103,7 +103,7 @@ class Robot:
         """
         msg = "04 #"
         data = self.send(msg).split()
-        return [float(s) / self.scale_angle for s in data[2:8]]
+        return [float(s) / self.scale_angle for s in data[2:9]]
 
     def get_external_axis(self):
         """

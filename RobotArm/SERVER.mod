@@ -5,8 +5,8 @@ MODULE SERVER
 !////////////////
 
 !//Robot configuration
-PERS tooldata currentTool := [TRUE,[[0,0,0],[1,0,0,0]],[0.001,[0,0,0.001],[1,0,0,0],0,0,0]];     
-PERS wobjdata currentWobj := [FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0,0,755],[1,0,0,0]]];    
+PERS tooldata currentTool := [TRUE,[[-51.474,3.9,86.55],[1,0,0,0]],[0.1,[-27.92,-2.835,45.984],[1,0,0,0],0,0,0]];     
+PERS wobjdata currentWobj := [FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0,0,0],[1,0,0,0]]];    
 
 PERS speeddata currentSpeed;
 PERS zonedata currentZone;
@@ -25,8 +25,8 @@ VAR num instructionCode;
 VAR num params{10};
 VAR num nParams;
 
-PERS string ipController:= "192.168.0.50"; !robot default IP
-!PERS string ipController:= "127.0.0.1"; !local IP for testing in simulation
+!PERS string ipController:= "192.168.0.50"; !robot default IP
+PERS string ipController:= "127.0.0.1"; !local IP for testing in simulation
 PERS num serverPort:= 5000;
 
 !//Motion of the robot
@@ -368,7 +368,7 @@ PROC main()
                     addString := addString + NumToStr(jointsPose.robax.rax_4,2) + " ";
                     addString := addString + NumToStr(jointsPose.robax.rax_5,2) + " ";
                     addString := addString + NumToStr(jointsPose.robax.rax_6,2) + " ";
-                    addString := addString + NumToStr(jointsTarget.extax.eax_a,1,8); !End of string
+                    addString := addString + NumToStr(jointsPose.extax.eax_a,2); !End of string
                     ok := SERVER_OK;
                 ELSE
                     ok:=SERVER_BAD_MSG;
