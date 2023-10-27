@@ -54,9 +54,9 @@ CONST num SERVER_BAD_MSG :=  0;
 CONST num SERVER_OK := 1;
 
 !//TCP data in relation to the end effector
-PERS tooldata Laser_TCP:=[TRUE,[[-23.723,46.987,82.6],[0.923879533,0,0,-0.382683432]],[0.1,[-18.883,18.786,43.148],[1,0,0,0],0,0,0]];
-PERS tooldata Antenna_TCP:=[TRUE,[[-20.859,20.86,110],[0.923879533,0,0,-0.382683432]],[0.1,[-18.883,18.786,43.148],[1,0,0,0],0,0,0]];
-PERS tooldata calibration_TCP:=[TRUE,[[-43.133,41.72,58.227],[0.653281482,-0.27059805,-0.653281482,-0.27059805]],[0.1,[-18.883,18.786,43.148],[1,0,0,0],0,0,0]];
+PERS tooldata Laser_TCP:=[TRUE,[[-51.474,3.9,86.55],[1,0,0,0]],[0.1,[-27.92,-2.835,45.984],[1,0,0,0],0,0,0]];
+PERS tooldata Antenna_TCP:=[TRUE,[[-53.974,33.75,100.5],[1,0,0,0]],[0.1,[-27.92,-2.835,45.984],[1,0,0,0],0,0,0]];
+PERS tooldata calibration_TCP:=[TRUE,[[-61.474,-13.499,62.227],[0.707106781,0,-0.707106781,0]],[0.1,[-27.92,-2.835,45.984],[1,0,0,0],0,0,0]];
 
 !//Used to determine the x and y coordinates when determining the current zone of the TCP
 VAR num x;
@@ -333,8 +333,9 @@ PROC main()
                 ENDIF	
 				
             CASE 2: !Joint Move
-                IF nParams = 6 THEN
-                    jointsTarget:=[[params{1},params{2},params{3},params{4},params{5},params{6}], externalAxis];
+                IF nParams = 7 THEN
+                    externalAxis := [params{7},0,0,0,0,0];
+                    jointsTarget:=[[params{1},params{2},params{3},params{4},params{5},params{6}], externalAxis]; 
                     ok := SERVER_OK;
                     moveCompleted := FALSE;
                     MoveAbsJ jointsTarget, currentSpeed, currentZone, currentTool \Wobj:=currentWobj;
@@ -366,7 +367,8 @@ PROC main()
                     addString := addString + NumToStr(jointsPose.robax.rax_3,2) + " ";
                     addString := addString + NumToStr(jointsPose.robax.rax_4,2) + " ";
                     addString := addString + NumToStr(jointsPose.robax.rax_5,2) + " ";
-                    addString := addString + NumToStr(jointsPose.robax.rax_6,2); !End of string
+                    addString := addString + NumToStr(jointsPose.robax.rax_6,2) + " ";
+                    addString := addString + NumToStr(jointsTarget.extax.eax_a,1,8); !End of string
                     ok := SERVER_OK;
                 ELSE
                     ok:=SERVER_BAD_MSG;
