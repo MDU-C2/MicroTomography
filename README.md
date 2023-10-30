@@ -3,8 +3,6 @@
 
 Here is for the GUI for the system. The red point represent the position of laser.
 
-## Focus on robot arm now. THe GUI is not going to update even it has a bug.
-
 2023-10-20
 Update the design diagram
 relocate the files and update some code
