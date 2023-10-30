@@ -74,7 +74,7 @@ class AppWindow(QMainWindow):
         self.toolbar = NavigationToolbar(self.canvas, self.ui.viewer_scanning)
         layout.addWidget(self.toolbar)
 
-        self.laserPos(self.ax, 0, 0, 0)
+        self.endEffectorPos(self.ax, 0, 0, 0, None)
 
         #table label names
         self.ui.tbw_default.setHorizontalHeaderLabels(["X", "Y", "Z"])
@@ -129,7 +129,7 @@ class AppWindow(QMainWindow):
         txt_box.append(message)
 
     #function: laser position
-    def laserPos(self, self_redpoint, value_x, value_y, value_z):
+    def endEffectorPos(self, self_redpoint, value_x, value_y, value_z, distance):
         global laser_x
         global laser_y
         global laser_z
@@ -141,6 +141,11 @@ class AppWindow(QMainWindow):
         self.ui.label_x_RobPos.setText(f"X: {laser_x}")
         self.ui.label_y_RobPos.setText(f"Y: {laser_y}")
         self.ui.label_z_RobPos.setText(f"Z: {laser_z}")
+
+        if distance != None:
+            self.ui.label_dist_laser.setText(f"Distance: {distance}")
+        else:
+            self.ui.label_dist_laser.setText("Distance: ")
 
         self_redpoint.scatter(laser_x, laser_y, laser_z, color = "red")
 
@@ -180,7 +185,6 @@ class AppWindow(QMainWindow):
         global laser_x
         global laser_y
         global laser_z
-        #global data
 
         #Clean the axis
         self.ax.cla()
@@ -190,7 +194,7 @@ class AppWindow(QMainWindow):
         self.ax.set_ylabel('Y')
         self.ax.set_zlabel('Z')
 
-        self.laserPos(self.ax, laser_x, laser_y, laser_z) #plot laser position
+        self.endEffectorPos(self.ax, laser_x, laser_y, laser_z, None) #plot the end-effector position
     
         try:
             tableData = self.readTable()
@@ -205,7 +209,7 @@ class AppWindow(QMainWindow):
             self.ax.scatter(data_X, data_Y, data_Z, c='b', marker='o')
 
         except:
-            print("fail to read data")
+            print("fail to read data in the table")
 
         self.canvas.draw()
 
@@ -387,13 +391,13 @@ class AppWindow(QMainWindow):
                 laser_point = laser.measure()
                 if isinstance(laser_point, float):
                     laser_data.append(
-                        generate_Scan_points_Cylinder.transform_laser_distance(
-                            point, laser_point
-                        )
+                        generate_Scan_points_Cylinder.transform_laser_distance(point, laser_point)
                     )
                 
                 while not laser.laserOff():
                     continue
+
+                self.endEffectorPos(self.ax, laser_x, laser_y, laser_z, laser_point) #plot the end-effector position
                     
             #Write laser data to the default table
             self.writeDefaultTable(laser_data)
