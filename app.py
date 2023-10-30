@@ -23,6 +23,7 @@ from RobotArm import robot_Control
 from RobotArm import generate_Scan_points_Cylinder
 from RobotArm import abb
 from Laser import optoNCDT1402
+import LinearActuator.linearActuatorController as linearController
 
 #global variables
 robot = None
@@ -51,6 +52,10 @@ class AppWindow(QMainWindow):
         self.ui.btn_clearTable.pressed.connect(self.clear_table)
         self.ui.btn_Scan.pressed.connect(self.scanModel)
         self.ui.btn_Calibration.pressed.connect(self.calibration)
+        self.ui.btn_linear_moveto.pressed.connect(self.MoveLinearActuator(1))
+        self.ui.btn_linear_zero_pos.pressed.connect(self.MoveLinearActuator(2))
+        self.ui.btn_linear_up.pressed.connect(self.MoveLinearActuator(3))
+        self.ui.btn_linear_down.pressed.connect(self.MoveLinearActuator(4))
 
         #spinbox function
         #self.ui.spb_SampleSteps.valueChanged.connect(self.changeSteps)
@@ -79,6 +84,8 @@ class AppWindow(QMainWindow):
         #table label names
         self.ui.tbw_default.setHorizontalHeaderLabels(["X", "Y", "Z"])
         self.ui.tbw_mylist.setHorizontalHeaderLabels(["X", "Y", "Z"])
+
+        #Linear Actuator
 
         #print message in the text browser
         self.printLog(self.ui.tbx_log, "System open")
@@ -496,15 +503,43 @@ class AppWindow(QMainWindow):
 
     def autoGenPoints(self):
         global points
-        circle_diameter = 120
-        z_stepsize = 10
-        max_depth = -50
-        azimuthPoints = 16
+        circle_diameter = self.ui.spb_circle_diameter.value()
+        z_stepsize = self.ui.spb_z_stepsize.value()
+        max_depth = self.ui.spb_max_depth.value()
+        azimuthPoints = self.ui.spb_azimuthPoints.value()
 
         points = generate_Scan_points_Cylinder.generate_scan_points_cylinder(circle_diameter, z_stepsize, max_depth, azimuthPoints)
 
         return points
 
+    def MoveLinearActuator(self, choice):
+
+        total_steps_changes = self.ui.spb_linearMoveTo.value() * 100
+
+        #For control the values between 0 < x < 10000
+        if total_steps_changes < 0:
+            total_steps_changes = 0
+        elif total_steps_changes > 10000:
+            total_steps_changes = 10000
+
+        if choice == '1':   
+            total_steps_changes = linearController.move_to_desired_location_upwards(total_steps_changes)
+                        
+        elif choice == '2':
+            linearController.move_to_zeroLocation(total_steps_changes)
+            total_steps_changes = 0
+
+        elif choice == '3':
+            linearController.move_up_1mm()
+            total_steps_changes = total_steps_changes + 100
+            
+            # for every move_up function the total_steps_changes are added with 100 steps = 1mm
+        elif choice == '4':
+            linearController.move_down_1mm()
+            total_steps_changes = total_steps_changes - 100
+
+        self.ui.label_linear_pos.setText(f"position: {total_steps_changes/100} mm")
+        self.ui.spb_linearMoveTo.setValue(total_steps_changes/100)
 
 app = QApplication(sys.argv)
 w = AppWindow()
