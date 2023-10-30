@@ -33,15 +33,8 @@ When connection has been established, open RobotStudio:
 | 7         | (-168.35) - 168.23|
 
 
-## Get access to School licenses for RobotStudio (remove??) 
-To get access for a school license of *RobotStudio* ensure you are connected to *eduroam* and perform the following steps in *RobotStudio*:
 
-1. Navigate to **Options**
-2. In **General**, navigate to **Licensing**
-3. Press **Activation Wizard**
-4. Press **Network License - I want to specify a network license server or manage server licenses** 
-5. Enter the following IP address: *10.132.178.233*
-6. *RobotStudio* will restart and to confirm the license is activated you can repeat Step 1-2 and then press **My Licenses** 
+
 
 ## How to simulate the *IRB 14050 - YuMi* in *RobotStudio*
 This section describes how the robot arm can be simulated in *RobotStudio* which is a preferable initial step for programming and testing the robot arm. To simulate the robot arm, open *RobotStudio* and perform the following steps:
@@ -58,6 +51,8 @@ This section describes how the robot arm can be simulated in *RobotStudio* which
 
 ## Potential issues and how to solve them
 This section is for listing issues that has occured during the use of the arm whilst working with it during this project. Find potential issues here and how they were solved.
+
+
 
 ### Socket error 
 If the FlexPendant reports that you have a socket connection error which prevents you from connecting to the socket, the internal firewall of the Controller might be blocking it. This error may occur if you factory reset the controller. To fix the issue, try the following.
