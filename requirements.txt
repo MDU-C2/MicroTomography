@@ -11,5 +11,6 @@ open3d
 optoNCDT1402
 pytransform3d==3.4.0
 pyserial==3.5
+pandas
 
 #To install mayavi successly. You muste install Python 3.10 in the homepage. Not work in 3.11. 
