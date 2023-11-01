@@ -61,7 +61,7 @@ class Ui_MainWindow(object):
         self.btn_Scan.setGeometry(QtCore.QRect(1040, 50, 111, 71))
         self.btn_Scan.setObjectName("btn_Scan")
         self.btn_Save = QtWidgets.QPushButton(self.centralwidget)
-        self.btn_Save.setEnabled(False)
+        self.btn_Save.setEnabled(True)
         self.btn_Save.setGeometry(QtCore.QRect(1280, 50, 111, 71))
         self.btn_Save.setObjectName("btn_Save")
         self.btn_Load = QtWidgets.QPushButton(self.centralwidget)

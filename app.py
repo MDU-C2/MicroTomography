@@ -23,7 +23,7 @@ from RobotArm import robot_Control
 from RobotArm import generate_Scan_points_Cylinder
 from RobotArm import abb
 from Laser import optoNCDT1402
-import LinearActuator.linearActuatorController as linearController
+#import LinearActuator.linearActuatorController as linearController
 
 #global variables
 robot = None
@@ -52,13 +52,12 @@ class AppWindow(QMainWindow):
         self.ui.btn_clearTable.pressed.connect(self.clear_table)
         self.ui.btn_Scan.pressed.connect(self.scanModel)
         self.ui.btn_Calibration.pressed.connect(self.calibration)
+        """
         self.ui.btn_linear_moveto.pressed.connect(self.MoveLinearActuator(1))
         self.ui.btn_linear_zero_pos.pressed.connect(self.MoveLinearActuator(2))
         self.ui.btn_linear_up.pressed.connect(self.MoveLinearActuator(3))
         self.ui.btn_linear_down.pressed.connect(self.MoveLinearActuator(4))
-
-        #spinbox function
-        #self.ui.spb_SampleSteps.valueChanged.connect(self.changeSteps)
+        """
 
         # Create a layout for the plot viwer
         layout = QVBoxLayout(self.ui.viewer_scanning)
@@ -116,17 +115,14 @@ class AppWindow(QMainWindow):
             self.writeDefaultTable(data)
             self.updatePlot() #Plot the figure after spline
             
-            self.dataPreprocessing(data)
-           
-            #Open the Save option
-            self.ui.btn_Save.setEnabled(True)
-            
+            self.reconstruction3D(data)
+        
         except:
             pass
 
     #funciton: save file 
     def saveFile(self):
-        global data
+        data = self.readTable()
 
         message = save_model(data)
         self.printLog(self.ui.tbx_log, message)
@@ -260,23 +256,20 @@ class AppWindow(QMainWindow):
         table.setRowCount(0)  # Remove all rows from the table
 
     def writeDefaultTable(self, data):
-        x_count = 0
+        df = pd.DataFrame(data)
 
         try: 
-            (num_rows, num_cols, num_depth) = data.shape
-            # Populate the table with X, Y, and Z values
-            for depth in range(num_depth):
-                for row in range(num_rows):
-                    # Get the current number of rows in the tableWidget
-                    current_row_count = self.ui.tbw_default.rowCount()
+            self.ui.tbw_default.setRowCount(df.shape[0])
+            self.ui.tbw_default.setColumnCount(df.shape[1])
 
-                    # Insert a new row at the end of the table
-                    self.ui.tbw_default.insertRow(current_row_count) 
-                    x_count = 0
-                    for col in range(num_cols):                       
-                        x_item = QTableWidgetItem(str(round(data[row, col, depth],2)))
-                        self.ui.tbw_default.setItem(current_row_count, x_count, x_item)
-                        x_count = x_count + 1
+            # Populate the table with DataFrame data
+            for i, row in df.iterrows():
+                for j, value in enumerate(row):
+                    item = QTableWidgetItem(str(value))
+                    self.ui.tbw_default.setItem(i, j, item)
+
+            #change tab in the tab table to default
+            self.ui.twg_table.setCurrentIndex(0)
         except:
             self.printLog(self.ui.tbx_log, "fail to write data to the table")
             pass
@@ -416,8 +409,7 @@ class AppWindow(QMainWindow):
             self.reconstruction3D(laser_data)
 
             self.printLog(self.ui.tbx_log, "Scanning complete")
-            #Open the Save option
-            self.ui.btn_Save.setEnabled(True)
+
         else:
             self.printLog(self.ui.tbx_log, "Scanning breaks.")
         
@@ -451,12 +443,17 @@ class AppWindow(QMainWindow):
         totalTime = time.time()
         t = time.time()
 
-        data_X = data[:,0,:] #Reorganize the data into rows 
-        data_Y = data[:,1,:]
-        data_Z = data[:,2,:]
 
-        ##Runs the spline in z direction
-        newData_X, newData_Y, newData_Z = spline.spline_xy(data_X, data_Y, data_Z, step_down)
+        data_X = data['X_value'] #Reorganize the data into rows 
+        data_Y = data['Y_value']
+        data_Z = data['Z_value']
+        
+        try:
+            ##Runs the spline in z direction
+            newData_X, newData_Y, newData_Z = spline.spline_xy(data_X, data_Y, data_Z, step_down)
+        except:
+            self.printLog(self.ui.tbx_log, "No newData")
+            return None
 
         # newData_X,newData_Y,newData_Z = spline.cubic_spline(data_X,data_Y,data_Z,step_down) #Different spline
 
@@ -513,7 +510,8 @@ class AppWindow(QMainWindow):
         return points
 
     def MoveLinearActuator(self, choice):
-
+        x = choice
+        """
         total_steps_changes = self.ui.spb_linearMoveTo.value() * 100
 
         #For control the values between 0 < x < 10000
@@ -540,6 +538,7 @@ class AppWindow(QMainWindow):
 
         self.ui.label_linear_pos.setText(f"position: {total_steps_changes/100} mm")
         self.ui.spb_linearMoveTo.setValue(total_steps_changes/100)
+        """
 
 app = QApplication(sys.argv)
 w = AppWindow()

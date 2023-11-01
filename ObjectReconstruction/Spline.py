@@ -31,7 +31,10 @@ class spline():
         return newData_X,newData_Y,newData_Z
 
     def spline_xy(data_X,data_Y,data_Z,step_down):
-        N = int(len(data_Z[:,0]) / 100 / step_down) #Number of steps
+        try:
+            N = int(len(data_Z[:,0]) / 100 / step_down) #Number of steps
+        except:
+            print("no N")
 
         znew = np.linspace(data_Z[-1,:], data_Z[0,:] / 100, N) #Creates new Z array (Only used for getting the shapes of x and y arrays, need to be changed.)§
         newData_X = np.empty([znew.shape[0],data_X.shape[1]]) #Creates new Arrays for the data.
