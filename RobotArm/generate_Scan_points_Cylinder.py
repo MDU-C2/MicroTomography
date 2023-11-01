@@ -1,3 +1,7 @@
+"""Generates scan points for the yumi in a cylindrical pattern or a half-sphere.
+Also transforms a laser distance and a robot coordinate to a point on the breast.
+"""
+
 import numpy as np
 
 from pytransform3d.rotations import (
@@ -43,7 +47,7 @@ def generate_scan_points_cylinder(
     if z_min > 0:
         raise ValueError("z_min must be negative.")
     if z_offset > 0:
-        raise ValueError("Offset must be negative.")
+        raise ValueError("Offset must be negative to not hit the roof.")
     if laser_angle >= 90:
         raise ValueError(
             "The angle is larger than 90 degrees, the end effector will not point at the object."
@@ -54,7 +58,7 @@ def generate_scan_points_cylinder(
         )
 
     laser_angle = np.deg2rad(laser_angle)
-    q1 = quaternion_from_axis_angle(np.array([0, 1, 0, np.pi / 2 - laser_angle]))
+    q2 = quaternion_from_axis_angle(np.array([0, 1, 0, np.pi / 2 - laser_angle]))
     azimuth = np.linspace(0, 2 * np.pi - ((2 * np.pi) / azimuth_points), azimuth_points)
     points = []
 
@@ -64,8 +68,8 @@ def generate_scan_points_cylinder(
         for h in z:
             x = radius * np.cos(angle)
             y = radius * np.sin(angle)
-            q2 = quaternion_from_axis_angle(np.array([0, 0, 1, np.pi + angle]))
-            q = concatenate_quaternions(q1=q2, q2=q1)
+            q1 = quaternion_from_axis_angle(np.array([0, 0, 1, np.pi + angle]))
+            q = concatenate_quaternions(q1, q2)
 
             points.append([np.array([x, y, h]), q])
 
@@ -115,13 +119,14 @@ def generate_scan_points_halfSphere(
             y = radius * np.sin(phi) * np.sin(theta)
             z = (radius * np.cos(phi) * (z_param)) + z_offset
 
+            q1 = quaternion_from_axis_angle(np.array([0, 0, 1, theta]))
+
             q2 = quaternion_from_axis_angle(np.array([0, 1, 0, phi + np.pi]))
 
             q3 = quaternion_from_axis_angle(np.array([0, 0, 1, np.pi]))
 
             q2 = concatenate_quaternions(q2, q3)
 
-            q1 = quaternion_from_axis_angle(np.array([0, 0, 1, theta]))
             q = concatenate_quaternions(q1=q1, q2=q2)
 
             if phi == elevation[-1] and theta != azimuth[0]:
