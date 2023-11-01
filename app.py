@@ -504,8 +504,12 @@ class AppWindow(QMainWindow):
         z_stepsize = self.ui.spb_z_stepsize.value()
         max_depth = self.ui.spb_max_depth.value()
         azimuthPoints = self.ui.spb_azimuthPoints.value()
+        offset = -60
+        elevationPoints = 5
+        zMin = -90
+        laser_angle = 90
 
-        points = generate_Scan_points_Cylinder.generate_scan_points_cylinder(circle_diameter, z_stepsize, max_depth, azimuthPoints)
+        points = generate_Scan_points_Cylinder.generate_scan_points_cylinder(circle_diameter, z_stepsize, max_depth, azimuthPoints, offset, laser_angle)
 
         return points
 

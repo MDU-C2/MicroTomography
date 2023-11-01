@@ -6,7 +6,7 @@ getting the info from the optoNCDT1402 and turning the laser on/off
 Author: Joel Josefsson
 """
 from time import sleep
-import serial
+from serial import Serial, PARITY_NONE
 
 
 class optoNCDT1402:
@@ -30,17 +30,17 @@ class optoNCDT1402:
         if not isinstance(noMeasurements, int):
             raise TypeError("noMeasurements must be of type int")
 
-        self.ser = serial.Serial(
+        self.ser = Serial(
             comPort,
             115200,
             timeout=5,
             bytesize=8,
-            parity= serial.PARITY_NONE,
+            parity=PARITY_NONE,
             xonxoff=True,
             stopbits=1,
         )
         self.noMeasurements = noMeasurements
-        self.laserOff()
+        # self.laserOff()
 
     # All the error codes from the laser with its corresponding error.
     errorCodes = {
@@ -87,11 +87,9 @@ class optoNCDT1402:
             while self.ser.in_waiting < 2:
                 sleep(0.1)
 
-            # Read from serial port and get a 14 bit number
+            # Read from serial port and pick the 2 latest to combine
             data = self.ser.read_all()
-            digitalValue = self.combineBytes(
-                data[-2:]
-            )  # Combine the last two bytes in the list
+            digitalValue = self.combineBytes(data[-2:])
 
             # Decide what the number means, taken from the datasheet
             if digitalValue < 161:
@@ -101,8 +99,10 @@ class optoNCDT1402:
                 i = i + 1  # Only increment i when a distance is appended
             elif digitalValue < 16370:
                 return "EMR back-up"
-            elif digitalValue < 16386:
+            elif digitalValue < 16384:
                 return self.errorCodes.get(digitalValue, "Unknown error")
+            elif digitalValue < 16386:
+                continue
 
         if self.noMeasurements == 1:
             return distanceList.pop()
