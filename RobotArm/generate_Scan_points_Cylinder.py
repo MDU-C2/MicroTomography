@@ -4,6 +4,7 @@ from pytransform3d.rotations import (
     matrix_from_quaternion,
     concatenate_quaternions,
     quaternion_from_axis_angle,
+    plot_basis,
 )
 
 
@@ -115,6 +116,11 @@ def generate_scan_points_halfSphere(
             z = (radius * np.cos(phi) * (z_param)) + z_offset
 
             q2 = quaternion_from_axis_angle(np.array([0, 1, 0, phi + np.pi]))
+
+            q3 = quaternion_from_axis_angle(np.array([0, 0, 1, np.pi]))
+
+            q2 = concatenate_quaternions(q2, q3)
+
             q1 = quaternion_from_axis_angle(np.array([0, 0, 1, theta]))
             q = concatenate_quaternions(q1=q1, q2=q2)
 
