@@ -87,8 +87,8 @@ class TraceError:
             if math.isinf(ans["t_hit"].numpy()[0]) == 1:
                 errorList.append(150)
 
-        print("Raycast : ", np.sum(errorList) / len(errorList))
-        print("Distance : ", np.sum(errorDist) / len(errorDist))
+        print("Raycast average error (mm): ", np.sum(errorList) / len(errorList))
+        print("Distance average error (mm): ", np.sum(errorDist) / len(errorDist))
 
         newList = []
         print(len(np.asarray(GT_mesh.vertices)[:, 0]))
