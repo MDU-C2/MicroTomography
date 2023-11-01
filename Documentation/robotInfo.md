@@ -40,12 +40,13 @@ When connection has been established, open RobotStudio:
 This section describes how the robot arm can be simulated in *RobotStudio* which is a preferable initial step for programming and testing the robot arm. To simulate the robot arm, open *RobotStudio* and perform the following steps:
 
 1. Create a new project by *File -> New -> Station*.
-2. Create a new virtual controller by *Home -> Virtual Controller -> New Controller*
-3. Select the *IRB 14050 0.5kg 0.5m* as the **Robot model** and choose the latest **RobotWare**. You can leave the rest unchanged, change the **Location** if you want to save the new controller in a different location than the default location.
-4. When a pop-up window appears, select *IRB14050_0.5_0.5__03* and press **OK**.
-5. To upload *RAPID* code to the virtual controller navigate to *RAPID -> Program -> Load Module* and upload the *RAPID* code you wish to execute. If you receive Errors after you have uploaded the code it might be due to there existing to *MAIN* files. In the tree structure to the left remove any *RAPID* files which you have not uploaded. To check if any errors persist press *RAPID -> Check Program* and check the log.
-6. To start the simulation navigate to *Simulation -> Play*. *Do note that the simulation will not start if errors exist in the code. 
-7. If you are sending commands to the robot arm via socket communication like this project. Ensure that the IP address in the *RAPID* and *Python* code are set to *127.0.0.1*  
+2. Ensure that RobotWare 7.10 is installed. If not, navigate to the *Add-Ins* tab and find the package *RobotWare 7.10.0* and download it. 
+3. Create a new virtual controller by *Home -> Virtual Controller -> New Controller*
+4. Select the *IRB 14050 0.5kg 0.5m* as the **Robot model** and choose the latest **RobotWare**. You can leave the rest unchanged, change the **Location** if you want to save the new controller in a different location than the default location.
+5. When a pop-up window appears, select *IRB14050_0.5_0.5__03* and press **OK**.
+6. To upload *RAPID* code to the virtual controller navigate to *RAPID -> Program -> Load Module* and upload the *RAPID* code you wish to execute. If you receive Errors after you have uploaded the code it might be due to there existing to *MAIN* files. In the tree structure to the left remove any *RAPID* files which you have not uploaded. To check if any errors persist press *RAPID -> Check Program* and check the log.
+7. To start the simulation navigate to *Simulation -> Play*. *Do note that the simulation will not start if errors exist in the code. 
+8. If you are sending commands to the robot arm via socket communication like this project. Ensure that the IP address in the *RAPID* and *Python* code are set to *127.0.0.1*  
 
 
 
@@ -54,9 +55,9 @@ This section is for listing issues that has occured during the use of the arm wh
 
 
 
-### Socket error 
+### Socket error: 
 If the FlexPendant reports that you have a socket connection error which prevents you from connecting to the socket, the internal firewall of the Controller might be blocking it. This error may occur if you factory reset the controller. To fix the issue, try the following.
 
-1. Connect your PC to the MGMT port of the controller and change your IP address to an address in the following range *192.168.125.[2-254]*
+1. Connect your PC to the MGMT port of the controller and change your IP address to an address in the following range *192.168.125.[2-254]* with a subnet mask of *255.255.255.0*
 2. Open *RobotStudio* and connect to the controller as specified in Section: **Upload script to YuMi robot arm**.
-3. In *RobotStudio* open *Controller -> Configuration -> Communication*. Open the tab *Firewall* and ensure that the desrired connections are allowed through Firewall. After changes are applied controller needs to be restarted for the changes to be applied. 
+3. In *RobotStudio*, open *Controller -> Configuration -> Communication*. Open the tab *Firewall* and ensure that the desired connections are allowed through the Firewall. After changes are applied the controller needs to be restarted for the changes to be applied. 
