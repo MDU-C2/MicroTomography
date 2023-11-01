@@ -124,6 +124,8 @@ def generate_scan_points_halfSphere(
             q1 = quaternion_from_axis_angle(np.array([0, 0, 1, theta]))
             q = concatenate_quaternions(q1=q1, q2=q2)
 
+            if phi == elevation[-1] and theta != azimuth[0]:
+                continue
             points.append([np.array([x, y, z]), q])
 
     return points
