@@ -1,18 +1,23 @@
+"""Generates scan points for the yumi in a cylindrical pattern or a half-sphere.
+Also transforms a laser distance and a robot coordinate to a point on the breast.
+"""
+
 import numpy as np
 
 from pytransform3d.rotations import (
     matrix_from_quaternion,
     concatenate_quaternions,
     quaternion_from_axis_angle,
+    plot_basis,
 )
 
 
 def generate_scan_points_cylinder(
     radius: (int | float),
-    zStepSize: int,
-    zMin: int,
-    azimuthPoints: int,
-    zOffset: (int | float) = 0,
+    z_stepsize: int,
+    z_min: int,
+    azimuth_points: int,
+    z_offset: (int | float) = 0,
     laser_angle: (int | float) = 0,
 ):
     """Generates points in a cylindrical pattern with quaternion angles pointing inwards toward
@@ -22,13 +27,13 @@ def generate_scan_points_cylinder(
     ----------
     radius : int or float
         The radius of the cylinder
-    zStepSize : int
+    z_stepsize : int
         The number of mm between each z-plane
-    zMin : int
+    z_min : int
         The lowest point of the cylinder
-    azimuthPoints : int
+    azimuth_points : int
         Number of points in the azimuth angle
-    zOffset: int or float, default: 0
+    z_offset: int or float, default: 0
         Sets an offset in the z-axis
     laser_angle: int or float, default: 0
         Sets the angle of the end effector to point up wards by a certain angle.
@@ -39,22 +44,32 @@ def generate_scan_points_cylinder(
     points : list, shape [(3,), (4,)]
         List of coordinates for each point and the corresponding quaternion
     """
-    if zMin > 0:
-        raise ValueError("zMin must be negative")
+    if z_min > 0:
+        raise ValueError("z_min must be negative.")
+    if z_offset > 0:
+        raise ValueError("Offset must be negative to not hit the roof.")
+    if laser_angle >= 90:
+        raise ValueError(
+            "The angle is larger than 90 degrees, the end effector will not point at the object."
+        )
+    if laser_angle <= -90:
+        raise ValueError(
+            "The angle is less than -90 degrees, the end effector will not point at the object."
+        )
 
     laser_angle = np.deg2rad(laser_angle)
-    q1 = quaternion_from_axis_angle(np.array([0, 1, 0, np.pi / 2 - laser_angle]))
-    azimuth = np.linspace(0, 2 * np.pi - ((2 * np.pi) / azimuthPoints), azimuthPoints)
+    q2 = quaternion_from_axis_angle(np.array([0, 1, 0, np.pi / 2 - laser_angle]))
+    azimuth = np.linspace(0, 2 * np.pi - ((2 * np.pi) / azimuth_points), azimuth_points)
     points = []
 
-    z = [h for h in reversed(range(zMin, zOffset + zStepSize, zStepSize))]
+    z = [h for h in reversed(range(z_min, z_offset + z_stepsize, z_stepsize))]
 
     for angle in azimuth:
         for h in z:
             x = radius * np.cos(angle)
             y = radius * np.sin(angle)
-            q2 = quaternion_from_axis_angle(np.array([0, 0, 1, np.pi + angle]))
-            q = concatenate_quaternions(q1=q2, q2=q1)
+            q1 = quaternion_from_axis_angle(np.array([0, 0, 1, np.pi + angle]))
+            q = concatenate_quaternions(q1, q2)
 
             points.append([np.array([x, y, h]), q])
 
@@ -63,10 +78,10 @@ def generate_scan_points_cylinder(
 
 def generate_scan_points_halfSphere(
     radius: (int | float),
-    azimuthPoints: int,
-    elevationPoints: int,
-    zMin=0,
-    zOffset: (int | float) = 0,
+    azimuth_points: int,
+    elevation_points: int,
+    z_min: (int | float) = 0,
+    z_offset: (int | float) = 0,
 ):
     """Generates points in a half-sphere below z=0 and the quaternion angles such that the
     z-axis of the end effector always points to (0, 0, 0)
@@ -89,25 +104,33 @@ def generate_scan_points_halfSphere(
     points : list, shape [(3,), (4,)]
         List of both the coordinates and the quaternion of the points
     """
-    if zMin > 0:
-        raise ValueError("zMin must be negative")
-    azimuth = np.linspace(0, 2 * np.pi - ((2 * np.pi) / azimuthPoints), azimuthPoints)
-    elevation = np.linspace(np.pi / 2, np.pi, elevationPoints)
-    zParam = 1
-    if zMin != 0:
-        zParam = zMin / radius
+    if z_min > 0:
+        raise ValueError("z_min must be negative")
+    azimuth = np.linspace(0, 2 * np.pi - ((2 * np.pi) / azimuth_points), azimuth_points)
+    elevation = np.linspace(np.pi / 2, np.pi, elevation_points)
+    z_param = 1
+    if z_min != 0:
+        z_param = -z_min / radius
 
     points = []
     for theta in azimuth:
         for phi in elevation:
             x = radius * np.sin(phi) * np.cos(theta)
             y = radius * np.sin(phi) * np.sin(theta)
-            z = (radius * np.cos(phi) * (zParam)) + zOffset
+            z = (radius * np.cos(phi) * (z_param)) + z_offset
 
-            q2 = quaternion_from_axis_angle(np.array([0, 1, 0, np.pi + phi]))
             q1 = quaternion_from_axis_angle(np.array([0, 0, 1, theta]))
+
+            q2 = quaternion_from_axis_angle(np.array([0, 1, 0, phi + np.pi]))
+
+            q3 = quaternion_from_axis_angle(np.array([0, 0, 1, np.pi]))
+
+            q2 = concatenate_quaternions(q2, q3)
+
             q = concatenate_quaternions(q1=q1, q2=q2)
 
+            if phi == elevation[-1] and theta != azimuth[0]:
+                continue
             points.append([np.array([x, y, z]), q])
 
     return points
@@ -129,10 +152,10 @@ def transform_laser_distance(point: list, laser_distance: (int | float)):
     list, shape(3,)
         A list of coordinates for the point measured by the laser
     """
-    p = np.array([0, 0, laser_distance])
+    point_to_transform = np.array([0, 0, laser_distance])
     laser_coordinates = point[0]
-    R = matrix_from_quaternion(point[1])
+    rotation_matrix = matrix_from_quaternion(point[1])
 
-    p_new = (R @ p) + laser_coordinates
+    transformed_point = (rotation_matrix @ point_to_transform) + laser_coordinates
 
-    return p_new
+    return transformed_point
