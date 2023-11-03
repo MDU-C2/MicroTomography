@@ -518,18 +518,18 @@ class AppWindow(QMainWindow):
         print("Time to complete Sample + reconstruction : ", totalElapsed)
 
     def autoGenPoints(self):
-        """
-        circle_diameter = self.ui.spb_circle_diameter.value()
+
+        circle_radius = self.ui.spb_circle_radius.value()
         z_stepsize = self.ui.spb_z_stepsize.value()
         max_depth = self.ui.spb_max_depth.value()
         azimuthPoints = self.ui.spb_azimuthPoints.value()
-        offset = -60
-        elevationPoints = 5
-        zMin = -90
-        laser_angle = 90
-        circle_radius = 120
-        """
+        offset = self.ui.spb_offset.value()
+        elevationPoints = self.ui.spb_elevationPoints.value()
+        zMin = self.ui.spb_zMin.value()
+        laser_angle = self.ui.spb_laser_angle.value()
 
+
+        """
         circle_radius = 120
         z_stepsize = 10
         max_depth = -60
@@ -538,6 +538,7 @@ class AppWindow(QMainWindow):
         elevationPoints = 5
         zMin = -90
         laser_angle = 60
+        """
 
         if self.ui.cbx_scanningMode.currentText() == 'Cylinder':
             points = generate_Scan_points_Cylinder.generate_scan_points_cylinder(circle_radius, z_stepsize, max_depth, azimuthPoints, offset, laser_angle)

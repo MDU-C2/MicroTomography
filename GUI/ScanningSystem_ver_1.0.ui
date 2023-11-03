@@ -125,8 +125,8 @@
    <widget class="QTextEdit" name="ted_x">
     <property name="geometry">
      <rect>
-      <x>1060</x>
-      <y>280</y>
+      <x>980</x>
+      <y>350</y>
       <width>81</width>
       <height>31</height>
      </rect>
@@ -135,8 +135,8 @@
    <widget class="QPushButton" name="btn_Scan">
     <property name="geometry">
      <rect>
-      <x>1040</x>
-      <y>50</y>
+      <x>960</x>
+      <y>60</y>
       <width>111</width>
       <height>71</height>
      </rect>
@@ -151,8 +151,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>1280</x>
-      <y>50</y>
+      <x>1200</x>
+      <y>60</y>
       <width>111</width>
       <height>71</height>
      </rect>
@@ -164,8 +164,8 @@
    <widget class="QPushButton" name="btn_Load">
     <property name="geometry">
      <rect>
-      <x>1400</x>
-      <y>50</y>
+      <x>1320</x>
+      <y>60</y>
       <width>111</width>
       <height>71</height>
      </rect>
@@ -177,8 +177,8 @@
    <widget class="QLabel" name="label_x">
     <property name="geometry">
      <rect>
-      <x>1030</x>
-      <y>290</y>
+      <x>950</x>
+      <y>360</y>
       <width>21</width>
       <height>21</height>
      </rect>
@@ -195,8 +195,8 @@
    <widget class="QLabel" name="label_y">
     <property name="geometry">
      <rect>
-      <x>1160</x>
-      <y>280</y>
+      <x>1080</x>
+      <y>350</y>
       <width>21</width>
       <height>31</height>
      </rect>
@@ -213,8 +213,8 @@
    <widget class="QTextEdit" name="ted_y">
     <property name="geometry">
      <rect>
-      <x>1190</x>
-      <y>280</y>
+      <x>1110</x>
+      <y>350</y>
       <width>81</width>
       <height>31</height>
      </rect>
@@ -223,8 +223,8 @@
    <widget class="QTextEdit" name="ted_z">
     <property name="geometry">
      <rect>
-      <x>1320</x>
-      <y>280</y>
+      <x>1240</x>
+      <y>350</y>
       <width>81</width>
       <height>31</height>
      </rect>
@@ -233,8 +233,8 @@
    <widget class="QLabel" name="label_z">
     <property name="geometry">
      <rect>
-      <x>1290</x>
-      <y>280</y>
+      <x>1210</x>
+      <y>350</y>
       <width>21</width>
       <height>31</height>
      </rect>
@@ -251,8 +251,8 @@
    <widget class="QPushButton" name="btn_input">
     <property name="geometry">
      <rect>
-      <x>1410</x>
-      <y>280</y>
+      <x>1330</x>
+      <y>350</y>
       <width>91</width>
       <height>31</height>
      </rect>
@@ -267,8 +267,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>1160</x>
-      <y>50</y>
+      <x>1080</x>
+      <y>60</y>
       <width>111</width>
       <height>71</height>
      </rect>
@@ -280,8 +280,8 @@
    <widget class="QTabWidget" name="twg_table">
     <property name="geometry">
      <rect>
-      <x>1090</x>
-      <y>380</y>
+      <x>980</x>
+      <y>390</y>
       <width>465</width>
       <height>460</height>
      </rect>
@@ -487,8 +487,8 @@
    <widget class="QDoubleSpinBox" name="spb_z_stepsize">
     <property name="geometry">
      <rect>
-      <x>1200</x>
-      <y>210</y>
+      <x>1100</x>
+      <y>190</y>
       <width>131</width>
       <height>41</height>
      </rect>
@@ -512,8 +512,8 @@
    <widget class="QLabel" name="label_SampleStep">
     <property name="geometry">
      <rect>
-      <x>1200</x>
-      <y>170</y>
+      <x>1100</x>
+      <y>150</y>
       <width>121</width>
       <height>31</height>
      </rect>
@@ -525,8 +525,8 @@
    <widget class="QPushButton" name="btn_clearTable">
     <property name="geometry">
      <rect>
-      <x>1520</x>
-      <y>280</y>
+      <x>1440</x>
+      <y>350</y>
       <width>93</width>
       <height>28</height>
      </rect>
@@ -540,7 +540,7 @@
      <rect>
       <x>30</x>
       <y>20</y>
-      <width>961</width>
+      <width>891</width>
       <height>781</height>
      </rect>
     </property>
@@ -551,8 +551,8 @@
    <widget class="QPushButton" name="btn_Calibration">
     <property name="geometry">
      <rect>
-      <x>1520</x>
-      <y>50</y>
+      <x>1440</x>
+      <y>60</y>
       <width>111</width>
       <height>71</height>
      </rect>
@@ -561,11 +561,11 @@
      <string>Calibration</string>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="spb_circle_diameter">
+   <widget class="QDoubleSpinBox" name="spb_circle_radius">
     <property name="geometry">
      <rect>
-      <x>1050</x>
-      <y>210</y>
+      <x>950</x>
+      <y>190</y>
       <width>131</width>
       <height>41</height>
      </rect>
@@ -589,8 +589,8 @@
    <widget class="QDoubleSpinBox" name="spb_max_depth">
     <property name="geometry">
      <rect>
-      <x>1360</x>
-      <y>210</y>
+      <x>1260</x>
+      <y>190</y>
       <width>131</width>
       <height>41</height>
      </rect>
@@ -614,8 +614,8 @@
    <widget class="QDoubleSpinBox" name="spb_azimuthPoints">
     <property name="geometry">
      <rect>
-      <x>1510</x>
-      <y>210</y>
+      <x>1410</x>
+      <y>190</y>
       <width>131</width>
       <height>41</height>
      </rect>
@@ -639,21 +639,21 @@
    <widget class="QLabel" name="label_SampleStep_2">
     <property name="geometry">
      <rect>
-      <x>1050</x>
-      <y>170</y>
+      <x>950</x>
+      <y>150</y>
       <width>121</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
-     <string>circle_diameter:</string>
+     <string>circle_radius:</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_SampleStep_3">
     <property name="geometry">
      <rect>
-      <x>1360</x>
-      <y>170</y>
+      <x>1260</x>
+      <y>150</y>
       <width>121</width>
       <height>31</height>
      </rect>
@@ -665,8 +665,8 @@
    <widget class="QLabel" name="label_SampleStep_4">
     <property name="geometry">
      <rect>
-      <x>1510</x>
-      <y>170</y>
+      <x>1410</x>
+      <y>150</y>
       <width>121</width>
       <height>31</height>
      </rect>
@@ -845,8 +845,8 @@
    <widget class="QComboBox" name="cbx_scanningMode">
     <property name="geometry">
      <rect>
-      <x>1060</x>
-      <y>330</y>
+      <x>1000</x>
+      <y>20</y>
       <width>171</width>
       <height>22</height>
      </rect>
@@ -861,6 +861,158 @@
       <string>Halve sphere</string>
      </property>
     </item>
+   </widget>
+   <widget class="QLabel" name="label_SampleStep_5">
+    <property name="geometry">
+     <rect>
+      <x>960</x>
+      <y>250</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>offset:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_SampleStep_6">
+    <property name="geometry">
+     <rect>
+      <x>1110</x>
+      <y>250</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>elevationPoints:</string>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="spb_offset">
+    <property name="geometry">
+     <rect>
+      <x>960</x>
+      <y>290</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="decimals">
+     <number>2</number>
+    </property>
+    <property name="minimum">
+     <double>-300.000000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>300.000000000000000</double>
+    </property>
+    <property name="singleStep">
+     <double>1.000000000000000</double>
+    </property>
+    <property name="value">
+     <double>-60.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="spb_elevationPoints">
+    <property name="geometry">
+     <rect>
+      <x>1110</x>
+      <y>290</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="decimals">
+     <number>2</number>
+    </property>
+    <property name="minimum">
+     <double>1.000000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>300.000000000000000</double>
+    </property>
+    <property name="singleStep">
+     <double>1.000000000000000</double>
+    </property>
+    <property name="value">
+     <double>5.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_SampleStep_7">
+    <property name="geometry">
+     <rect>
+      <x>1270</x>
+      <y>250</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>zMin:</string>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="spb_zMin">
+    <property name="geometry">
+     <rect>
+      <x>1270</x>
+      <y>290</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="decimals">
+     <number>2</number>
+    </property>
+    <property name="minimum">
+     <double>-200.000000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>100.000000000000000</double>
+    </property>
+    <property name="singleStep">
+     <double>1.000000000000000</double>
+    </property>
+    <property name="value">
+     <double>-90.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="spb_laser_angle">
+    <property name="geometry">
+     <rect>
+      <x>1420</x>
+      <y>290</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="decimals">
+     <number>2</number>
+    </property>
+    <property name="minimum">
+     <double>-90.000000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>90.000000000000000</double>
+    </property>
+    <property name="singleStep">
+     <double>1.000000000000000</double>
+    </property>
+    <property name="value">
+     <double>90.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_SampleStep_8">
+    <property name="geometry">
+     <rect>
+      <x>1420</x>
+      <y>250</y>
+      <width>121</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>laser_angle:</string>
+    </property>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
