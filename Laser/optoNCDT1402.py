@@ -128,15 +128,15 @@ class optoNCDT1402:
         countL = 0
 
         # Iterate trough the two bytes
-        for b in dataBytes:
+        for byte in dataBytes:
             # If the 8th bit is 1, the byte is a H_Byte
-            if b & 0x80:
-                H_Byte = b & ~0x80  # Remove the 8th bit
-                countH = countH + 1
+            if byte & 0x80:
+                H_Byte = byte & ~0x80  # Remove the 8th bit
+                countH += 1
             # if the 8th bit is 0, the byte is a L_Byte
             else:
-                L_Byte = b  # No need to remove the 8th bit
-                countL = countL + 1
+                L_Byte = byte  # No need to remove the 8th bit
+                countL += 1
 
         if countH > 1:
             return 16384

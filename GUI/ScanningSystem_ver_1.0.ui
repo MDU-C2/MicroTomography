@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1681</width>
+    <width>1736</width>
     <height>1232</height>
    </rect>
   </property>
@@ -280,8 +280,8 @@
    <widget class="QTabWidget" name="twg_table">
     <property name="geometry">
      <rect>
-      <x>1110</x>
-      <y>370</y>
+      <x>1090</x>
+      <y>380</y>
       <width>465</width>
       <height>460</height>
      </rect>
@@ -841,6 +841,26 @@
     <property name="text">
      <string>Position:</string>
     </property>
+   </widget>
+   <widget class="QComboBox" name="cbx_scanningMode">
+    <property name="geometry">
+     <rect>
+      <x>1060</x>
+      <y>330</y>
+      <width>171</width>
+      <height>22</height>
+     </rect>
+    </property>
+    <item>
+     <property name="text">
+      <string>Cylinder</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>Halve sphere</string>
+     </property>
+    </item>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>

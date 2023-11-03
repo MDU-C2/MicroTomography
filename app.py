@@ -1,3 +1,6 @@
+linearActuator = 0
+laserON = 0
+
 ##
 # Modules
 ##
@@ -22,8 +25,13 @@ from GUI.ButtonCode.Button_SAVE import save_model
 from RobotArm import robot_Control
 from RobotArm import generate_Scan_points_Cylinder
 from RobotArm import abb
-from Laser import optoNCDT1402
-#import LinearActuator.linearActuatorController as linearController
+
+if laserON == 1:
+    from Laser import optoNCDT1402
+    from RaspberryPi import transistor
+
+if linearActuator == 1:
+    import LinearActuator.linearActuatorController as linearController
 
 #global variables
 robot = None
@@ -51,13 +59,14 @@ class AppWindow(QMainWindow):
         self.ui.btn_zDown.pressed.connect(self.MoveRobotArm_ZDown)
         self.ui.btn_clearTable.pressed.connect(self.clear_table)
         self.ui.btn_Scan.pressed.connect(self.scanModel)
+        self.ui.btn_Stop.pressed.connect(self.stopScan)
         self.ui.btn_Calibration.pressed.connect(self.calibration)
-        """
-        self.ui.btn_linear_moveto.pressed.connect(self.MoveLinearActuator(1))
-        self.ui.btn_linear_zero_pos.pressed.connect(self.MoveLinearActuator(2))
-        self.ui.btn_linear_up.pressed.connect(self.MoveLinearActuator(3))
-        self.ui.btn_linear_down.pressed.connect(self.MoveLinearActuator(4))
-        """
+        
+        if linearActuator == 1:
+            self.ui.btn_linear_moveto.pressed.connect(self.MoveLinearActuator(1))
+            self.ui.btn_linear_zero_pos.pressed.connect(self.MoveLinearActuator(2))
+            self.ui.btn_linear_up.pressed.connect(self.MoveLinearActuator(3))
+            self.ui.btn_linear_down.pressed.connect(self.MoveLinearActuator(4))
 
         # Create a layout for the plot viwer
         layout = QVBoxLayout(self.ui.viewer_scanning)
@@ -321,11 +330,14 @@ class AppWindow(QMainWindow):
         laser_data = []
         visitedOrigin = False
 
+        self.ui.btn_Stop.setEnabled(True)
+
         #connect Yumi
         robot = self.connectYumi()
 
         #connect Laser
-        laser = self.connectLaser()
+        if laserON == 1:
+            laser = self.connectLaser()
 
         # read which tab is on now
         tabIndex = self.ui.twg_table.currentIndex()
@@ -357,9 +369,9 @@ class AppWindow(QMainWindow):
                 points.append(row_data)
     
         #check status before start scanning
-        if (NonNumericExist == 0) and (robot != None) and (laser != None):
+        if (NonNumericExist == 0) and (robot != None):
             #Robot setting
-            robot_Control.set_Reference_Coordinate_System(robot, [0.6, -3.85, 758.01])
+            robot_Control.set_Reference_Coordinate_System(robot, [0, 0, 758.01])
 
             robot_Control.set_Robot_Tool(robot, 1)
 
@@ -385,19 +397,24 @@ class AppWindow(QMainWindow):
                 else:
                     print("Skipping origin...")
 
-                while not laser.laserOn():
-                    continue
+                if laserON == 1:
+                    while not laser.laserOn():
+                        continue
 
-                laser_point = laser.measure()
-                if isinstance(laser_point, float):
-                    laser_data.append(
-                        generate_Scan_points_Cylinder.transform_laser_distance(point, laser_point)
-                    )
-                
-                while not laser.laserOff():
-                    continue
+                    laser_point = laser.measure()
+                    if isinstance(laser_point, float):
+                        laser_data.append(
+                            generate_Scan_points_Cylinder.transform_laser_distance(point, laser_point)
+                        )
+                    
+                    while not laser.laserOff():
+                        continue
 
-                self.endEffectorPos(self.ax, laser_x, laser_y, laser_z, laser_point) #plot the end-effector position
+                    self.endEffectorPos(self.ax, laser_x, laser_y, laser_z, laser_point) #plot the end-effector position
+                else:
+                    self.endEffectorPos(self.ax, laser_x, laser_y, laser_z, None) #plot the end-effector position
+
+            robot_Control.return_Robot_To_Start(robot)
                     
             #Write laser data to the default table
             self.writeDefaultTable(laser_data)
@@ -431,7 +448,8 @@ class AppWindow(QMainWindow):
 
     def connectLaser(self):
         try: 
-            laser = optoNCDT1402.optoNCDT1402("COM3")
+            laser = optoNCDT1402.optoNCDT1402("/dev/ttyUSB0")  # Serial port of the Raspberry
+            transistor.init()
             self.printLog(self.ui.tbx_log, "Connect to the laser")
             return laser
         except:
@@ -508,42 +526,49 @@ class AppWindow(QMainWindow):
         elevationPoints = 5
         zMin = -90
         laser_angle = 90
+        circle_radius = 120
 
-        points = generate_Scan_points_Cylinder.generate_scan_points_cylinder(circle_diameter, z_stepsize, max_depth, azimuthPoints, offset, laser_angle)
-
+        if self.ui.cbx_scanningMode.currentText == 'Cylinder':
+            points = generate_Scan_points_Cylinder.generate_scan_points_cylinder(circle_diameter, z_stepsize, max_depth, azimuthPoints, offset, laser_angle)
+        elif self.ui.cbx_scanningMode.currentText == 'Halve sphere':
+            points = generate_Scan_points_Cylinder.generate_scan_points_halfSphere(circle_radius, azimuthPoints, elevationPoints, zMin, offset)
         return points
 
     def MoveLinearActuator(self, choice):
-        x = choice
-        """
-        total_steps_changes = self.ui.spb_linearMoveTo.value() * 100
+        if linearActuator == 1:
+            total_steps_changes = self.ui.spb_linearMoveTo.value() * 100
 
-        #For control the values between 0 < x < 10000
-        if total_steps_changes < 0:
-            total_steps_changes = 0
-        elif total_steps_changes > 10000:
-            total_steps_changes = 10000
+            #For control the values between 0 < x < 10000
+            if total_steps_changes < 0:
+                total_steps_changes = 0
+            elif total_steps_changes > 10000:
+                total_steps_changes = 10000
 
-        if choice == '1':   
-            total_steps_changes = linearController.move_to_desired_location_upwards(total_steps_changes)
-                        
-        elif choice == '2':
-            linearController.move_to_zeroLocation(total_steps_changes)
-            total_steps_changes = 0
+            if choice == '1':   
+                total_steps_changes = linearController.move_to_desired_location_upwards(total_steps_changes)
+                            
+            elif choice == '2':
+                linearController.move_to_zeroLocation(total_steps_changes)
+                total_steps_changes = 0
 
-        elif choice == '3':
-            linearController.move_up_1mm()
-            total_steps_changes = total_steps_changes + 100
-            
-            # for every move_up function the total_steps_changes are added with 100 steps = 1mm
-        elif choice == '4':
-            linearController.move_down_1mm()
-            total_steps_changes = total_steps_changes - 100
+            elif choice == '3':
+                linearController.move_up_1mm()
+                total_steps_changes = total_steps_changes + 100
+                
+                # for every move_up function the total_steps_changes are added with 100 steps = 1mm
+            elif choice == '4':
+                linearController.move_down_1mm()
+                total_steps_changes = total_steps_changes - 100
 
-        self.ui.label_linear_pos.setText(f"position: {total_steps_changes/100} mm")
-        self.ui.spb_linearMoveTo.setValue(total_steps_changes/100)
-        """
+            self.ui.label_linear_pos.setText(f"position: {total_steps_changes/100} mm")
+            self.ui.spb_linearMoveTo.setValue(total_steps_changes/100)
+    
+    def stopScan(self):
+        global robot
 
+        if not robot == None:
+            robot.close()
+        
 app = QApplication(sys.argv)
 w = AppWindow()
 w.show()
