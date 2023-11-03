@@ -12,28 +12,23 @@ import open3d as o3d
 ##
 # Class files
 ##
-from Spline import spline
-from reshapeArr import reshapeArr
-from Surface_Reconstruction import surface_Reconstruction
-from LoadCADfile import loadSTLFile as lstl
-from TraceError import TraceError as TE
-
-from ChoosePoints import rayCastPoints as rcP
+from spline_data import spline
+from reshape_list import fix_points
+from surface_reconstruction import surface_reconstruction
+from load_cad_file import load_stl_file
+from trace_error import line_trace
+from choose_points_microwave import ray_cast_points
+from read_save_csv import save_csv
 
 
 fileName = "Data\surfacePoint12061105_5.625deg_10stepWITHOUTNAN.mat"
 f = sp.io.loadmat(fileName, squeeze_me=False)
 data = np.array(f["surfacePoint"])  # Gets the surface points from the .mat file
 
-mesh, points = lstl()
-
-newData_X = data[:, 0, :]
-newData_Y = data[:, 1, :]
-newData_Z = data[:, 2, :]
-
+mesh, points = load_stl_file()
 
 # Reshapes the array into a points array
-points_2 = reshapeArr.fixPoints(newData_X, newData_Y, newData_Z)
+points_2 = fix_points(data)
 
 
 #################################################################################
@@ -43,22 +38,25 @@ save = False  # Save file? #Takes pretty long time to save .obj file, about 5-10
 saveImage = False  # Save plot image?
 
 t = time.time()
-recon_mesh = surface_Reconstruction.poisson_surfRecon(points_2, save)
+recon_mesh = surface_reconstruction.poisson_surface_reconstruction(points_2, save)
 totalElapsed = time.time() - t
 print("Time to complete reconstruction : ", totalElapsed)
 
 t = time.time()
-GT_mesh = surface_Reconstruction.poisson_surfRecon(points, save)
+GT_mesh = surface_reconstruction.poisson_surface_reconstruction(points, save)
 totalElapsed = time.time() - t
 print("Time to complete reconstruction : ", totalElapsed)
 
 
 # Error metric function.
-TE.lineTrace(GT_mesh, recon_mesh)
+line_trace(GT_mesh, recon_mesh)
 
 # ChosenPoints Functions gets the closes
-choosenPoints = np.array([[10, 40, -50], [10, 10, -10], [50, 50, -70]], np.int32)
+choosen_points = np.array([[10, 40, -50], [10, 10, -10], [50, 50, -70]], np.int32)
 
-newPoints = rcP(
-    recon_mesh, choosenPoints
-)  # Recon mesh is reconstructed mesh, cP is the chosen points where to put the antenna. # newPoints is the points on the mesh each correlating to their respective point in choosenPoints.
+closestPoints, closestNormals = ray_cast_points(
+    recon_mesh, choosen_points
+)  # Recon mesh is reconstructed mesh, cP is the chosen points where to put the antenna. # closestPoints is the points on the mesh each correlating to their respective point in choosenPoints.
+# closestNormals is the normals for each triangle which the points in closestPoints inhabit.
+print(closestPoints)
+print(closestNormals)

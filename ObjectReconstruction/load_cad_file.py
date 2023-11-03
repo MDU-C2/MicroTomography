@@ -2,7 +2,7 @@ import numpy as np
 from stl import mesh
 
 
-def loadSTLFile():
+def load_stl_file():
     your_mesh = mesh.Mesh.from_file("Data\Symmetric-test.STL")
 
     your_mesh.rotate(np.array([1, 0, 0]), -np.pi / 2)
