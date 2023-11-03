@@ -4,6 +4,7 @@ transistorPin = 22
 
 
 def init():
+    "Initialize the GPIO pin used by the transistor"
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(transistorPin, GPIO.OUT)
 

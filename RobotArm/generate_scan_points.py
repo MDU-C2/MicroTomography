@@ -76,7 +76,7 @@ def generate_scan_points_cylinder(
     return points
 
 
-def generate_scan_points_halfSphere(
+def generate_scan_points_halfsphere(
     radius: (int | float),
     azimuth_points: int,
     elevation_points: int,
