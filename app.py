@@ -5,11 +5,11 @@ laserON = 0
 # Modules
 ##
 import sys
-import pandas as pd
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QTableWidgetItem, QMessageBox
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt
+import pandas as pd
 import time
 from time import sleep
 ##
@@ -17,7 +17,7 @@ from time import sleep
 ##
 from ObjectReconstruction.Spline import spline
 from ObjectReconstruction.reshapeArr import reshapeArr
-from ObjectReconstruction.Surface_Reconstruction import surface_Reconstruction
+#from ObjectReconstruction.Surface_Reconstruction import surface_Reconstruction
 from GUI import ScanningSystem
 from GUI.ButtonCode import Button_MoveRobotArm
 from GUI.ButtonCode.Button_LOAD import load_model
@@ -348,25 +348,27 @@ class AppWindow(QMainWindow):
             table = self.ui.tbw_mylist
 
         #Generate points for laser scanning if no item in the table or read data from table
-            if table.rowCount == 0:
-                points = self.autoGenPoints()
-            else:
-                self.printLog(self.ui.tbx_log, "Checking items in the table...")
+        if table.rowCount() == 0:
+            points = self.autoGenPoints()
+        else:
+            self.printLog(self.ui.tbx_log, "Checking items in the table...")
 
-                for row in range(table.rowCount()):
-                    row_data = []
-                    for column in range(table.columnCount()):
-                        item = table.item(row, column)
-                        if item is not None:
-                            if self.isNumber(item.text()):
-                                row_data.append(float(item.text()))
-                            else:
-                                message = f"The item [{row + 1},{column + 1}] include is non-numeric value."
-                                self.printLog(self.ui.tbx_log, message)
-                                NonNumericExist = 1
-                                break
+            for row in range(table.rowCount()):
+                row_data = []
+                for column in range(table.columnCount()):
+                    item = table.item(row, column)
+                    if item is not None:
+                        if self.isNumber(item.text()):
+                            row_data.append(float(item.text()))
+                        else:
+                            message = f"The item [{row + 1},{column + 1}] include is non-numeric value."
+                            self.printLog(self.ui.tbx_log, message)
+                            NonNumericExist = 1
+                            break
 
-                points.append(row_data)
+            points.append(row_data)
+        
+        self.writeDefaultTable(points)
     
         #check status before start scanning
         if (NonNumericExist == 0) and (robot != None):
@@ -423,7 +425,7 @@ class AppWindow(QMainWindow):
             self.updatePlot()
 
             #3D reconstruction
-            self.reconstruction3D(laser_data)
+            #self.reconstruction3D(laser_data)
 
             self.printLog(self.ui.tbx_log, "Scanning complete")
 
@@ -460,7 +462,6 @@ class AppWindow(QMainWindow):
         step_down = 0.005  # Step size for spline interpolation with x,y in Z direction. The smaller this value is, the more values will be added, duh.
         totalTime = time.time()
         t = time.time()
-
 
         data_X = data['X_value'] #Reorganize the data into rows 
         data_Y = data['Y_value']
@@ -508,7 +509,7 @@ class AppWindow(QMainWindow):
         save = False  # Save file? #Takes pretty long time to save .obj file, about 5-10 minutes
         saveImage = False  # Save plot image?
 
-        surface_Reconstruction.delaunay_original(points, save)  ##tight cocone variant
+        #surface_Reconstruction.delaunay_original(points, save)  ##tight cocone variant
         # surface_Reconstruction.alpha_Shape(points,save)
         # surface_Reconstruction.ball_Pivoting(points,save)
         # surface_Reconstruction.poisson_surfRecon(points, save)
@@ -517,7 +518,7 @@ class AppWindow(QMainWindow):
         print("Time to complete Sample + reconstruction : ", totalElapsed)
 
     def autoGenPoints(self):
-        global points
+        """
         circle_diameter = self.ui.spb_circle_diameter.value()
         z_stepsize = self.ui.spb_z_stepsize.value()
         max_depth = self.ui.spb_max_depth.value()
@@ -527,12 +528,23 @@ class AppWindow(QMainWindow):
         zMin = -90
         laser_angle = 90
         circle_radius = 120
+        """
 
-        if self.ui.cbx_scanningMode.currentText == 'Cylinder':
-            points = generate_Scan_points_Cylinder.generate_scan_points_cylinder(circle_diameter, z_stepsize, max_depth, azimuthPoints, offset, laser_angle)
-        elif self.ui.cbx_scanningMode.currentText == 'Halve sphere':
+        circle_radius = 120
+        z_stepsize = 10
+        max_depth = -60
+        azimuthPoints = 16
+        offset = -60
+        elevationPoints = 5
+        zMin = -90
+        laser_angle = 60
+
+        if self.ui.cbx_scanningMode.currentText() == 'Cylinder':
+            points = generate_Scan_points_Cylinder.generate_scan_points_cylinder(circle_radius, z_stepsize, max_depth, azimuthPoints, offset, laser_angle)
+            return points
+        elif self.ui.cbx_scanningMode.currentText() == 'Halve sphere':
             points = generate_Scan_points_Cylinder.generate_scan_points_halfSphere(circle_radius, azimuthPoints, elevationPoints, zMin, offset)
-        return points
+            return points
 
     def MoveLinearActuator(self, choice):
         if linearActuator == 1:
