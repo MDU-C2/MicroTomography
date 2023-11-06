@@ -6,7 +6,8 @@ getting the info from the optoNCDT1402 and turning the laser on/off
 Author: Joel Josefsson
 """
 from time import sleep
-from serial import Serial, PARITY_NONE
+import serial
+#from serial import Serial, PARITY_NONE
 
 
 class optoNCDT1402:
@@ -30,12 +31,12 @@ class optoNCDT1402:
         if not isinstance(noMeasurements, int):
             raise TypeError("noMeasurements must be of type int")
 
-        self.ser = Serial(
+        self.ser = serial.Serial(
             comPort,
             115200,
             timeout=5,
             bytesize=8,
-            parity=PARITY_NONE,
+            parity=serial.PARITY_NONE,
             xonxoff=True,
             stopbits=1,
         )

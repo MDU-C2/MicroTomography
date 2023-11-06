@@ -2,7 +2,6 @@
 
 from RobotArm import abb
 
-
 def connect_To_Robot():
     "Attempts to create TCP connection to robot"
     return abb.Robot()
