@@ -1,4 +1,7 @@
 """
+Original code from:
+https://github.com/robotics/open_abb
+
 Michael Dawson-Haggerty
 
 abb.py: contains classes and support functions which interact with an ABB Robot running our software stack (RAPID code module SERVER)
@@ -22,13 +25,10 @@ log.addHandler(logging.NullHandler())
 
 
 class Robot:
-    def __init__(self, ip="192.168.0.100", port_motion=5000, port_logger=5001):
+    def __init__(self, ip="127.0.0.1", port_motion=5000, port_logger=5001):
         self.delay = 0.08
 
         self.connect_motion((ip, port_motion))
-        # log_thread = Thread(target = self.get_net,
-        #                    args   = ((ip, port_logger))).start()
-
         self.ip = ip
         self.port_motion = port_motion
         self.set_units("millimeters", "degrees")
@@ -57,7 +57,6 @@ class Robot:
                 data = map(float, s.recv(4096).split())
                 if int(data[1]) == 0:
                     self.pose.append([data[2:5], data[5:]])
-                # elif int(data[1]) == 1: self.joints.append([a[2:5], a[5:]])
         finally:
             s.shutdown(socket.SHUT_RDWR)
 
@@ -80,7 +79,7 @@ class Robot:
         Executes a move immediately, from current joint angles,
         to 'joints', in degrees.
         """
-        if len(joints) != 6:
+        if len(joints) != 7:
             return False
         msg = "02 "
         for joint in joints:
@@ -103,7 +102,7 @@ class Robot:
         """
         msg = "04 #"
         data = self.send(msg).split()
-        return [float(s) / self.scale_angle for s in data[2:8]]
+        return [float(s) / self.scale_angle for s in data[2:9]]
 
     def get_external_axis(self):
         """
@@ -219,6 +218,23 @@ class Robot:
         msg += format(zone[2], "+08.4f") + " #"
         self.send(msg)
 
+    def set_calibration(self):
+        """
+        UNDER DEVELOPMENT
+
+        Calibrates the robot according to the position of the calibration TCP
+        """
+        msg = "11 #"
+        self.send(msg)
+
+    def change_current_tool(self, tool):
+        """
+        Changes the current TCP in use
+        """
+        msg = "12 "
+        msg += format(tool, "+08.2f") + " #"
+        self.send(msg)
+
     def buffer_add(self, pose):
         """
         Appends single pose to the remote buffer
@@ -265,9 +281,10 @@ class Robot:
         msg = "33 #"
         return self.send(msg)
 
-    def set_external_axis(self, axis_unscaled=[-550, 0, 0, 0, 0, 0]):
-        if len(axis_unscaled) != 6:
-            return False
+    def set_external_axis(self, axis_input):
+        # if len(axis_input) != 1:
+        #    return False
+        axis_unscaled = [axis_input, 0, 0, 0, 0, 0]
         msg = "34 "
         for axis in axis_unscaled:
             msg += format(axis, "+08.2f") + " "
