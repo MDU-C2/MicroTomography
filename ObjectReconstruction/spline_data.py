@@ -1,3 +1,6 @@
+## Author : Filip Lindhe
+
+
 import numpy as np
 import scipy as sp
 from statistics import mean

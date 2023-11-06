@@ -1,4 +1,5 @@
-##
+## ## Author : Filip Lindhe
+
 # Modules
 ##
 from scipy.spatial import Delaunay

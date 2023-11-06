@@ -1,3 +1,5 @@
+## Author : Filip Lindhe
+
 import numpy as np
 import open3d as o3d
 from mayavi import mlab
