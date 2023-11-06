@@ -61,3 +61,11 @@ If the FlexPendant reports that you have a socket connection error which prevent
 1. Connect your PC to the MGMT port of the controller and change your IP address to an address in the following range *192.168.125.[2-254]* with a subnet mask of *255.255.255.0*
 2. Open *RobotStudio* and connect to the controller as specified in Section: **Upload script to YuMi robot arm**.
 3. In *RobotStudio*, open *Controller -> Configuration -> Communication*. Open the tab *Firewall* and ensure that the desired connections are allowed through the Firewall. After changes are applied the controller needs to be restarted for the changes to be applied. 
+
+
+### TimeoutError: timed out
+If you are trying to connect to the robot via a TCP socket and receive a timeout error it is most likely due to networking issues. Check the following if you encounter this issue.
+
+* Open the terminal on your computer and ensure you can ping the IP address of the controller.
+* Make sure the IP address set in the *RAPID* code is the same as the IP address of the controller.
+* Make sure the IP address set in the 

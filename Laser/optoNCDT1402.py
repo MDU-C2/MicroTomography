@@ -7,7 +7,6 @@ Author: Joel Josefsson
 """
 from time import sleep
 import serial
-#from serial import Serial, PARITY_NONE
 
 
 class optoNCDT1402:

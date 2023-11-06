@@ -1,13 +1,10 @@
 #!/bin/python3
 
-import sys
-sys.path.append('../Microtomography')
-
-from Laser import optoNCDT1402 
-import generate_Scan_points_Cylinder as generate_scan_points
-import robot_Control as robot_control
+from ..Laser.optoNCDT1402 import optoNCDT1402
+from RobotArm import generate_scan_points, robot_control
 from RaspberryPi import transistor
 from time import sleep
+
 
 # Function for scanning points in either cylinder form or halfsphere form
 def scan_points(*args):

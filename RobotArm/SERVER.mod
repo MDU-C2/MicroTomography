@@ -5,8 +5,8 @@ MODULE SERVER
 !////////////////
 
 !//Robot configuration
-PERS tooldata currentTool := [TRUE,[[-51.474,3.9,86.55],[1,0,0,0]],[0.1,[-27.92,-2.835,45.984],[1,0,0,0],0,0,0]];     
-PERS wobjdata currentWobj := [FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0,0,0],[1,0,0,0]]];    
+PERS tooldata currentTool := [TRUE, [[0, 0, 0], [1, 0, 0, 0]],[0.001, [0, 0, 0.001],[1, 0, 0, 0], 0, 0, 0]];
+PERS wobjdata currentWobj := [FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0,0,758],[1,0,0,0]]];    
 
 PERS speeddata currentSpeed;
 PERS zonedata currentZone;
@@ -55,8 +55,8 @@ CONST num SERVER_OK := 1;
 
 !//TCP data in relation to the end effector
 PERS tooldata Laser_TCP:=[TRUE,[[-51.474,3.9,86.55],[1,0,0,0]],[0.1,[-27.92,-2.835,45.984],[1,0,0,0],0,0,0]];
-PERS tooldata Antenna_TCP:=[TRUE,[[-53.974,33.75,100.5],[1,0,0,0]],[0.1,[-27.92,-2.835,45.984],[1,0,0,0],0,0,0]];
-PERS tooldata calibration_TCP:=[TRUE,[[-61.474,-13.499,62.227],[0.707106781,0,-0.707106781,0]],[0.1,[-27.92,-2.835,45.984],[1,0,0,0],0,0,0]];
+PERS tooldata Antenna_TCP:=[TRUE,[[-61.474,-13.499,62.227],[0.707106781,0,-0.707106781,0]],[0.1,[-27.92,-2.835,45.984],[1,0,0,0],0,0,0]];
+PERS tooldata calibration_TCP:=[TRUE,[[-53.974,33.75,100.5],[1,0,0,0]],[0.1,[-27.92,-2.835,45.984],[1,0,0,0],0,0,0]];
 
 !//Used to determine the x and y coordinates when determining the current zone of the TCP
 VAR num x;
@@ -64,9 +64,16 @@ VAR num y;
 
 !//When traveling to new zone it should pass through these points 
 VAR robtarget cartesianTargetZone1 := [[141.4213562373095, 141.4213562373095, -150], [0.27059805, 0.65328148, 0.27059805, -0.65328148], [-1,0,0,4], [0.000004418,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR jointtarget targetZone1 := [[-90, -90, 15, -30, 110, 45], [45, 0, 0, 0 ,0 ,0]];
+
 VAR robtarget cartesianTargetZone2 := [[-141.42135623730948, 141.4213562373095, -150], [0.65328148, 0.27059805, 0.65328148, -0.27059805], [0,0,0,4], [61.00,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR jointtarget targetZone2 := [[-43, -114, 20, 0, 95, 0], [0, 0, 0, 0 ,0 ,0]];
+
 VAR robtarget cartesianTargetZone3 := [[-141.42135623730954, -141.42135623730948, -150], [0.65328148, -0.27059805, 0.65328148, 0.27059805], [1,0,0,4], [118.81,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR jointtarget targetZone3 := [[45, -115, 20, 0, 95, 0], [0, 0, 0, 0 ,0 ,0]];
+
 VAR robtarget cartesianTargetZone4 := [[141.42135623730948, -141.42135623730954, -150], [-0.27059805, 0.65328148, -0.27059805, -0.65328148], [2,1,1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR jointtarget targetZone4 := [[80, -80, 10, 40, 120, -60], [-60, 0, 0, 0 ,0 ,0]];
 
 !//Coordinate of the point the user wants to calibrate from
 VAR robtarget calibrationCoordinate;
@@ -74,6 +81,8 @@ VAR robtarget calibrationCoordinate;
 VAR robtarget resetPosition := [[-38.859585784,0.000707752,416.889532938],[0.53729967,-0.00000001,0.843391406,-0.000000007],[0,0,0,4],[90,9E+09,9E+09,9E+09,9E+09,9E+09]];
 
 VAR robtarget currentZonePos;
+VAR jointtarget newJointPos;
+
 VAR robtarget newZonePos;
     
 
@@ -183,18 +192,22 @@ FUNC num zonePlacement()
 
     IF x >= 0 AND y >= 0 THEN
         currentZonePos := cartesianTargetZone1;
+        !currentZonePos := targetZone1;
         RETURN 1;
 
     ELSEIF x < 0 AND y >= 0 THEN
         currentZonePos := cartesianTargetZone2;
+        !currentZonePos := targetZone2;
         RETURN 2;
     
     ELSEIF x < 0 AND y < 0 THEN
         currentZonePos := cartesianTargetZone3;
+        !currentZonePos := targetZone3;
         RETURN 3;
     
     ELSE
         currentZonePos := cartesianTargetZone4;
+        !currentZonePos := targetZone4;
         RETURN 4;
     
     ENDIF
@@ -216,7 +229,8 @@ PROC main()
         
     			
     !//Motion configuration
-    ConfL \On;
+    ConfL \Off;
+    ConfJ \Off;
     SingArea \Wrist;
     moveCompleted:= TRUE;
 	
@@ -290,38 +304,45 @@ PROC main()
                     
                     !Move up through the zones
                     IF newZonePosID > zonePlacement() THEN
-                        MoveL currentZonePos, currentSpeed, currentZone, currentTool \WObj:=currentWobj;
+                        MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
                         WHILE newZonePosID > zonePlacement() DO                           
                             
                             IF zonePlacement() = 1 THEN
                                 newZonePos := cartesianTargetZone2;
+                                newJointPos := targetZone2;
                             
                             ELSEIF zonePlacement() = 2 THEN
                                 newZonePos := cartesianTargetZone3;
-                            
+                                newJointPos := targetZone3;
                             ELSE
                                 newZonePos := cartesianTargetZone4;
+                                newJointPos := targetZone4;
                             ENDIF
                             
-                            MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
+                            MoveAbsJ newJointPos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
+                            !MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
                         ENDWHILE
                     
                     !Move down through the zones
                     ELSEIF newZonePosID < zonePlacement() THEN
-                        MoveL currentZonePos, currentSpeed, currentZone, currentTool \WObj:=currentWobj;
+                        MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
                          
                         WHILE newZonePosID < zonePlacement() DO
                             
                             
                             IF zonePlacement() = 4 THEN
                                 newZonePos := cartesianTargetZone3;
+                                newJointPos := targetZone3;
                                 
                             ELSEIF zonePlacement() = 3 THEN
                                 newZonePos := cartesianTargetZone2;
+                                newJointPos := targetZone2;
                             ELSE
                                 newZonePos := cartesianTargetZone1;
+                                newJointPos := targetZone1;
                             ENDIF
-                            MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
+                            MoveAbsJ newJointPos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
+                            !MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
                          ENDWHILE
                          
                     ENDIF

@@ -2,27 +2,28 @@
 
 from RobotArm import abb
 
-def connect_To_Robot():
+
+def connect_to_robot():
     "Attempts to create TCP connection to robot"
     return abb.Robot()
 
 
-def fetch_Robot_Coordinates(robot):
+def fetch_robot_coordinates(robot):
     return robot.get_cartesian()
 
 
-def set_Reference_Coordinate_System(robot, reference_Coordinate):
+def set_reference_coordinate_system(robot, reference_coordinate):
     "Changes the reference coordinate system of the robot, offset in relation to the robots origin(base)"
-    robot.set_workobject([reference_Coordinate, [1, 0, 0, 0]])
+    robot.set_workobject([reference_coordinate, [1, 0, 0, 0]])
     # 0.11, 64, 694.98
 
 
-def move_Robot_Linear(robot, coordinates):
+def move_robot_linear(robot, coordinates):
     "Moves the robot in a linear motion to the given coordinates"
     robot.set_cartesian(coordinates)
 
 
-def set_Robot_Speed(robot, speed):
+def set_robot_speed(robot, speed):
     """Set the speed of the robot
 
     speed: [robot TCP linear speed (mm/s), TCP orientation speed (deg/s),
@@ -31,7 +32,7 @@ def set_Robot_Speed(robot, speed):
 
 
 # Under construction
-def set_Calibration(robot):
+def set_calibration(robot):
     "Set the current calibration TCP to new workframe"
     input(
         "Press enter when arm is in calibration position to set new calibration point..."
@@ -39,7 +40,7 @@ def set_Calibration(robot):
     robot.set_calibration()
 
 
-def set_Robot_Tool(robot, tool):
+def set_robot_tool(robot, tool):
     """Change the tool TCP of the robot.
 
     1 for LASER TCP
@@ -49,15 +50,28 @@ def set_Robot_Tool(robot, tool):
     robot.change_current_tool(tool)
 
 
-def return_Robot_To_Start(robot):
-    # robot.set_joints([0, -100, 0, 0, 105, 45])
-    # robot.set_joints([0, -135, 55, 0, 105, 45])
-    # robot.set_cartesian([[-86.04, 16.4, -292.5], [0.54, 0.001, 0.842, 0.001]])
-    robot.set_joints([0, -135, 55, 0, 105, 45])
-    robot.set_external_axis(0)
+def return_robot_to_start(robot):
+    "Returns robot to starting position"
+    robot.set_joints([0, -135, 55, 0, 105, 0, 0])
 
 
-def close_Connection(robot):
-    "Close TCP connection to robot"
+def close_connection(robot):
+    "Returns robot to start and closes the TCP connection to robot"
+    return_robot_to_start()
     robot.close()
-    print("Program closed...")
+
+
+def robot_init(tool):
+    """Sets initial parameters of the robot
+
+    1 for laser TCP
+
+    2 for Antenna TCP
+    """
+    robot = connect_to_robot()
+    set_reference_coordinate_system(robot, [0, 0, 758.01])
+    set_robot_tool(robot, tool)
+    set_robot_speed(robot, [75, 25, 50, 25])
+    return_robot_to_start()
+
+    return robot
