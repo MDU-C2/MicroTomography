@@ -7,11 +7,17 @@ import numpy as np
 import scipy as sp
 
 import time
-
+import sys
+import os
 
 ##
 # Class files
 ##
+
+path = os.getcwd()
+
+sys.path.append(path)
+
 from spline_data import spline
 from reshape_list import fix_points
 from surface_reconstruction import surface_reconstruction

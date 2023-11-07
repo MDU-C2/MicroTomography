@@ -1,7 +1,7 @@
 #!/bin/python3
 
-from ..Laser.optoNCDT1402 import optoNCDT1402
-from RobotArm import generate_scan_points, robot_control
+from Laser.optoNCDT1402 import optoNCDT1402
+from RobotArm import generate_scan_points, robot_Control
 from RaspberryPi import transistor
 from time import sleep
 
