@@ -6,7 +6,7 @@ MODULE SERVER
 
 !//Robot configuration
 PERS tooldata currentTool := [TRUE, [[0, 0, 0], [1, 0, 0, 0]],[0.001, [0, 0, 0.001],[1, 0, 0, 0], 0, 0, 0]];
-PERS wobjdata currentWobj := [FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0,0,758],[1,0,0,0]]];    
+PERS wobjdata currentWobj := [FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0,0,0],[1,0,0,0]]];    
 
 PERS speeddata currentSpeed;
 PERS zonedata currentZone;
