@@ -54,9 +54,10 @@ CONST num SERVER_BAD_MSG :=  0;
 CONST num SERVER_OK := 1;
 
 !//TCP data in relation to the end effector
-PERS tooldata Laser_TCP:=[TRUE,[[-51.474,3.9,86.55],[1,0,0,0]],[0.1,[-27.92,-2.835,45.984],[1,0,0,0],0,0,0]];
-PERS tooldata Antenna_TCP:=[TRUE,[[-61.474,-13.499,62.227],[0.707106781,0,-0.707106781,0]],[0.1,[-27.92,-2.835,45.984],[1,0,0,0],0,0,0]];
-PERS tooldata calibration_TCP:=[TRUE,[[-53.974,33.75,100.5],[1,0,0,0]],[0.1,[-27.92,-2.835,45.984],[1,0,0,0],0,0,0]];
+PERS tooldata laser_TCP := [TRUE,[[-52,6.502,80.05],[1,0,0,0]],[0.1,[-29.004,-0.354,42.84],[1,0,0,0],0,0,0]];
+PERS tooldata antenna_TCP := [TRUE,[[-54.5,36.262,94],[1,0,0,0]],[0.1,[-29.004,-0.354,42.84],[1,0,0,0],0,0,0]];
+PERS tooldata calibration_laser_TCP := [TRUE,[[-62,-10.987,55.727],[0.707106781,0,-0.707106781,0]],[0.1,[-29.004,-0.354,42.84],[1,0,0,0],0,0,0]];
+PERS tooldata calibration_antenna_TCP := [TRUE,[[-53.947,37.22,128],[1,0,0,0]],[0.1,[-29.004,-0.354,42.84],[1,0,0,0],0,0,0]];
 
 !//Used to determine the x and y coordinates when determining the current zone of the TCP
 VAR num x;
@@ -172,7 +173,7 @@ ENDPROC
 !// - Speed.
 PROC Initialize()
     currentTool := [TRUE,[[0,0,0],[1,0,0,0]],[0.001,[0,0,0.001],[1,0,0,0],0,0,0]]; 
-    currentWobj := [FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0, 0, 755],[1,0,0,0]]]; !Set to frame of OUS, currently hardcoded coordinates
+    currentWobj := [FALSE,TRUE,"",[[0,0,0],[1,0,0,0]],[[0, 0, 0],[1,0,0,0]]]; !Set to frame of OUS, currently hardcoded coordinates
     currentSpeed := [100, 50, 0, 0];
     currentZone := [FALSE, 0.3, 0.3,0.3,0.03,0.3,0.03]; !z0
 	
