@@ -14,7 +14,7 @@ def fetch_robot_coordinates(robot):
 
 def set_reference_coordinate_system(robot, reference_coordinate):
     "Changes the reference coordinate system of the robot, offset in relation to the robots origin(base)"
-    robot.set_workobject([reference_Coordinate, [0.99984, 0.01793, 0.00143, 0.00229]])
+    robot.set_workobject([reference_coordinate, [0.99984, 0.01793, 0.00143, 0.00229]])
     # 0.11, 64, 694.98
     # 0.71689, 0.00791, 0.69706, 0.01025
 
@@ -51,16 +51,13 @@ def set_robot_tool(robot, tool):
     robot.change_current_tool(tool)
 
 
-def return_Robot_To_Start(robot):
-    # robot.set_joints([0, -100, 0, 0, 105, 45])
-    # robot.set_joints([0, -135, 55, 0, 105, 45])
-    # robot.set_cartesian([[-86.04, 16.4, -292.5], [0.54, 0.001, 0.842, 0.001]])
+def return_robot_to_start(robot):
     robot.set_joints([0, -135, 55, 0, 105, 0, 0])
 
 
 def close_connection(robot):
     "Returns robot to start and closes the TCP connection to robot"
-    return_robot_to_start()
+    return_robot_to_start(robot)
     robot.close()
 
 
@@ -75,6 +72,6 @@ def robot_init(tool):
     set_reference_coordinate_system(robot, [0, 0, 758.01])
     set_robot_tool(robot, tool)
     set_robot_speed(robot, [75, 25, 50, 25])
-    return_robot_to_start()
+    return_robot_to_start(robot)
 
     return robot
