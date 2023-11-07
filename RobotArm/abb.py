@@ -26,9 +26,6 @@ class Robot:
         self.delay = 0.08
 
         self.connect_motion((ip, port_motion))
-        # log_thread = Thread(target = self.get_net,
-        #                    args   = ((ip, port_logger))).start()
-
         self.ip = ip
         self.port_motion = port_motion
         self.set_units("millimeters", "degrees")
@@ -57,7 +54,6 @@ class Robot:
                 data = map(float, s.recv(4096).split())
                 if int(data[1]) == 0:
                     self.pose.append([data[2:5], data[5:]])
-                # elif int(data[1]) == 1: self.joints.append([a[2:5], a[5:]])
         finally:
             s.shutdown(socket.SHUT_RDWR)
 
@@ -221,6 +217,8 @@ class Robot:
 
     def set_calibration(self):
         """
+        UNDER DEVELOPMENT
+
         Calibrates the robot according to the position of the calibration TCP
         """
         msg = "11 #"
@@ -228,7 +226,7 @@ class Robot:
 
     def change_current_tool(self, tool):
         """
-        Calibrates the robot according to the position of the calibration TCP
+        Changes the current TCP in use
         """
         msg = "12 "
         msg += format(tool, "+08.2f") + " #"
