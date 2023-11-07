@@ -60,7 +60,7 @@ def return_Robot_To_Start(robot):
 
 def close_connection(robot):
     "Returns robot to start and closes the TCP connection to robot"
-    return_robot_to_start()
+    return_robot_to_start(robot)
     robot.close()
 
 
@@ -75,6 +75,6 @@ def robot_init(tool):
     set_reference_coordinate_system(robot, [0, 0, 758.01])
     set_robot_tool(robot, tool)
     set_robot_speed(robot, [75, 25, 50, 25])
-    return_robot_to_start()
+    return_robot_to_start(robot)
 
     return robot
