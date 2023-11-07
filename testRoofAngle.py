@@ -34,17 +34,18 @@ transistor.laserOff()
 robot.set_joints([0, -135, 55, 0, 105, 4, 0])
 
 robot.set_cartesian([[-258.27, 46.99, 650], [1, 0, 0, 0]])
-sleep(2)
 
+sleep(2)
 joints = robot.get_joints()
 print(joints)
 external_joint = robot.get_external_axis()
 print(external_joint)
 
 
-for angle in [-135, -45, 45, 135]:
+for angle in [-160, -50, 5, 120]:
     joints[0] = angle
     robot.set_joints(joints)
+    sleep(4)
 
     transistor.laserON()
     print(laser.measure())
