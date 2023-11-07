@@ -6,7 +6,7 @@ from scipy.spatial import Delaunay
 import matplotlib.pyplot as plt
 import scipy as sp
 import numpy as np
-import pyvista as pv
+#import pyvista as pv
 import open3d as o3d
 import time
 
@@ -133,7 +133,7 @@ class surface_reconstruction:
         # mesh = o3d.t.geometry.TriangleMesh.from_legacy(mesh).fill_holes().to_legacy() Can be used to fill large holes with a mesh. Not really usefull
         mesh.compute_vertex_normals()
         mesh.paint_uniform_color(np.array([[0.5], [0.5], [0.5]]))
-
+        o3d.visualization.draw_geometries([pcd, rec_mesh], mesh_show_back_face=True)
         elapsed = time.time() - t
         print("Time to do surface reconstruction:", elapsed)
 

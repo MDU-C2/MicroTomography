@@ -30,12 +30,14 @@ def scan_points(*args):
     laser_data = []
 
     transistor.init()
-    robot = robot_control.robot_init(1)
+    robot = robot_Control.robot_init(1)
 
     # Visit all points and scan the laser at the given points
     for point in points:
-        robot_control.move_robot_linear(robot, point)
+        robot_Control.move_robot_linear(robot, point)
         sleep(0.5)
+
+        transistor.laserON()
 
         laser_point = laser.measure()
         if isinstance(laser_point, float):
@@ -44,5 +46,5 @@ def scan_points(*args):
             )
         transistor.laserOff()
 
-    robot_control.close_connection(robot)
+    robot_Control.close_connection(robot)
     return laser_data

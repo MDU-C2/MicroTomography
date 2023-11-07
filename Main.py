@@ -18,7 +18,7 @@ from ObjectReconstruction.read_save_csv import save_csv
 def get_integer_input(prompt, negative):
     while True:
         user_input = input(prompt)
-        if user_input.replace(".", "", 1).lstrip("-").isdigit():
+        if user_input.replace(".", "", 1).lstrip("-").isdigit():# This was just to make sure we got the correct format. Will problably change this. 
             value = int(user_input)  # We want integers
             if value < 0 and negative:  # The value is negative
                 return value
@@ -87,8 +87,8 @@ def half_sphere():
 
 def save_laser_scan(file_name, data):
     # Save the data in a CSV file.
-    data_values = read_csv(file_name)
-    save_csv(file_name, data_values)
+  #  data_values = read_csv(file_name)
+    save_csv(file_name, data)
 
     print("The generated point cloud has been saved in a file.")
 

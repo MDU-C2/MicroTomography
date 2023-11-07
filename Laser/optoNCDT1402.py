@@ -116,7 +116,7 @@ class optoNCDT1402:
                 continue
 
         if self.noMeasurements == 1:
-            return self.distanceList.pop()
+            return distanceList.pop()
 
         # Return the average distance
         return sum(distanceList) / len(distanceList)
