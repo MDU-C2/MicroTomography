@@ -14,8 +14,9 @@ def fetch_robot_coordinates(robot):
 
 def set_reference_coordinate_system(robot, reference_coordinate):
     "Changes the reference coordinate system of the robot, offset in relation to the robots origin(base)"
-    robot.set_workobject([reference_coordinate, [1, 0, 0, 0]])
+    robot.set_workobject([reference_Coordinate, [0.99984, 0.01793, 0.00143, 0.00229]])
     # 0.11, 64, 694.98
+    # 0.71689, 0.00791, 0.69706, 0.01025
 
 
 def move_robot_linear(robot, coordinates):
@@ -50,8 +51,10 @@ def set_robot_tool(robot, tool):
     robot.change_current_tool(tool)
 
 
-def return_robot_to_start(robot):
-    "Returns robot to starting position"
+def return_Robot_To_Start(robot):
+    # robot.set_joints([0, -100, 0, 0, 105, 45])
+    # robot.set_joints([0, -135, 55, 0, 105, 45])
+    # robot.set_cartesian([[-86.04, 16.4, -292.5], [0.54, 0.001, 0.842, 0.001]])
     robot.set_joints([0, -135, 55, 0, 105, 0, 0])
 
 
