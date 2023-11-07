@@ -1,9 +1,9 @@
 import sys
 import os
- 
+
 pathname = os.getcwd()
- 
-sys.path.append('../Microtomography')
+
+sys.path.append("../Microtomography")
 
 
 import RPi.GPIO as GPIO
