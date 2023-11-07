@@ -1,8 +1,5 @@
 """
-Original code from:
-https://github.com/robotics/open_abb
-
-Michael Dawson-Haggerty
+Michael Dawson-Haggerty.
 
 abb.py: contains classes and support functions which interact with an ABB Robot running our software stack (RAPID code module SERVER)
 
@@ -25,7 +22,7 @@ log.addHandler(logging.NullHandler())
 
 
 class Robot:
-    def __init__(self, ip="127.0.0.1", port_motion=5000, port_logger=5001):
+    def __init__(self, ip="192.168.0.50", port_motion=5000, port_logger=5001):
         self.delay = 0.08
 
         self.connect_motion((ip, port_motion))
