@@ -22,8 +22,9 @@ from spline_data import spline
 from reshape_list import fix_points
 from surface_reconstruction import surface_reconstruction
 from load_cad_file import load_stl_file
-#from trace_error import line_trace
-#from choose_points_microwave import ray_cast_points
+
+# from trace_error import line_trace
+# from choose_points_microwave import ray_cast_points
 from read_save_csv import save_csv
 
 
@@ -55,10 +56,10 @@ print("Time to complete reconstruction : ", totalElapsed)
 
 
 # Error metric function.
-#line_trace(GT_mesh, recon_mesh)
+# line_trace(GT_mesh, recon_mesh)
 
 # ChosenPoints Functions gets the closes
-#choosen_points = np.array([[10, 40, -50], [10, 10, -10], [50, 50, -70]], np.int32)
+# choosen_points = np.array([[10, 40, -50], [10, 10, -10], [50, 50, -70]], np.int32)
 
 """closestPoints, closestNormals = ray_cast_points(
     recon_mesh, choosen_points

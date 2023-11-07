@@ -6,7 +6,8 @@ from scipy.spatial import Delaunay
 import matplotlib.pyplot as plt
 import scipy as sp
 import numpy as np
-#import pyvista as pv
+
+# import pyvista as pv
 import open3d as o3d
 import time
 
