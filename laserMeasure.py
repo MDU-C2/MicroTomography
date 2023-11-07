@@ -9,8 +9,6 @@ transistor.init()
 transistor.laserOff()
 
 
-
-
 transistor.laserON()
 print(laser.measure())
 transistor.laserOff()
