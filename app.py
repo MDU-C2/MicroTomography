@@ -32,7 +32,7 @@ from GUI.ButtonCode import Button_MoveRobotArm
 from GUI.ButtonCode.Button_LOAD import load_model
 from GUI.ButtonCode.Button_SAVE import save_model
 from RobotArm import robot_Control
-from RobotArm import generate_Scan_points_Cylinder
+from RobotArm import generate_scan_points
 from RobotArm import abb
 
 if laserON == 1:
@@ -431,7 +431,7 @@ class AppWindow(QMainWindow):
                     laser_point = laser.measure()
                     if isinstance(laser_point, float):
                         laser_data.append(
-                            generate_Scan_points_Cylinder.transform_laser_distance(
+                            generate_scan_points.transform_laser_distance(
                                 point, laser_point
                             )
                         )
@@ -559,6 +559,20 @@ class AppWindow(QMainWindow):
         zMin = self.ui.spb_zMin.value()
         laser_angle = self.ui.spb_laser_angle.value()
 
+        while not -90 <= laser_angle <= 90:
+            if laser_angle < 0:
+                laser_angle = get_numeric_input(
+                    "The angle of the end effector to point the laser upwards by:",
+                    negative=True,
+                    allow_float=True,
+                )
+            else:
+                laser_angle = get_numeric_input(
+                    "The angle of the end effector to point the laser upwards by:",
+                    negative=False,
+                    allow_float=True,
+            )
+
         """
         circle_radius = 120
         z_stepsize = 10
@@ -571,12 +585,12 @@ class AppWindow(QMainWindow):
         """
 
         if self.ui.cbx_scanningMode.currentText() == "Cylinder":
-            points = generate_Scan_points_Cylinder.generate_scan_points_cylinder(
+            points = generate_scan_points.generate_scan_points_cylinder(
                 circle_radius, z_stepsize, max_depth, azimuthPoints, offset, laser_angle
             )
             return points
         elif self.ui.cbx_scanningMode.currentText() == "Halve sphere":
-            points = generate_Scan_points_Cylinder.generate_scan_points_halfSphere(
+            points = generate_scan_points.generate_scan_points_halfsphere(
                 circle_radius, azimuthPoints, elevationPoints, zMin, offset
             )
             return points
