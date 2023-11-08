@@ -1,5 +1,5 @@
 # Main code to control the system. Enables the user to choose the desired scan pattern and paramters for it.
-# Produces a csv file with the point cloud of the laser data.
+# Preforms the laser scan and produces a csv file with the point cloud of the laser data.
 
 import sys
 import os
@@ -9,40 +9,44 @@ pathname = os.getcwd()
 sys.path.append("../Microtomography")
 
 from RobotArm.scan_breast_phantom import scan_points
-
-from ObjectReconstruction.read_save_csv import read_csv
 from ObjectReconstruction.read_save_csv import save_csv
 
 
 # Control if the user input is valid.
-def get_integer_input(prompt, negative):
+def get_numeric_input(prompt, negative, allow_float):
     while True:
         user_input = input(prompt)
-        if (
-            user_input.replace(".", "", 1).lstrip("-").isdigit()
-        ):  # This was just to make sure we got the correct format. Will problably change this.
-            value = int(user_input)  # We want integers
-            if value < 0 and negative:  # The value is negative
-                return value
-            elif value >= 0 and not negative:  # The value is zero or positive
-                return value
-        print("Please enter a valid number.")
+        try:
+            # Check if float is allowed 
+            if allow_float:
+                value = float(user_input)  # Allow both integer and float input
+            else:
+                value = int(user_input)  # Enforce integer input
 
+            # Check if negative or positive is allowed 
+            if (value < 0 and negative) or (value >= 0 and not negative):
+                return value
+            else:
+                print("Please enter a valid number.")
+        except ValueError:
+            print("Please enter a valid number.")
 
 def cylinder():
     print("Please enter the following desired parameters:")
-    radius = get_integer_input("Radius of the cylinder: ", negative=False)
-    z_stepsize = get_integer_input(
-        "Number of mm between each z-plane: ", negative=False
-    )
-    z_min = get_integer_input("Lowest point of the cylinder: ", negative=True)
-    azimuth_points = get_integer_input(
-        "Number of points in the azimuth angle:", negative=False
-    )
-    z_offset = get_integer_input("Offset in the z-axis:", negative=True)
-    laser_angle = get_integer_input(
-        "The angle of the end effector to point the laser upwards by:", negative=False
-    )
+    radius = get_numeric_input("Radius of the cylinder: ", negative=False, allow_float=True)  
+    z_stepsize = get_numeric_input("Number of mm between each z-plane: ", negative=False, allow_float=False)  
+    z_min = get_numeric_input("Lowest point of the cylinder: ", negative=True, allow_float=False)  
+    azimuth_points = get_numeric_input("Number of points in the azimuth angle:", negative=False, allow_float=False)  
+    z_offset = get_numeric_input("Offset in the z-axis:", negative=True, allow_float=True)  
+
+    # Control so the angle is allowed 
+    laser_angle = -99
+
+    while not -90 <= laser_angle <=90:
+         if laser_angle < 0:
+              laser_angle = get_numeric_input("The angle of the end effector to point the laser upwards by:", negative=True, allow_float=True) 
+         else:
+             laser_angle = get_numeric_input("The angle of the end effector to point the laser upwards by:", negative=False, allow_float=True)  
 
     scan_choice = input("To start the laser scan, please enter 1:")
 
@@ -51,28 +55,19 @@ def cylinder():
         scan_choice = input()
 
     # The resulting laser data.
-    result = scan_points(
-        radius, z_stepsize, z_min, azimuth_points, z_offset, laser_angle
-    )
+    result = scan_points(radius, z_stepsize, z_min, azimuth_points, z_offset, laser_angle)
 
     print("The scan is finished.")
 
     return result
 
-
 def half_sphere():
     print("Please enter the following desired parameters:")
-    radius = get_integer_input("Radius of the half-sphere: ", negative=False)
-    azimuth_points = get_integer_input(
-        "Number of points in the azimuth plane: ", negative=False
-    )
-    elevation_points = get_integer_input(
-        "Number of points in the elevation plane: ", negative=False
-    )
-    z_min = get_integer_input(
-        "How low the half-sphere should go in the z-axis: ", negative=True
-    )
-    z_offset = get_integer_input("Offset in the z-axis:", negative=True)
+    radius = get_numeric_input("Radius of the half-sphere: ", negative=False, allow_float=True)  
+    azimuth_points = get_numeric_input("Number of points in the azimuth plane: ", negative=False, allow_float=False)  
+    elevation_points = get_numeric_input("Number of points in the elevation plane: ", negative=False, allow_float=False)  
+    z_min = get_numeric_input("How low the half-sphere should go in the z-axis: ", negative=True, allow_float=True)  
+    z_offset = get_numeric_input("Offset in the z-axis:", negative=True, allow_float=True)  
 
     scan_choice = input("To start the laser scan, please enter 1:")
 
@@ -89,7 +84,6 @@ def half_sphere():
 
 def save_laser_scan(file_name, data):
     # Save the data in a CSV file.
-    #  data_values = read_csv(file_name)
     save_csv(file_name, data)
 
     print("The generated point cloud has been saved in a file.")
