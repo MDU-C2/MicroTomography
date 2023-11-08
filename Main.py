@@ -17,13 +17,13 @@ def get_numeric_input(prompt, negative, allow_float):
     while True:
         user_input = input(prompt)
         try:
-            # Check if float is allowed 
+            # Check if float is allowed
             if allow_float:
                 value = float(user_input)  # Allow both integer and float input
             else:
                 value = int(user_input)  # Enforce integer input
 
-            # Check if negative or positive is allowed 
+            # Check if negative or positive is allowed
             if (value < 0 and negative) or (value >= 0 and not negative):
                 return value
             else:
@@ -31,22 +31,41 @@ def get_numeric_input(prompt, negative, allow_float):
         except ValueError:
             print("Please enter a valid number.")
 
+
 def cylinder():
     print("Please enter the following desired parameters:")
-    radius = get_numeric_input("Radius of the cylinder: ", negative=False, allow_float=True)  
-    z_stepsize = get_numeric_input("Number of mm between each z-plane: ", negative=False, allow_float=False)  
-    z_min = get_numeric_input("Lowest point of the cylinder: ", negative=True, allow_float=False)  
-    azimuth_points = get_numeric_input("Number of points in the azimuth angle:", negative=False, allow_float=False)  
-    z_offset = get_numeric_input("Offset in the z-axis:", negative=True, allow_float=True)  
+    radius = get_numeric_input(
+        "Radius of the cylinder: ", negative=False, allow_float=True
+    )
+    z_stepsize = get_numeric_input(
+        "Number of mm between each z-plane: ", negative=False, allow_float=False
+    )
+    z_min = get_numeric_input(
+        "Lowest point of the cylinder: ", negative=True, allow_float=False
+    )
+    azimuth_points = get_numeric_input(
+        "Number of points in the azimuth angle:", negative=False, allow_float=False
+    )
+    z_offset = get_numeric_input(
+        "Offset in the z-axis:", negative=True, allow_float=True
+    )
 
-    # Control so the angle is allowed 
+    # Control so the angle is allowed
     laser_angle = -99
 
-    while not -90 <= laser_angle <=90:
-         if laser_angle < 0:
-              laser_angle = get_numeric_input("The angle of the end effector to point the laser upwards by:", negative=True, allow_float=True) 
-         else:
-             laser_angle = get_numeric_input("The angle of the end effector to point the laser upwards by:", negative=False, allow_float=True)  
+    while not -90 <= laser_angle <= 90:
+        if laser_angle < 0:
+            laser_angle = get_numeric_input(
+                "The angle of the end effector to point the laser upwards by:",
+                negative=True,
+                allow_float=True,
+            )
+        else:
+            laser_angle = get_numeric_input(
+                "The angle of the end effector to point the laser upwards by:",
+                negative=False,
+                allow_float=True,
+            )
 
     scan_choice = input("To start the laser scan, please enter 1:")
 
@@ -55,19 +74,34 @@ def cylinder():
         scan_choice = input()
 
     # The resulting laser data.
-    result = scan_points(radius, z_stepsize, z_min, azimuth_points, z_offset, laser_angle)
+    result = scan_points(
+        radius, z_stepsize, z_min, azimuth_points, z_offset, laser_angle
+    )
 
     print("The scan is finished.")
 
     return result
 
+
 def half_sphere():
     print("Please enter the following desired parameters:")
-    radius = get_numeric_input("Radius of the half-sphere: ", negative=False, allow_float=True)  
-    azimuth_points = get_numeric_input("Number of points in the azimuth plane: ", negative=False, allow_float=False)  
-    elevation_points = get_numeric_input("Number of points in the elevation plane: ", negative=False, allow_float=False)  
-    z_min = get_numeric_input("How low the half-sphere should go in the z-axis: ", negative=True, allow_float=True)  
-    z_offset = get_numeric_input("Offset in the z-axis:", negative=True, allow_float=True)  
+    radius = get_numeric_input(
+        "Radius of the half-sphere: ", negative=False, allow_float=True
+    )
+    azimuth_points = get_numeric_input(
+        "Number of points in the azimuth plane: ", negative=False, allow_float=False
+    )
+    elevation_points = get_numeric_input(
+        "Number of points in the elevation plane: ", negative=False, allow_float=False
+    )
+    z_min = get_numeric_input(
+        "How low the half-sphere should go in the z-axis: ",
+        negative=True,
+        allow_float=True,
+    )
+    z_offset = get_numeric_input(
+        "Offset in the z-axis:", negative=True, allow_float=True
+    )
 
     scan_choice = input("To start the laser scan, please enter 1:")
 

@@ -62,7 +62,6 @@ def generate_scan_points_cylinder(
     azimuth = np.linspace(0, 2 * np.pi - ((2 * np.pi) / azimuth_points), azimuth_points)
     points = []
 
-
     z = [h for h in reversed(range(z_min, z_offset + z_stepsize, z_stepsize))]
 
     for angle in azimuth:
