@@ -571,7 +571,7 @@ class AppWindow(QMainWindow):
                     "The angle of the end effector to point the laser upwards by:",
                     negative=False,
                     allow_float=True,
-            )
+                )
 
         """
         circle_radius = 120
