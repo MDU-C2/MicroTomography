@@ -14,11 +14,10 @@ def fetch_robot_coordinates(robot):
 
 def set_reference_coordinate_system(robot, reference_coordinate):
     """Changes the reference coordinate system of the robot, offset in relation to the robots origin(base)
-    
+
     Expected input for "reference_coordinate": [[x, y, z], [q1, q2, q3, q4]]
     """
     robot.set_workobject(reference_coordinate)
-
 
 
 def move_robot_linear(robot, coordinates):
@@ -71,7 +70,9 @@ def robot_init(tool):
     tool == 2: for Antenna TCP
     """
     robot = connect_to_robot()
-    set_reference_coordinate_system(robot, [[-5.27669, -4.89651, 764.097], [0.99984, 0.01793, 0.00143, 0.00229]])
+    set_reference_coordinate_system(
+        robot, [[-5.27669, -4.89651, 764.097], [0.99984, 0.01793, 0.00143, 0.00229]]
+    )
     set_robot_tool(robot, tool)
     set_robot_speed(robot, [75, 25, 50, 25])
     return_robot_to_start(robot)
