@@ -13,10 +13,12 @@ def fetch_robot_coordinates(robot):
 
 
 def set_reference_coordinate_system(robot, reference_coordinate):
-    "Changes the reference coordinate system of the robot, offset in relation to the robots origin(base)"
-    robot.set_workobject([reference_coordinate, [0.99984, 0.01793, 0.00143, 0.00229]])
-    # 0.11, 64, 694.98
-    # 0.71689, 0.00791, 0.69706, 0.01025
+    """Changes the reference coordinate system of the robot, offset in relation to the robots origin(base)
+    
+    Expected input for "reference_coordinate": [[x, y, z], [q1, q2, q3, q4]]
+    """
+    robot.set_workobject(reference_coordinate)
+
 
 
 def move_robot_linear(robot, coordinates):
@@ -62,14 +64,14 @@ def close_connection(robot):
 
 
 def robot_init(tool):
-    """Sets initial parameters of the robot
+    """Connects to and sets initial parameters of the robot
 
-    1 for laser TCP
+    tool == 1: for laser TCP
 
-    2 for Antenna TCP
+    tool == 2: for Antenna TCP
     """
     robot = connect_to_robot()
-    set_reference_coordinate_system(robot, [0, 0, 758.01])
+    set_reference_coordinate_system(robot, [[-5.27669, -4.89651, 764.097], [0.99984, 0.01793, 0.00143, 0.00229]])
     set_robot_tool(robot, tool)
     set_robot_speed(robot, [75, 25, 50, 25])
     return_robot_to_start(robot)

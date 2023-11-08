@@ -2,7 +2,7 @@
 
 from Laser.optoNCDT1402 import optoNCDT1402
 from RobotArm import generate_scan_points
-from RobotArm import robot_Control
+from RobotArm import robot_control
 from RaspberryPi import transistor
 from time import sleep
 
@@ -31,11 +31,11 @@ def scan_points(*args):
     laser_data = []
 
     transistor.init()
-    robot = robot_Control.robot_init(1)
+    robot = robot_control.robot_init(1)
 
     # Visit all points and scan the laser at the given points
     for point in points:
-        robot_Control.move_robot_linear(robot, point)
+        robot_control.move_robot_linear(robot, point)
         sleep(0.5)
 
         transistor.laserON()
@@ -47,5 +47,5 @@ def scan_points(*args):
             )
         transistor.laserOff()
 
-    robot_Control.close_connection(robot)
+    robot_control.close_connection(robot)
     return laser_data
