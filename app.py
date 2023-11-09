@@ -5,7 +5,6 @@ laserON = 0
 # Modules
 ##
 import sys
-import pandas as pd
 from PyQt5.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -13,6 +12,7 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem,
     QMessageBox,
 )
+import pandas as pd
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
 import matplotlib.pyplot as plt

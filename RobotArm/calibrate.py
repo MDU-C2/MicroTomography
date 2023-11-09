@@ -3,7 +3,7 @@ import os
 
 pathname = os.getcwd()
 
-sys.path.append(r"C:\Users\jjn17015\Documents\MicroTomography")
+sys.path.append(r"/home/mwi/Repositories/MicroTomography")
 
 
 from RobotArm.generate_scan_points import generate_scan_points_cylinder
@@ -29,16 +29,13 @@ step = 10
 depth = -110
 offset = -110
 azi = 16
-
-q1 = [1, 0, 0, 0]
+#q1 = 
+q1 = [9.99964080e-01, 8.39557165e-03, 1.16335116e-03, 9.30162807e-07]
 WOBJ_POS = [-5.27669, -4.89651, 764.097]
 
-
-max_laser = 100
-min_laser = 0
 best = 10
 
-while best < 0.3:
+while best > 0.3:
     robot_control.set_reference_coordinate_system(robot, [WOBJ_POS, q1])
 
     points = generate_scan_points_cylinder(radius, step, depth, azi, offset)
@@ -49,7 +46,7 @@ while best < 0.3:
         alteredPoint = [point[0], [1, 0, 0, 0]]
 
         robot_control.move_robot_linear(robot, alteredPoint)
-        sleep(4)
+        sleep(2)
 
         transistor.laserON()
 
@@ -83,16 +80,15 @@ while best < 0.3:
     v1 = data_max[0][:-1] - data_min[0][:-1]
     v1 = v1 / np.linalg.norm(v1)
     v2 = np.array([0, 0, 1])
-    normal = np.cross(v2, v1)
+    normal = np.cross(v1, v2)
 
-    q = quaternion_from_axis_angle(np.append(normal, angle / 4))
+    q = quaternion_from_axis_angle(np.append(normal, angle/2))
     q1 = concatenate_quaternions(q1=q1, q2=q)
 
-    diff = max_laser - min_laser
-    print(f"The difference between max and min: {diff}")
+    print(f"The difference between max and min: {e}")
     print(f"With quaternions: {q1}")
-    if diff < best:
-        best = diff
+    if e < best:
+        best = e
 
 print("")
 print(f"The best difference between max and min: {best}")
