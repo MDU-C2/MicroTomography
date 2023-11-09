@@ -29,7 +29,7 @@ step = 10
 depth = -110
 offset = -110
 azi = 16
-#q1 = 
+# q1 =
 q1 = [9.99964080e-01, 8.39557165e-03, 1.16335116e-03, 9.30162807e-07]
 WOBJ_POS = [-5.27669, -4.89651, 764.097]
 
@@ -82,7 +82,7 @@ while best > 0.3:
     v2 = np.array([0, 0, 1])
     normal = np.cross(v1, v2)
 
-    q = quaternion_from_axis_angle(np.append(normal, angle/2))
+    q = quaternion_from_axis_angle(np.append(normal, angle / 2))
     q1 = concatenate_quaternions(q1=q1, q2=q)
 
     print(f"The difference between max and min: {e}")
