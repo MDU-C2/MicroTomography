@@ -19,7 +19,7 @@ from pytransform3d.rotations import (
     concatenate_quaternions,
 )
 
-laser = optoNCDT1402()
+laser = optoNCDT1402(noMeasurements=50)
 
 transistor.init()
 robot = robot_control.robot_init(1)
@@ -28,24 +28,26 @@ radius = 150
 step = 10
 depth = -110
 offset = -110
-azi = 16
-#q1 = 
-q1 = [9.99964080e-01, 8.39557165e-03, 1.16335116e-03, 9.30162807e-07]
+azi = 4
+#q1 = [1, 0, 0, 0]
+#q1 = [9.99955006e-01, 9.36655846e-03, 1.50144957e-03, 9.48788664e-06]
+q1 = [9.99956806e-01, 9.17134543e-03, 1.50721160e-03, 9.84835853e-06]
 WOBJ_POS = [-5.27669, -4.89651, 764.097]
 
 best = 10
 
-while best > 0.3:
-    robot_control.set_reference_coordinate_system(robot, [WOBJ_POS, q1])
+points = generate_scan_points_cylinder(radius, step, depth, azi, offset, laser_angle=90)
 
-    points = generate_scan_points_cylinder(radius, step, depth, azi, offset)
+while best > 0.01:
+    robot_control.return_robot_to_start(robot)
+    robot_control.set_reference_coordinate_system(robot, [WOBJ_POS, q1])
 
     laser_data = []
 
     for point in points:
         alteredPoint = [point[0], [1, 0, 0, 0]]
 
-        robot_control.move_robot_linear(robot, alteredPoint)
+        robot_control.move_robot_linear(robot, point)
         sleep(2)
 
         transistor.laserON()
@@ -82,7 +84,7 @@ while best > 0.3:
     v2 = np.array([0, 0, 1])
     normal = np.cross(v1, v2)
 
-    q = quaternion_from_axis_angle(np.append(normal, angle/2))
+    q = quaternion_from_axis_angle(np.append(normal, angle/azi))
     q1 = concatenate_quaternions(q1=q1, q2=q)
 
     print(f"The difference between max and min: {e}")
