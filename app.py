@@ -89,9 +89,9 @@ class AppWindow(QMainWindow):
         self.ax = self.figure.add_subplot(111, projection="3d")
 
         # Set axis labels
-        #self.ax.set_xlabel("X")
-        #self.ax.set_ylabel("Y")
-        #self.ax.set_zlabel("Z")
+        # self.ax.set_xlabel("X")
+        # self.ax.set_ylabel("Y")
+        # self.ax.set_zlabel("Z")
 
         # Create a Matplotlib toolbar
         self.toolbar = NavigationToolbar(self.canvas, self.ui.viewer_scanning)
@@ -214,9 +214,9 @@ class AppWindow(QMainWindow):
         self.ax.cla()
 
         # Set axis labels
-        #self.ax.set_xlabel("X")
-        #self.ax.set_ylabel("Y")
-        #self.ax.set_zlabel("Z")
+        # self.ax.set_xlabel("X")
+        # self.ax.set_ylabel("Y")
+        # self.ax.set_zlabel("Z")
 
         self.endEffectorPos(
             self.ax, laser_x, laser_y, laser_z, None
@@ -563,7 +563,7 @@ class AppWindow(QMainWindow):
         if not -90 < laser_angle < 90:
             self.printLog(self.ui.tbx_log, "Laser_angle must be -90 < laser_angle < 90")
             return None
-        
+
         """
         circle_radius = 120
         z_stepsize = 10
@@ -575,12 +575,12 @@ class AppWindow(QMainWindow):
         laser_angle = 60
         """
 
-        if self.ui.twg_scanningMode.currentIndex() == 0:  #Cylinder
+        if self.ui.twg_scanningMode.currentIndex() == 0:  # Cylinder
             points = generate_scan_points.generate_scan_points_cylinder(
                 circle_radius, azimuthPoints, offset, z_stepsize, max_depth, laser_angle
             )
             return points
-        elif self.ui.twg_scanningMode.currentIndex() == 1: #halve sphere
+        elif self.ui.twg_scanningMode.currentIndex() == 1:  # halve sphere
             points = generate_scan_points.generate_scan_points_halfsphere(
                 circle_radius, azimuthPoints, offset, elevationPoints, zMin
             )

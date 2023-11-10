@@ -407,14 +407,18 @@ class Ui_MainWindow(object):
         item.setText(_translate("MainWindow", "Y"))
         item = self.tbw_default.horizontalHeaderItem(2)
         item.setText(_translate("MainWindow", "Z"))
-        self.twg_table.setTabText(self.twg_table.indexOf(self.tab), _translate("MainWindow", "Default"))
+        self.twg_table.setTabText(
+            self.twg_table.indexOf(self.tab), _translate("MainWindow", "Default")
+        )
         item = self.tbw_mylist.horizontalHeaderItem(0)
         item.setText(_translate("MainWindow", "X"))
         item = self.tbw_mylist.horizontalHeaderItem(1)
         item.setText(_translate("MainWindow", "Y"))
         item = self.tbw_mylist.horizontalHeaderItem(2)
         item.setText(_translate("MainWindow", "Z"))
-        self.twg_table.setTabText(self.twg_table.indexOf(self.tab_2), _translate("MainWindow", "My List"))
+        self.twg_table.setTabText(
+            self.twg_table.indexOf(self.tab_2), _translate("MainWindow", "My List")
+        )
         self.label_robotMove.setText(_translate("MainWindow", "Robotic Arm movement"))
         self.btn_xUp.setText(_translate("MainWindow", "Up"))
         self.btn_xDown.setText(_translate("MainWindow", "Down"))
@@ -431,8 +435,12 @@ class Ui_MainWindow(object):
         self.label_SampleStep_4.setText(_translate("MainWindow", "azimuthPoints:"))
         self.label_linear_updown.setText(_translate("MainWindow", "Move 1 mm:"))
         self.label_linear_moveto.setText(_translate("MainWindow", "Move to:"))
-        self.label_LinearActuator.setText(_translate("MainWindow", "Linear actuator (mm)"))
-        self.label_linear_zero.setText(_translate("MainWindow", "Move to zero position:"))
+        self.label_LinearActuator.setText(
+            _translate("MainWindow", "Linear actuator (mm)")
+        )
+        self.label_linear_zero.setText(
+            _translate("MainWindow", "Move to zero position:")
+        )
         self.btn_linear_up.setText(_translate("MainWindow", "Up"))
         self.btn_linear_down.setText(_translate("MainWindow", "Down"))
         self.btn_linear_zero_pos.setText(_translate("MainWindow", "Zero"))
@@ -443,7 +451,13 @@ class Ui_MainWindow(object):
         self.label_SampleStep_8.setText(_translate("MainWindow", "laser_angle:"))
         self.label_SampleStep.setText(_translate("MainWindow", "z_stepsize:"))
         self.label_SampleStep_3.setText(_translate("MainWindow", "max_depth:"))
-        self.twg_scanningMode.setTabText(self.twg_scanningMode.indexOf(self.tab_3), _translate("MainWindow", "Cylinder Scan"))
+        self.twg_scanningMode.setTabText(
+            self.twg_scanningMode.indexOf(self.tab_3),
+            _translate("MainWindow", "Cylinder Scan"),
+        )
         self.label_SampleStep_6.setText(_translate("MainWindow", "elevationPoints:"))
         self.label_SampleStep_7.setText(_translate("MainWindow", "zMin:"))
-        self.twg_scanningMode.setTabText(self.twg_scanningMode.indexOf(self.tab_4), _translate("MainWindow", "Halve Sphere Scan"))
+        self.twg_scanningMode.setTabText(
+            self.twg_scanningMode.indexOf(self.tab_4),
+            _translate("MainWindow", "Halve Sphere Scan"),
+        )
