@@ -32,7 +32,7 @@ from GUI import ScanningSystem
 from GUI.ButtonCode import Button_MoveRobotArm
 from GUI.ButtonCode.Button_LOAD import load_model
 from GUI.ButtonCode.Button_SAVE import save_model
-from RobotArm import robot_Control
+from RobotArm import robot_control
 from RobotArm import generate_scan_points
 from RobotArm import abb
 
@@ -89,9 +89,9 @@ class AppWindow(QMainWindow):
         self.ax = self.figure.add_subplot(111, projection="3d")
 
         # Set axis labels
-        self.ax.set_xlabel("X")
-        self.ax.set_ylabel("Y")
-        self.ax.set_zlabel("Z")
+        # self.ax.set_xlabel("X")
+        # self.ax.set_ylabel("Y")
+        # self.ax.set_zlabel("Z")
 
         # Create a Matplotlib toolbar
         self.toolbar = NavigationToolbar(self.canvas, self.ui.viewer_scanning)
@@ -121,7 +121,7 @@ class AppWindow(QMainWindow):
         calibration_message.exec_()
 
         if robot != None:
-            robot_Control.set_Calibration(robot)
+            robot_control.set_calibration(robot)
         else:
             self.printLog(self.ui.tbx_log, "No robot connect")
 
@@ -214,9 +214,9 @@ class AppWindow(QMainWindow):
         self.ax.cla()
 
         # Set axis labels
-        self.ax.set_xlabel("X")
-        self.ax.set_ylabel("Y")
-        self.ax.set_zlabel("Z")
+        # self.ax.set_xlabel("X")
+        # self.ax.set_ylabel("Y")
+        # self.ax.set_zlabel("Z")
 
         self.endEffectorPos(
             self.ax, laser_x, laser_y, laser_z, None
@@ -391,35 +391,35 @@ class AppWindow(QMainWindow):
         self.writeDefaultTable(points)
 
         # check status before start scanning
-        if (NonNumericExist == 0) and (robot != None):
+        if (NonNumericExist == 0) and (not robot == None) and (not points == None):
             # Robot setting
-            robot_Control.set_Reference_Coordinate_System(robot, [0, 0, 758.01])
+            robot_control.set_Reference_Coordinate_System(robot, [0, 0, 758.01])
 
-            robot_Control.set_Robot_Tool(robot, 1)
+            robot_control.set_Robot_Tool(robot, 1)
 
-            robot_Control.set_Robot_Speed(robot, robotSpeed)
+            robot_control.set_Robot_Speed(robot, robotSpeed)
 
             # move to default position (initial position)
-            robot_Control.return_Robot_To_Start(robot)
+            robot_control.return_Robot_To_Start(robot)
 
             # move robot to scanning points
             for point in points:
                 if round(point[0][0], 4) != 0 or round(point[0][1], 4):
                     print(point)
-                    robot_Control.move_Robot_Linear(robot, point)
+                    robot_control.move_Robot_Linear(robot, point)
                     sleep(0.5)
                     print(
                         "Robot Coordinate: ",
-                        robot_Control.fetch_Robot_Coordinates(robot),
+                        robot_control.fetch_Robot_Coordinates(robot),
                     )
 
                 elif not visitedOrigin:
                     print(point)
-                    robot_Control.move_Robot_Linear(robot, point)
+                    robot_control.move_Robot_Linear(robot, point)
                     sleep(0.5)
                     print(
                         "Robot Coordinate: ",
-                        robot_Control.fetch_Robot_Coordinates(robot),
+                        robot_control.fetch_Robot_Coordinates(robot),
                     )
                     visitedOrigin = True
                 else:
@@ -448,7 +448,7 @@ class AppWindow(QMainWindow):
                         self.ax, laser_x, laser_y, laser_z, None
                     )  # plot the end-effector position
 
-            robot_Control.return_Robot_To_Start(robot)
+            robot_control.return_Robot_To_Start(robot)
 
             # Write laser data to the default table
             self.writeDefaultTable(laser_data)
@@ -560,19 +560,9 @@ class AppWindow(QMainWindow):
         zMin = self.ui.spb_zMin.value()
         laser_angle = self.ui.spb_laser_angle.value()
 
-        while not -90 <= laser_angle <= 90:
-            if laser_angle < 0:
-                laser_angle = get_numeric_input(
-                    "The angle of the end effector to point the laser upwards by:",
-                    negative=True,
-                    allow_float=True,
-                )
-            else:
-                laser_angle = get_numeric_input(
-                    "The angle of the end effector to point the laser upwards by:",
-                    negative=False,
-                    allow_float=True,
-                )
+        if not -90 < laser_angle < 90:
+            self.printLog(self.ui.tbx_log, "Laser_angle must be -90 < laser_angle < 90")
+            return None
 
         """
         circle_radius = 120
@@ -585,14 +575,14 @@ class AppWindow(QMainWindow):
         laser_angle = 60
         """
 
-        if self.ui.cbx_scanningMode.currentText() == "Cylinder":
+        if self.ui.twg_scanningMode.currentIndex() == 0:  # Cylinder
             points = generate_scan_points.generate_scan_points_cylinder(
-                circle_radius, z_stepsize, max_depth, azimuthPoints, offset, laser_angle
+                circle_radius, azimuthPoints, offset, z_stepsize, max_depth, laser_angle
             )
             return points
-        elif self.ui.cbx_scanningMode.currentText() == "Halve sphere":
+        elif self.ui.twg_scanningMode.currentIndex() == 1:  # halve sphere
             points = generate_scan_points.generate_scan_points_halfsphere(
-                circle_radius, azimuthPoints, elevationPoints, zMin, offset
+                circle_radius, azimuthPoints, offset, elevationPoints, zMin
             )
             return points
 
