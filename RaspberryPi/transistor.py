@@ -11,7 +11,6 @@ import RPi.GPIO as GPIO
 transistorPin = 22
 
 
-
 def laserOff():
     GPIO.output(transistorPin, GPIO.LOW)
 
