@@ -24,7 +24,11 @@ def get_numeric_input(prompt, negative, allow_float):
                 value = int(user_input)  # Enforce integer input
 
             # Check if both, negative or positive is allowed
-            if negative is None or (value < 0 and negative) or (value >= 0 and not negative):
+            if (
+                negative is None
+                or (value < 0 and negative)
+                or (value >= 0 and not negative)
+            ):
                 return value
             else:
                 print("Please enter a valid number.")
@@ -35,8 +39,8 @@ def get_numeric_input(prompt, negative, allow_float):
 def get_laser_angle_input():
     while True:
         laser_angle = get_numeric_input(
-            "Enter the angle of the end effector to point the laser (positive or negative):", 
-            negative = None,
+            "Enter the angle of the end effector to point the laser (positive or negative):",
+            negative=None,
             allow_float=True,
         )
 
