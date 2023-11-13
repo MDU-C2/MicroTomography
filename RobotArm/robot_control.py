@@ -71,7 +71,11 @@ def robot_init(tool):
     """
     robot = connect_to_robot()
     set_reference_coordinate_system(
-        robot, [[0.6, -7.5, 759.24], [9.99954527e-01, 9.41712207e-03, 1.50357889e-03, 9.45543129e-06]]
+        robot,
+        [
+            [0.6, -7.5, 759.24],
+            [9.99954527e-01, 9.41712207e-03, 1.50357889e-03, 9.45543129e-06],
+        ],
     )
     set_robot_tool(robot, tool)
     set_robot_speed(robot, [75, 25, 50, 25])
