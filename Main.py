@@ -32,6 +32,19 @@ def get_numeric_input(prompt, negative, allow_float):
             print("Please enter a valid number.")
 
 
+def get_laser_angle_input():
+    while True:
+        laser_angle = get_numeric_input(
+            "Enter the angle of the end effector to point the laser (positive or negative):",
+            allow_float=True,
+        )
+
+        if -90 <= laser_angle <= 90:
+            return laser_angle
+        else:
+            print("Invalid angle. Please enter an angle between -90 and 90 degrees.")
+
+
 def cylinder():
     print("Please enter the following desired parameters:")
     radius = get_numeric_input(
@@ -50,22 +63,7 @@ def cylinder():
         "Offset in the z-axis:", negative=True, allow_float=True
     )
 
-    # Control so the angle is allowed
-    laser_angle = -99
-
-    while not -90 <= laser_angle <= 90:
-        if laser_angle < 0:
-            laser_angle = get_numeric_input(
-                "The angle of the end effector to point the laser upwards by:",
-                negative=True,
-                allow_float=True,
-            )
-        else:
-            laser_angle = get_numeric_input(
-                "The angle of the end effector to point the laser upwards by:",
-                negative=False,
-                allow_float=True,
-            )
+    laser_angle = get_laser_angle_input()
 
     scan_choice = input("To start the laser scan, please enter 1:")
 
