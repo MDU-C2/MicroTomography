@@ -49,3 +49,32 @@ def scan_points(*args):
 
     robot_control.close_connection(robot)
     return laser_data
+
+
+def find_nipple(z_offset, distance):
+    points = generate_scan_points.generate_points_in_square_plane(z_offset, distance)
+    min_laser_point = 1000
+    points_of_min_laser_point = []
+
+    laser = optoNCDT1402("/dev/ttyUSB0")  # Serial port of the Raspberry Pi
+    transistor.init()
+    robot = robot_control.robot_init(1)
+
+    robot_control.set_zone_use(robot, 0)
+
+    for point in points:
+        robot_control.move_robot_linear(robot, [point, [1, 0, 0, 0]])
+        sleep(0.5)
+
+        laser_point = laser.measure()
+        if isinstance(laser_point, float):
+            if laser_point < min_laser_point:
+                min_laser_point = laser_point
+                points_of_min_laser_point = point
+
+        transistor.laserOff()
+
+    robot_control.return_robot_to_start(robot)
+    robot_control.close_connection(robot)
+
+    return points_of_min_laser_point, z_offset + min_laser_point

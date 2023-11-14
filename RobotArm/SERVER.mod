@@ -89,6 +89,8 @@ VAR robtarget newZonePos;
 
 VAR num newZonePosID;
 
+VAR num use_zones := 0;
+
 	
 !////////////////
 !LOCAL METHODS
@@ -303,51 +305,55 @@ PROC main()
                     !If coordinate is in different zone than the current zone
                     !Move through zones before move to target coordinate
                     
-                    !Move up through the zones
-                    IF newZonePosID > zonePlacement() THEN
-                        MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
-                        WHILE newZonePosID > zonePlacement() DO                           
-                            
-                            IF zonePlacement() = 1 THEN
-                                newZonePos := cartesianTargetZone2;
-                                newJointPos := targetZone2;
-                            
-                            ELSEIF zonePlacement() = 2 THEN
-                                newZonePos := cartesianTargetZone3;
-                                newJointPos := targetZone3;
-                            ELSE
-                                newZonePos := cartesianTargetZone4;
-                                newJointPos := targetZone4;
-                            ENDIF
-                            
-                            MoveAbsJ newJointPos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
-                            !MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
-                        ENDWHILE
-                    
-                    !Move down through the zones
-                    ELSEIF newZonePosID < zonePlacement() THEN
-                        MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
-                         
-                        WHILE newZonePosID < zonePlacement() DO
-                            
-                            
-                            IF zonePlacement() = 4 THEN
-                                newZonePos := cartesianTargetZone3;
-                                newJointPos := targetZone3;
+                    IF use_zones = 1 THEN
+
+                        !Move up through the zones
+                        IF newZonePosID > zonePlacement() THEN
+                            MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
+                            WHILE newZonePosID > zonePlacement() DO                           
                                 
-                            ELSEIF zonePlacement() = 3 THEN
-                                newZonePos := cartesianTargetZone2;
-                                newJointPos := targetZone2;
-                            ELSE
-                                newZonePos := cartesianTargetZone1;
-                                newJointPos := targetZone1;
-                            ENDIF
-                            MoveAbsJ newJointPos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
-                            !MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
-                         ENDWHILE
-                         
+                                IF zonePlacement() = 1 THEN
+                                    newZonePos := cartesianTargetZone2;
+                                    newJointPos := targetZone2;
+                                
+                                ELSEIF zonePlacement() = 2 THEN
+                                    newZonePos := cartesianTargetZone3;
+                                    newJointPos := targetZone3;
+                                ELSE
+                                    newZonePos := cartesianTargetZone4;
+                                    newJointPos := targetZone4;
+                                ENDIF
+                                
+                                MoveAbsJ newJointPos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
+                                !MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
+                            ENDWHILE
+                        
+                        !Move down through the zones
+                        ELSEIF newZonePosID < zonePlacement() THEN
+                            MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
+                            
+                            WHILE newZonePosID < zonePlacement() DO
+                                
+                                
+                                IF zonePlacement() = 4 THEN
+                                    newZonePos := cartesianTargetZone3;
+                                    newJointPos := targetZone3;
+                                    
+                                ELSEIF zonePlacement() = 3 THEN
+                                    newZonePos := cartesianTargetZone2;
+                                    newJointPos := targetZone2;
+                                ELSE
+                                    newZonePos := cartesianTargetZone1;
+                                    newJointPos := targetZone1;
+                                ENDIF
+                                MoveAbsJ newJointPos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
+                                !MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
+                            ENDWHILE
+                            
+                        ENDIF
                     ENDIF
-                    
+
+
                     MoveL cartesianTarget, currentSpeed, currentZone, currentTool \WObj:=currentWobj;
                     moveCompleted := TRUE;
                 ELSE
@@ -484,7 +490,7 @@ PROC main()
 
             CASE 11: !Set current coordinates as new workspace
                 IF nParams = 0 THEN
-                    calibrationCoordinate := CRobT(\Tool:=calibration_TCP \WObj:=currentWObj);
+                    calibrationCoordinate := CRobT(\Tool:=calibration_antenna_TCP \WObj:=currentWObj);
                     currentWobj.oframe.trans.x := calibrationCoordinate.trans.x;
                     currentWobj.oframe.trans.y := calibrationCoordinate.trans.y;
                     currentWobj.oframe.trans.z := calibrationCoordinate.trans.z;
@@ -508,6 +514,17 @@ PROC main()
                     ok:=SERVER_BAD_MSG;
                 ENDIF
             
+
+            CASE 13: !Set zone traversement
+                IF nParams = 1 THEN
+                    IF params{1} = 1 THEN
+                        use_zones := 1;
+                    ELSE
+                        use_zones := 0;
+                    ENDIF
+                ELSE
+                    ok:=SERVER_BAD_MSG;
+                ENDIF
             
 
             CASE 30: !Add Cartesian Coordinates to buffer

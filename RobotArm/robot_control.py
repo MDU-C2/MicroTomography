@@ -52,6 +52,16 @@ def set_robot_tool(robot, tool):
     robot.change_current_tool(tool)
 
 
+def set_zone_use(robot, zone_use):
+    """Set use of zone traversment.
+
+    0 for no zone traversement
+
+    1 for zone traversement
+    """
+    robot.use_zone_traverse(zone_use)
+
+
 def return_robot_to_start(robot):
     robot.set_joints([0, -135, 55, 0, 105, 0, 0])
 

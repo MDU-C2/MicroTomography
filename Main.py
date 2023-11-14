@@ -8,7 +8,7 @@ pathname = os.getcwd()
 
 sys.path.append("../Microtomography")
 
-from RobotArm.scan_breast_phantom import scan_points
+from RobotArm.scan_breast_phantom import scan_points, find_nipple
 from ObjectReconstruction.read_save_csv import save_csv
 
 
@@ -119,6 +119,18 @@ def half_sphere():
     return result
 
 
+def scan_the_nipple():
+    print("Please enter the following desired parameters:")
+    z_offset = get_numeric_input("z_offset: ", negative=True, allow_float=True)
+    distance = get_numeric_input(
+        "Distance between each point: ", negative=False, allow_float=True
+    )
+
+    result = find_nipple(z_offset, distance)
+
+    return result
+
+
 def save_laser_scan(file_name, data):
     # Save the data in a CSV file.
     save_csv(file_name, data)
@@ -131,9 +143,9 @@ def save_laser_scan(file_name, data):
 print("Hello, please pick a pattern for the scanning")
 choice = input("Enter 1 for cylindrical pattern and 2 for half-sphere pattern: ")
 
-while choice not in ("1", "2"):
+while choice not in ("1", "2", "3"):
     print("Try again.")
-    choice = input("Enter 1 or 2: ")
+    choice = input("Enter 1, 2 or 3: ")
 
 if choice == "1":
     result = cylinder()
@@ -141,8 +153,10 @@ if choice == "1":
 elif choice == "2":
     result = half_sphere()
     print(result)
+elif choice == "3":
+    result = scan_the_nipple()
 
-
+print(result)
 file_name = input(
     "Please enter your desired name for the file where the data will be saved:"
 )

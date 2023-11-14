@@ -232,6 +232,18 @@ class Robot:
         msg += format(tool, "+08.2f") + " #"
         self.send(msg)
 
+    def use_zone_traverse(self, zone_traverse):
+        """
+        Set if zone traversement should be used or not
+
+        zone_traverse = 0: No zone traversement enabled
+
+        zone_traverse = 1: Zone traversement enabled
+        """
+        msg = "13 "
+        msg += format(zone_traverse, "+08.2f") + " #"
+        self.send(msg)
+
     def buffer_add(self, pose):
         """
         Appends single pose to the remote buffer
