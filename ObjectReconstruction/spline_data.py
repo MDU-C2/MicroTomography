@@ -61,7 +61,7 @@ class spline:
         return newData_X, newData_Y, newData_Z
 
     def spline_circle(data_x, data_y, data_z, nPoints):
-        n = data_x.shape[1]  # Number of points around the complete circle,
+        n = data_x.shape  # Number of points around the complete circle,
         # theta = 36/n #degrees between the points
         thetaArray = np.linspace(0, 360, n)
         # newTheta = 360/(n*nPoints)

@@ -6,14 +6,21 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-# from mayavi import mlab
+from mayavi import mlab
 
 
-def line_trace(GT_mesh, reconstructed_mesh):
-    GT_vertices = np.asarray(GT_mesh.vertices)
-    GT_triangles = np.asarray(GT_mesh.triangles)
-    recon_vertices = np.asarray(reconstructed_mesh.vertices)
-    recon_triangles = np.asarray(reconstructed_mesh.triangles)
+def line_trace(GT_mesh, reconstructed_mesh, test, points):
+    if test == 1:
+        GT_vertices = np.asarray(GT_mesh.vertices)
+        GT_triangles = np.asarray(GT_mesh.triangles)
+        recon_vertices = np.asarray(reconstructed_mesh.vertices)
+        recon_triangles = np.asarray(reconstructed_mesh.triangles)
+    if test == 2:
+        GT_vertices = np.asarray(GT_mesh.vertices)
+        GT_triangles = np.asarray(GT_mesh.triangles)
+        recon_vertices = np.asarray(points[reconstructed_mesh.simplices])
+        recon_vertices = recon_vertices.reshape(-1, recon_vertices.shape[-1])
+        recon_triangles = np.asarray(reconstructed_mesh.simplices)[:, 0:4]
 
     GT_vertices = o3d.core.Tensor(
         GT_vertices,
@@ -156,4 +163,4 @@ def line_trace(GT_mesh, reconstructed_mesh):
     mlab.scalarbar(object=p3d2, title="Error(mm)", orientation="vertical")
 
     mlab.draw()
-    # mlab.show()
+    mlab.show()
