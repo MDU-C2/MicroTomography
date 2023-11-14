@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 from pytransform3d.rotations import concatenate_quaternions as cq
 
 
-
 path = os.getcwd()
 sys.path.append(path)
 from RobotArm import robot_Control
@@ -69,19 +68,25 @@ while not (point_zero_one == point_zero_two):
     point_zero = scanned_points[0]
     point_zero_one = np.max(scanned_distance)
     point_zero_two = np.min(scanned_distance)
-    vector_one = np.subtract(scanned_points[1],point_zero)
-    vector_two = np.subtract(scanned_points[2],point_zero)
+    vector_one = np.subtract(scanned_points[1], point_zero)
+    vector_two = np.subtract(scanned_points[2], point_zero)
     vector_one = vector_one / np.linalg.norm(vector_one)
     vector_two = vector_two / np.linalg.norm(vector_two)
     plane_normal = np.cross(vector_two, vector_one)
 
+    ax1 = plt.figure().add_subplot(projection="3d")
 
-    ax1 = plt.figure().add_subplot(projection = "3d")
-    
     normalized_plane_normal = plane_normal / np.linalg.norm(plane_normal)
-    ax1.quiver(0,0,0,normalized_plane_normal[0],normalized_plane_normal[1] ,normalized_plane_normal[2])
+    ax1.quiver(
+        0,
+        0,
+        0,
+        normalized_plane_normal[0],
+        normalized_plane_normal[1],
+        normalized_plane_normal[2],
+    )
     plt.show()
-    
+
     plane_basis = [
         vector_two,
         vector_one,
@@ -98,9 +103,9 @@ while not (point_zero_one == point_zero_two):
         / (np.linalg.norm(vector_one) * np.linalg.norm(reference_plane[2]))
     )
 
-    y_angle = (np.pi/2 - dihedral_angle_y_cos)/2
-    x_angle = (np.pi/2 - dihedral_angle_x_cos)/2
-    
+    y_angle = (np.pi / 2 - dihedral_angle_y_cos) / 2
+    x_angle = (np.pi / 2 - dihedral_angle_x_cos) / 2
+
     R_y = [
         [np.cos(y_angle), 0, np.sin(y_angle)],
         [0, 1, 0],
@@ -112,15 +117,13 @@ while not (point_zero_one == point_zero_two):
         [0, np.sin(x_angle), np.cos(x_angle)],
     ]
 
-    
-    RotMat = np.matmul(R_x,R_y)
-    
+    RotMat = np.matmul(R_x, R_y)
 
-    test_rotmat = [[1,0,0] , [0,1,0] , [0,0,1]]
+    test_rotmat = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
     ax = pr(R=test_rotmat)
     pr(ax=ax, R=RotMat)
     plt.show()
-    
+
     quaternions = qmp(RotMat)
     quaternions_temp = cq(quaternions_temp, quaternions)
     """quaternions_temp = []
@@ -130,8 +133,8 @@ while not (point_zero_one == point_zero_two):
 
     print(quaternions_temp)
 
-    #reference_normal = normalized_plane_normal  # Sets the new reference normal to the previous computed normal
-    #reference_plane = plane_basis
+    # reference_normal = normalized_plane_normal  # Sets the new reference normal to the previous computed normal
+    # reference_plane = plane_basis
 
     quaternions_test = []
     for quats in quaternions_temp:
