@@ -6,7 +6,7 @@ from stl import mesh
 
 
 def load_stl_file():
-    your_mesh = mesh.Mesh.from_file("Data\Symmetric-test.STL")
+    your_mesh = mesh.Mesh.from_file("stl_files\SimpleBreast_R62_centered_surface.STL")
 
     your_mesh.rotate(np.array([1, 0, 0]), -np.pi / 2)
     your_mesh.translate(
