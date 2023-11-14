@@ -36,7 +36,7 @@ def scan_points(*args):
     # Visit all points and scan the laser at the given points
     for point in points:
         robot_control.move_robot_linear(robot, point)
-        sleep(0.5)
+        sleep(1)
 
         transistor.laserON()
 

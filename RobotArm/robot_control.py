@@ -71,8 +71,22 @@ def robot_init(tool):
     """
     robot = connect_to_robot()
     set_reference_coordinate_system(
-        robot, [[-5.27669, -4.89651, 764.097], [0.99984, 0.01793, 0.00143, 0.00229]]
+        robot,
+        [
+            [0.20, -5.41, 759.24],
+            [9.99954527e-01, 9.41712207e-03, 1.50357889e-03, 9.45543129e-06],
+        ],
     )
+
+    """
+    [0.20, -5.41, 759.24] where fetched using the calibration TCP, when aimed at nipple it seems to be aiming slightly left
+    When arm is in last quadrant it almost perfectly center.
+
+    [0.6, -7.5, 759.24] where fetched by pointing laser from under the breast phantom and manually moving the arm until laser was centered
+    Laser was sligthly left during first half but became more centered after second half. Some points missed the breast phantom during the first
+    half which did not occur during the previous coordinates
+
+    """
     set_robot_tool(robot, tool)
     set_robot_speed(robot, [75, 25, 50, 25])
     return_robot_to_start(robot)
