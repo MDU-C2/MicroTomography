@@ -61,10 +61,12 @@ def find_nipple(z_offset, distance):
     robot = robot_control.robot_init(1)
 
     robot_control.set_zone_use(robot, 0)
+    laser_data = []
 
     for point in points:
         robot_control.move_robot_linear(robot, [point, [1, 0, 0, 0]])
-        sleep(1)
+        print(robot.get_cartesian())
+        sleep(2)
 
         transistor.laserON()
         laser_point = laser.measure()
@@ -73,10 +75,11 @@ def find_nipple(z_offset, distance):
             if laser_point < min_laser_point:
                 min_laser_point = laser_point
                 points_of_min_laser_point = point
+            laser_data.append(generate_scan_points.transform_laser_distance([point, [1, 0, 0, 0]], laser_point))
 
         transistor.laserOff()
 
     robot_control.return_robot_to_start(robot)
     robot_control.close_connection(robot)
 
-    return points_of_min_laser_point, z_offset + min_laser_point
+    return points_of_min_laser_point, z_offset + min_laser_point, laser_data

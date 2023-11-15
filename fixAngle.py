@@ -12,7 +12,7 @@ from pytransform3d.rotations import concatenate_quaternions as cq
 
 path = os.getcwd()
 sys.path.append(path)
-from RobotArm import robot_Control
+from RobotArm import robot_control
 from Laser import optoNCDT1402
 from RaspberryPi import transistor
 
@@ -20,13 +20,13 @@ from RaspberryPi import transistor
 ## Gets euler angles and quaterneons of a plane relative to another plane from 3 points.
 
 
-robot = robot_Control.connect_to_robot()
+robot = robot_control.connect_to_robot()
 laser = optoNCDT1402.optoNCDT1402("/dev/ttyUSB0")  # Serial port of the Raspberry
 transistor.init()
-robot_Control.set_reference_coordinate_system(
+robot_control.set_reference_coordinate_system(
     robot, [[-5.27669, -4.89651, 764.097], [1, 0, 0, 0]]
 )
-robot_Control.set_robot_tool(robot, 1)
+robot_control.set_robot_tool(robot, 1)
 
 quaternions_tool = [1, 0, 0, 0]
 quaternions_temp = [1, 0, 0, 0]
@@ -37,9 +37,9 @@ point_zero_two = 2
 
 i = 0
 while not (point_zero_one == point_zero_two):
-    robot_Control.return_robot_to_start(robot)
+    robot_control.return_robot_to_start(robot)
     print(quaternions_temp)
-    robot_Control.set_reference_coordinate_system(
+    robot_control.set_reference_coordinate_system(
         robot, [[-205.27669, -4.89651, 764.097], quaternions_temp]
     )
 
@@ -50,7 +50,7 @@ while not (point_zero_one == point_zero_two):
     ]
     scanned_distance = []
     for point in points:
-        robot_Control.move_robot_linear(robot, point)
+        robot_control.move_robot_linear(robot, point)
         sleep(2)
         transistor.laserON()
         laser_point = laser.measure()
@@ -85,7 +85,7 @@ while not (point_zero_one == point_zero_two):
         normalized_plane_normal[1],
         normalized_plane_normal[2],
     )
-    plt.show()
+    #plt.show()
 
     plane_basis = [
         vector_two,
@@ -102,27 +102,36 @@ while not (point_zero_one == point_zero_two):
         np.dot(vector_one, reference_plane[2])
         / (np.linalg.norm(vector_one) * np.linalg.norm(reference_plane[2]))
     )
+    dihedral_angle_z = np.arccos(
+        np.dot(vector_one,reference_plane[0])
+        /(np.linalg.norm(vector_one) * np.linalg.norm(reference_plane[0]))
+    )
 
-    y_angle = (np.pi / 2 - dihedral_angle_y_cos) / 2
-    x_angle = (np.pi / 2 - dihedral_angle_x_cos) / 2
-
+    y_angle = (np.pi / 2 - dihedral_angle_y_cos)/2
+    x_angle = (dihedral_angle_x_cos - np.pi / 2)/2
+    z_angle = (np.pi/2 - dihedral_angle_z)/2
+    R_z = [
+        [np.cos(z_angle),np.sin(z_angle),0],
+        [-np.sin(z_angle),np.cos(z_angle),0],
+        [0,0,1],
+    ]
     R_y = [
-        [np.cos(y_angle), 0, np.sin(y_angle)],
+        [np.cos(x_angle), 0, np.sin(x_angle)],
         [0, 1, 0],
-        [-np.sin(y_angle), 0, np.cos(y_angle)],
+        [-np.sin(x_angle), 0, np.cos(x_angle)],
     ]
     R_x = [
         [1, 0, 0],
-        [0, np.cos(x_angle), -np.sin(x_angle)],
-        [0, np.sin(x_angle), np.cos(x_angle)],
+        [0, np.cos(y_angle), -np.sin(y_angle)],
+        [0, np.sin(y_angle), np.cos(y_angle)],
     ]
-
-    RotMat = np.matmul(R_x, R_y)
+    R_zx = np.matmul(R_z,R_x)
+    RotMat = np.matmul(R_zx,R_y)
 
     test_rotmat = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
     ax = pr(R=test_rotmat)
     pr(ax=ax, R=RotMat)
-    plt.show()
+    #plt.show()
 
     quaternions = qmp(RotMat)
     quaternions_temp = cq(quaternions_temp, quaternions)

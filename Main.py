@@ -126,9 +126,9 @@ def scan_the_nipple():
         "Distance between each point: ", negative=False, allow_float=True
     )
 
-    result_coord, result_dist = find_nipple(z_offset, distance)
+    result_coord, result_dist, result = find_nipple(z_offset, distance)
 
-    return result_coord, result_dist
+    return result_coord, result_dist, result
 
 
 def save_laser_scan(file_name, data):
@@ -154,7 +154,7 @@ elif choice == "2":
     result = half_sphere()
     print(result)
 elif choice == "3":
-    result1, result2 = scan_the_nipple()
+    result1, result2, result = scan_the_nipple()
     print(result1, result2)
 
 file_name = input(
