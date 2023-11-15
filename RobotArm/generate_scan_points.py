@@ -136,7 +136,7 @@ def generate_scan_points_halfsphere(
     return points
 
 
-def generate_points_in_square_plane(z_offset=-130, dist=1):
+def generate_points_in_square_plane(z_offset=-130, dist=1, side_len=2.5):
     """Generate a square pattern with points in a 10x10 mm area where x=0 and y=0 is the center point and z_offset is the value in z-axis.
 
     Parameters
@@ -151,7 +151,7 @@ def generate_points_in_square_plane(z_offset=-130, dist=1):
     points : list shape(3,)
         The coordinates of the points in the plane
     """
-    val = np.arange(-2.5, 2.5 + 1e-10, dist)
+    val = np.arange(-side_len, side_len + 1e-10, dist)
 
     return [np.array([x, y, z_offset]) for x in val for y in val]
 
