@@ -51,8 +51,8 @@ def scan_points(*args):
     return laser_data
 
 
-def find_nipple(z_offset, distance):
-    points = generate_scan_points.generate_points_in_square_plane(z_offset, distance)
+def find_nipple(z_offset, distance, side_len):
+    points = generate_scan_points.generate_points_in_square_plane(z_offset, distance, side_len)
     min_laser_point = 1000
     points_of_min_laser_point = []
 

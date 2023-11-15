@@ -125,8 +125,11 @@ def scan_the_nipple():
     distance = get_numeric_input(
         "Distance between each point: ", negative=False, allow_float=True
     )
+    side_len = get_numeric_input(
+        "The length of each side: ", negative=False, allow_float=True
+    )
 
-    result_coord, result_dist, result = find_nipple(z_offset, distance)
+    result_coord, result_dist, result = find_nipple(z_offset, distance, side_len)
 
     return result_coord, result_dist, result
 
