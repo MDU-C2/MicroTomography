@@ -17,7 +17,7 @@ robot = robot_control.robot_init(1)
 laser.setMovingAverage(1)
 z = -130
 
-#robot_control.return_robot_to_start(robot)
+# robot_control.return_robot_to_start(robot)
 robot_control.move_robot_linear(robot, [[0, 0, z], [1, 0, 0, 0]])
 sleep(4)
 i = 0
@@ -28,7 +28,6 @@ while True:
     transistor.laserOff()
     print(data)
 
-
     if isinstance(data, float):
         diff = z + data
         true_z = 760.2787866568916 + diff
@@ -37,8 +36,6 @@ while True:
         i += 1
         if i == 20:
             break
-
-    
 
     sleep(1)
 
