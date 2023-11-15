@@ -30,12 +30,12 @@ from choose_points_microwave import ray_cast_points
 from read_save_csv import save_csv
 
 
-fileName = "scanned_data/13_11-11_02-Joel_084.csv"
+fileName = "scanned_data/23_11_15_09_34_Joel.csv"
 # f = sp.io.loadmat(fileName, squeeze_me=False)
 data = pd.read_csv(fileName)  # Gets the surface points from the .mat file
 data = data.to_numpy()
 mesh, points = load_stl_file()
-data[:, 2] = data[:, 2] + 15
+# data[:, 2] = data[:, 2] + 15
 # Reshapes the array into a points array
 # points_2 = fix_points(data)
 

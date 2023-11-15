@@ -6,9 +6,11 @@ from stl import mesh
 
 
 def load_stl_file():
-    your_mesh = mesh.Mesh.from_file("stl_files\SimpleBreast_R62_centered_surface.STL")
+    your_mesh = mesh.Mesh.from_file(
+        "stl_files\SimpleBreast_R62_centered_surface_origin_aligned.STL"
+    )
 
-    your_mesh.rotate(np.array([1, 0, 0]), -np.pi / 2)
+    """your_mesh.rotate(np.array([1, 0, 0]), -np.pi / 2)
     your_mesh.translate(
         np.array(
             [
@@ -17,7 +19,7 @@ def load_stl_file():
                 -your_mesh.max_[2] + 13.922,
             ]
         )
-    )
+    )"""
     points_x = your_mesh.x.flatten()
     points_y = your_mesh.y.flatten()
     points_z = your_mesh.z.flatten()

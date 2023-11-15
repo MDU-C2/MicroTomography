@@ -161,6 +161,6 @@ def line_trace(GT_mesh, reconstructed_mesh, test, points):
     ########################Show mlab plot
 
     mlab.scalarbar(object=p3d2, title="Error(mm)", orientation="vertical")
-
+    mlab.axes(xlabel="X", ylabel="Y")
     mlab.draw()
     mlab.show()
