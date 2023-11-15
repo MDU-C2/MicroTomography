@@ -64,9 +64,11 @@ def find_nipple(z_offset, distance):
 
     for point in points:
         robot_control.move_robot_linear(robot, [point, [1, 0, 0, 0]])
-        sleep(0.5)
+        sleep(1)
 
+        transistor.laserON()
         laser_point = laser.measure()
+        print(laser_point)
         if isinstance(laser_point, float):
             if laser_point < min_laser_point:
                 min_laser_point = laser_point

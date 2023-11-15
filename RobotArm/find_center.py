@@ -16,6 +16,7 @@ laser = optoNCDT1402(noMeasurements=50)
 
 transistor.init()
 robot = robot_control.connect_to_robot()
+robot_control.return_robot_to_start(robot)
 robot_control.set_reference_coordinate_system(
     robot,
     [

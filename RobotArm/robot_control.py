@@ -83,12 +83,13 @@ def robot_init(tool):
     set_reference_coordinate_system(
         robot,
         [
-            [0.20, -5.41, 759.24],
+            [-2.80, -6.41, 760.2787866568916],
             [9.99954527e-01, 9.41712207e-03, 1.50357889e-03, 9.45543129e-06],
         ],
     )
 
     """
+    760.3715408113393
     [0.20, -5.41, 759.24] where fetched using the calibration TCP, when aimed at nipple it seems to be aiming slightly left
     When arm is in last quadrant it almost perfectly center.
 
