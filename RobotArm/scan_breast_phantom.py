@@ -38,10 +38,10 @@ def scan_points(*args):
     # Visit all points and scan the laser at the given points
     for point in points:
         robot_control.move_robot_linear(robot, point)
-        while not (np.round(robot.get_cartesian()[0], 1) == point).all():
+        #while not (np.round(robot.get_cartesian()[0], 1) == point).all():
             #print(np.round(robot.get_cartesian()[0], 1))
-            continue
-        #sleep(1)
+        #    continue
+        sleep(1)
 
         transistor.laserON()
 

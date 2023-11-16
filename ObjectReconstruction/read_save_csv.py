@@ -12,7 +12,7 @@ def read_csv(filename):
 
 
 def save_csv(filename, points):
-    filename = time.strftime("%Y-%m-%d-%H%M-")+filename
+    filename = time.strftime("%Y-%m-%d-%H_%M-")+filename
     saveDirectory = os.path.join(os.getcwd(), "scanned_data")
     os.makedirs(saveDirectory, exist_ok=True)
     filepath = os.path.join(saveDirectory, filename)
