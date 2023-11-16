@@ -10,6 +10,7 @@ sys.path.append("../Microtomography")
 
 from RobotArm.scan_breast_phantom import scan_points, find_nipple
 from ObjectReconstruction.read_save_csv import save_csv
+from ObjectReconstruction.surface_reconstruction import surface_reconstruction as sr
 
 
 # Control if the user input is valid.
@@ -80,6 +81,7 @@ def cylinder():
     result = scan_points(
         radius, z_stepsize, z_min, azimuth_points, z_offset, laser_angle
     )
+    sr.poisson_surface_reconstruction(result, save=False)
 
     print("The scan is finished.")
 
