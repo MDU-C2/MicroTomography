@@ -71,10 +71,10 @@ def find_nipple(z_offset, distance, side_len):
     for point in points:
         robot_control.move_robot_linear(robot, [point, [1, 0, 0, 0]])
 
-        while not (np.round(robot.get_cartesian()[0], 1) == point).all():
+        #while not (np.round(robot.get_cartesian()[0], 1) == point).all():
             #print(np.round(robot.get_cartesian()[0], 1))
-            continue
-
+            #continue
+        sleep(1)
         transistor.laserON()
         laser_point = laser.measure()
         print(laser_point)
