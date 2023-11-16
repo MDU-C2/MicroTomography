@@ -104,7 +104,7 @@ class surface_reconstruction:
                 "mesh.obj", rec_mesh, print_progress=True
             )  # Writes the file without any warnings.
 
-    def poisson_surface_reconstruction(points, save):
+    def poisson_surface_reconstruction(points, save=False):
         t = time.time()
         ############ Works the best. Need to figure out how to mesh the top of the object where triangles are "too long".#############
         ############ Needs sufficient enough data ###############
@@ -156,7 +156,7 @@ class surface_reconstruction:
 
         # mesh.clip_plane(point=[0, 0, 0], normal=[0, 0, 1])
         mesh.paint_uniform_color(np.array([[0.5], [0.5], [0.5]]))
-        # o3d.visualization.draw_geometries([pcd], mesh_show_back_face=True)
+        o3d.visualization.draw_geometries([pcd, mesh], mesh_show_back_face=True)
         elapsed = time.time() - t
         print("Time to do surface reconstruction:", elapsed)
 
