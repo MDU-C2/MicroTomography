@@ -6,6 +6,8 @@ from RobotArm import robot_control
 from RaspberryPi import transistor
 from time import sleep
 
+import numpy as np
+
 
 # Function for scanning points in either cylinder form or halfsphere form
 def scan_points(*args):
@@ -65,8 +67,10 @@ def find_nipple(z_offset, distance, side_len):
 
     for point in points:
         robot_control.move_robot_linear(robot, [point, [1, 0, 0, 0]])
-        print(robot.get_cartesian())
-        sleep(2)
+        a = robot.get_cartesian()[0]
+        
+        while not (np.round(robot.get_cartesian()[0], 1) == point).all():
+            print(np.round(robot.get_cartesian()[0], 1))
 
         transistor.laserON()
         laser_point = laser.measure()
