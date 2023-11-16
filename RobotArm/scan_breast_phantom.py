@@ -38,7 +38,10 @@ def scan_points(*args):
     # Visit all points and scan the laser at the given points
     for point in points:
         robot_control.move_robot_linear(robot, point)
-        sleep(1)
+        while not (np.round(robot.get_cartesian()[0], 1) == point).all():
+            #print(np.round(robot.get_cartesian()[0], 1))
+            continue
+        #sleep(1)
 
         transistor.laserON()
 
@@ -67,10 +70,10 @@ def find_nipple(z_offset, distance, side_len):
 
     for point in points:
         robot_control.move_robot_linear(robot, [point, [1, 0, 0, 0]])
-        a = robot.get_cartesian()[0]
-        
+
         while not (np.round(robot.get_cartesian()[0], 1) == point).all():
-            print(np.round(robot.get_cartesian()[0], 1))
+            #print(np.round(robot.get_cartesian()[0], 1))
+            continue
 
         transistor.laserON()
         laser_point = laser.measure()

@@ -3,6 +3,7 @@
 import pandas as pd
 import numpy as np
 import os
+import time
 
 
 def read_csv(filename):
@@ -11,6 +12,7 @@ def read_csv(filename):
 
 
 def save_csv(filename, points):
+    filename = time.strftime("%Y-%m-%d-%H%M-")+filename
     saveDirectory = os.path.join(os.getcwd(), "scanned_data")
     os.makedirs(saveDirectory, exist_ok=True)
     filepath = os.path.join(saveDirectory, filename)
