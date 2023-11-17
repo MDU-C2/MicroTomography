@@ -101,66 +101,77 @@ def find_lowest_point(z_offset=-130):
     q = [1, 0, 0, 0]
 
     inc = [10, 5, 1, 0.5, 0.3, 0.1]
-    i = 0
 
-    center_point = initial_point + [0, 0, z_offset]
-    x_pos_point = center_point + [inc[i], 0, 0]
-    x_neg_point = center_point + [-inc[i], 0, 0]
-    y_pos_point = center_point + [0, inc[i], 0]
-    y_neg_point = center_point + [0, -inc[i], 0]
+    center_point = np.add(initial_point, [0, 0, z_offset])
+    x_pos_point = np.add(center_point, [10, 0, 0])
+    x_neg_point = np.add(center_point, [-10, 0, 0])
+    y_pos_point = np.add(center_point, [0, 10, 0])
+    y_neg_point = np.add(center_point, [0, -10, 0])
 
     lowest_point = [10, 10, 10]
+    for i in inc:
+        was_center = False
+        while not was_center:
+            robot_control.move_robot_linear(robot, [center_point, q])
+            while not (np.round(robot.get_cartesian()[0], 1) == center_point).all():
+                continue
+            sleep(2)
+            transistor.laserON()
+            temp_laser_data[0] = laser.measure()
+            transistor.laserOff()
 
-    while(center_point != lowest_point and i != 6):
-        robot_control.move_robot_linear(robot, [center_point, q])
-        sleep(2)
-        transistor.laserON()
-        temp_laser_data[0] = laser.measure()
-        transistor.laserOff()
+            robot_control.move_robot_linear(robot, [x_pos_point, q])
+            while not (np.round(robot.get_cartesian()[0], 1) == x_pos_point).all():
+                continue
+            sleep(2)
+            transistor.laserON()
+            temp_laser_data[1] = laser.measure()
+            transistor.laserOff()
 
-        robot_control.move_robot_linear(robot, [x_pos_point, q])
-        sleep(2)
-        transistor.laserON()
-        temp_laser_data[1] = laser.measure()
-        transistor.laserOff()
+            robot_control.move_robot_linear(robot, [x_neg_point, q])
+            while not (np.round(robot.get_cartesian()[0], 1) == x_neg_point).all():
+                continue
+            sleep(2)
+            transistor.laserON()
+            temp_laser_data[2] = laser.measure()
+            transistor.laserOff()
 
-        robot_control.move_robot_linear(robot, [x_neg_point, q])
-        sleep(2)
-        transistor.laserON()
-        temp_laser_data[2] = laser.measure()
-        transistor.laserOff()
+            robot_control.move_robot_linear(robot, [y_pos_point, q])
+            while not (np.round(robot.get_cartesian()[0], 1) == y_pos_point).all():
+                continue
+            sleep(2)
+            transistor.laserON()
+            temp_laser_data[3] = laser.measure()
+            transistor.laserOff()
 
-        robot_control.move_robot_linear(robot, [y_pos_point, q])
-        sleep(2)
-        transistor.laserON()
-        temp_laser_data[3] = laser.measure()
-        transistor.laserOff()
+            robot_control.move_robot_linear(robot, [y_neg_point, q])
+            while not (np.round(robot.get_cartesian()[0], 1) == y_neg_point).all():
+                continue
+            sleep(2)
+            transistor.laserON()
+            temp_laser_data[4] = laser.measure()
+            transistor.laserOff()
 
-        robot_control.move_robot_linear(robot, [y_neg_point, q])
-        sleep(2)
-        transistor.laserON()
-        temp_laser_data[4] = laser.measure()
-        transistor.laserOff()
-
-        if min(temp_laser_data) == temp_laser_data[0]:
-            i = i + 1
-            lowest_point = center_point
-        if min(temp_laser_data) == temp_laser_data[1]:
-            lowest_point = x_pos_point
-            center_point = x_pos_point
-        if min(temp_laser_data) == temp_laser_data[2]:
-            lowest_point = x_neg_point
-            center_point = x_neg_point
-        if min(temp_laser_data) == temp_laser_data[3]:
-            lowest_point = y_pos_point
-            center_point = y_pos_point
-        if min(temp_laser_data) == temp_laser_data[4]:
-            lowest_point = y_neg_point
-            center_point = y_neg_point
-        
-        x_pos_point = center_point + [inc[i], 0, 0]
-        x_neg_point = center_point + [-inc[i], 0, 0]    
-        y_pos_point = center_point + [0, inc[i], 0] 
-        y_neg_point = center_point + [0, -inc[i], 0]    
-        
-        return lowest_point + [0, 0, z_offset]
+            if min(temp_laser_data) == temp_laser_data[0]:
+                was_center = True
+                lowest_point = center_point
+            if min(temp_laser_data) == temp_laser_data[1]:
+                lowest_point = x_pos_point
+                center_point = x_pos_point
+            if min(temp_laser_data) == temp_laser_data[2]:
+                lowest_point = x_neg_point
+                center_point = x_neg_point
+            if min(temp_laser_data) == temp_laser_data[3]:
+                lowest_point = y_pos_point
+                center_point = y_pos_point
+            if min(temp_laser_data) == temp_laser_data[4]:
+                lowest_point = y_neg_point
+                center_point = y_neg_point
+            
+            x_pos_point = np.add(center_point, [i, 0, 0])
+            x_neg_point = np.add(center_point, [-i, 0, 0])    
+            y_pos_point = np.add(center_point, [0, i, 0]) 
+            y_neg_point = np.add(center_point, [0, -i, 0])    
+    
+    print(np.add(lowest_point, [0, 0, temp_laser_data[0]]))
+    return np.add(lowest_point, [0, 0, temp_laser_data[0]])

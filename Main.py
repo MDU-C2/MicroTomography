@@ -8,7 +8,7 @@ pathname = os.getcwd()
 
 sys.path.append("../Microtomography")
 
-from RobotArm.scan_breast_phantom import scan_points, find_nipple
+from RobotArm.scan_breast_phantom import scan_points, find_nipple, find_lowest_point
 from ObjectReconstruction.read_save_csv import save_csv
 #from ObjectReconstruction.surface_reconstruction import surface_reconstruction as sr
 
@@ -135,7 +135,7 @@ def scan_the_nipple():
 
     return result_coord, result_dist, result
 
-def find_lowest_point():
+def find_lowest_pointt():
     print("Please enter the following desired parameters:")
     z_offset = get_numeric_input("z_offset: ", negative=True, allow_float=True)
     result1 = find_lowest_point(z_offset)
@@ -153,7 +153,7 @@ def save_laser_scan(file_name, data):
 # ------------ Main starts here ---------------------
 
 print("Hello, please pick a pattern for the scanning")
-choice = input("Enter 1 for cylindrical pattern and 2 for half-sphere pattern: ")
+choice = input("Enter 1 for cylindrical pattern and 2 for half-sphere pattern (or 3 or 4): ")
 
 while choice not in ("1", "2", "3", "4"):
     print("Try again.")
@@ -169,7 +169,7 @@ elif choice == "3":
     result1, result2, result = scan_the_nipple()
     print(result1, result2)
 elif choice == '4':
-    result = find_lowest_point()
+    result = find_lowest_pointt()
 
 
 file_name = input(
