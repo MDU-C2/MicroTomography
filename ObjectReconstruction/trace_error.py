@@ -20,7 +20,8 @@ def line_trace(GT_mesh, reconstructed_mesh, test, points):
         GT_triangles = np.asarray(GT_mesh.triangles)
         recon_vertices = np.asarray(points[reconstructed_mesh.simplices])
         recon_vertices = recon_vertices.reshape(-1, recon_vertices.shape[-1])
-        recon_triangles = np.asarray(reconstructed_mesh.simplices)[:, 0:4]
+        recon_vert_plot = recon_vertices.reshape(-1, recon_vertices.shape[-1])
+        recon_triangles = np.asarray(reconstructed_mesh.simplices)[:, 0:3]
 
     GT_vertices = o3d.core.Tensor(
         GT_vertices,
@@ -42,7 +43,7 @@ def line_trace(GT_mesh, reconstructed_mesh, test, points):
     )
 
     scene = o3d.t.geometry.RaycastingScene()
-    # GT_id = scene.add_triangles(GT_vertices, GT_triangles)
+
     recond_id = scene.add_triangles(recon_vertices, recon_triangles)
 
     errorDist = []
@@ -92,21 +93,38 @@ def line_trace(GT_mesh, reconstructed_mesh, test, points):
         errorDist.append(unsigned_distance.numpy())
         occupancy = scene.compute_occupancy(query_point)
 
-        if math.isinf(ans["t_hit"].numpy()[0]) == 0:
-            errorList.append(ans["t_hit"].numpy()[0])
-        if math.isinf(ans["t_hit"].numpy()[0]) == 1:
-            errorList.append(150)
-
-    print("Raycast average error (mm): ", np.sum(errorList) / len(errorList))
     print("Distance average error (mm): ", np.sum(errorDist) / len(errorDist))
 
     newList = []
     print(len(np.asarray(GT_mesh.vertices)[:, 0]))
-    print(len(np.asarray(reconstructed_mesh.vertices)[:, 0]))
+    if test == 1:
+        print(len(np.asarray(reconstructed_mesh.vertices)[:, 0]))
+    if test == 2:
+        print(len(recon_vertices[:, 0]))
 
     Color = np.full((len(np.asarray(GT_mesh.vertices)[:, 0]), 4), [255, 0, 0, 255])
     newList = np.interp(errorDist, (np.min(errorDist), np.max(errorDist)), (1, 255))
 
+    """####
+    for i in range(len(errorDist)):
+        if errorDist[i] < 1:
+            Color[i, 0] = 0
+            Color[i, 1] = 0
+            Color[i, 2] = 255
+
+        elif errorDist[i] >= 1 and errorDist[i] < 2:
+            Color[i, 0] = 0
+            Color[i, 1] = 255
+            Color[i, 2] = 0
+
+        elif errorDist[i] >= 2:
+            Color[i, 0] = 255
+            Color[i, 1] = 0
+            Color[i, 2] = 0
+
+    Color = ColorBar
+    Color[:, 3] = 255
+    ####"""
     for i in range(len(newList)):
         Color[i, 0] = newList[i]
         Color[i, 1] = 255 - newList[i]
@@ -122,20 +140,51 @@ def line_trace(GT_mesh, reconstructed_mesh, test, points):
         scale_factor=3.0,
         scale_mode="none",
     )
+
+    if test == 1:
+        mlab.points3d(
+            np.asarray(reconstructed_mesh.vertices)[:, 0],
+            np.asarray(reconstructed_mesh.vertices)[:, 1],
+            np.asarray(reconstructed_mesh.vertices)[:, 2],
+            scale_factor=2.0,
+            scale_mode="none",
+        )
+
+    if test == 2:
+        mlab.points3d(
+            recon_vert_plot[:, 0],
+            recon_vert_plot[:, 1],
+            recon_vert_plot[:, 2],
+            scale_factor=2.0,
+            scale_mode="none",
+        )
     p3d.module_manager.scalar_lut_manager.lut.number_of_colors = len(s)
-    p3d.module_manager.scalar_lut_manager.lut.table = Color  # / 255
-    mlab.points3d(
-        np.asarray(reconstructed_mesh.vertices)[:, 0],
-        np.asarray(reconstructed_mesh.vertices)[:, 1],
-        np.asarray(reconstructed_mesh.vertices)[:, 2],
-        scale_factor=2.0,
-        scale_mode="none",
-    )
+    p3d.module_manager.scalar_lut_manager.lut.table = Color  # / 255 Color
 
     ##############################Create colorbar
     errorDistSorted = []
     ColorBar = np.full((len(np.asarray(GT_mesh.vertices)[:, 0]), 4), [255, 0, 0, 1])
     errorDistSorted = np.sort(errorDist, axis=None)
+
+    ###
+    """for i in range(len(errorDistSorted)):
+        if errorDistSorted[i] < 1.0:
+            ColorBar[i, 0] = 0
+            ColorBar[i, 1] = 0
+            ColorBar[i, 2] = 255
+
+        elif errorDistSorted[i] >= 1.0 and errorDistSorted[i] < 2.0:
+            ColorBar[i, 0] = 0
+            ColorBar[i, 1] = 255
+            ColorBar[i, 2] = 0
+
+        elif errorDistSorted[i] >= 2.0:
+            ColorBar[i, 0] = 255
+            ColorBar[i, 1] = 0
+            ColorBar[i, 2] = 0"""
+
+    ###
+
     listColorBar = np.interp(
         errorDistSorted,
         (np.min(errorDistSorted), np.max(errorDistSorted)),
@@ -160,7 +209,8 @@ def line_trace(GT_mesh, reconstructed_mesh, test, points):
 
     ########################Show mlab plot
 
-    mlab.scalarbar(object=p3d2, title="Error(mm)", orientation="vertical")
+    mlab.colorbar(object=p3d2, title="Error(mm)", orientation="vertical")
     mlab.axes(xlabel="X", ylabel="Y")
     mlab.draw()
     mlab.show()
+    print("test")
