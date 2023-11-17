@@ -10,7 +10,12 @@ sys.path.append("../Microtomography")
 
 from RobotArm.scan_breast_phantom import scan_points, find_nipple, find_lowest_point
 from ObjectReconstruction.read_save_csv import save_csv
-#from ObjectReconstruction.surface_reconstruction import surface_reconstruction as sr
+
+from ObjectReconstruction.surface_reconstruction import (
+    poisson_surface_reconstruction,
+)
+
+from zvb.titi_bakonkadonk_brest_8008 import mw_boob
 
 
 # Control if the user input is valid.
@@ -81,7 +86,6 @@ def cylinder():
     result = scan_points(
         radius, z_stepsize, z_min, azimuth_points, z_offset, laser_angle
     )
-    #sr.poisson_surface_reconstruction(result, save=False)
 
     print("The scan is finished.")
 
@@ -135,6 +139,7 @@ def scan_the_nipple():
 
     return result_coord, result_dist, result
 
+
 def find_lowest_pointt():
     print("Please enter the following desired parameters:")
     z_offset = get_numeric_input("z_offset: ", negative=True, allow_float=True)
@@ -150,10 +155,33 @@ def save_laser_scan(file_name, data):
     print("The generated point cloud has been saved in a file.")
 
 
+def mw_scan(mesh):
+    while True:
+        number_of_points = get_numeric_input(
+            "How many points would you like to scan?", False, False
+        )
+        if number_of_points > 0:
+            break
+
+    points = []
+    for i in range(number_of_points):
+        print(f"Enter coordinates for point {i}:")
+        x = get_numeric_input("X coordinate:", None, True)
+        y = get_numeric_input("Y coordinate:", None, True)
+        z = get_numeric_input("Z coordinate:", True, True)
+        points.append([x, y, z])
+
+    data = mw_boob(mesh, points)
+
+    return data
+
+
 # ------------ Main starts here ---------------------
 
 print("Hello, please pick a pattern for the scanning")
-choice = input("Enter 1 for cylindrical pattern and 2 for half-sphere pattern (or 3 or 4): ")
+choice = input(
+    "Enter 1 for cylindrical pattern and 2 for half-sphere pattern (or 3 or 4): "
+)
 
 while choice not in ("1", "2", "3", "4"):
     print("Try again.")
@@ -168,7 +196,7 @@ elif choice == "2":
 elif choice == "3":
     result1, result2, result = scan_the_nipple()
     print(result1, result2)
-elif choice == '4':
+elif choice == "4":
     result = find_lowest_pointt()
 
 
@@ -176,5 +204,10 @@ file_name = input(
     "Please enter your desired name for the file where the data will be saved:"
 )
 save_laser_scan(file_name + ".csv", result)
+
+mesh = poisson_surface_reconstruction(result, save=False)
+
+mw_data = mw_scan(mesh)
+
 
 # -----------------------------------------------------
