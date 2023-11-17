@@ -135,6 +135,13 @@ def scan_the_nipple():
 
     return result_coord, result_dist, result
 
+def find_lowest_point():
+    print("Please enter the following desired parameters:")
+    z_offset = get_numeric_input("z_offset: ", negative=True, allow_float=True)
+    result1 = find_lowest_point(z_offset)
+
+    return result1
+
 
 def save_laser_scan(file_name, data):
     # Save the data in a CSV file.
@@ -148,9 +155,9 @@ def save_laser_scan(file_name, data):
 print("Hello, please pick a pattern for the scanning")
 choice = input("Enter 1 for cylindrical pattern and 2 for half-sphere pattern: ")
 
-while choice not in ("1", "2", "3"):
+while choice not in ("1", "2", "3", "4"):
     print("Try again.")
-    choice = input("Enter 1, 2 or 3: ")
+    choice = input("Enter 1, 2, 3 4: ")
 
 if choice == "1":
     result = cylinder()
@@ -161,6 +168,9 @@ elif choice == "2":
 elif choice == "3":
     result1, result2, result = scan_the_nipple()
     print(result1, result2)
+elif choice == '4':
+    result = find_lowest_point()
+
 
 file_name = input(
     "Please enter your desired name for the file where the data will be saved:"

@@ -90,3 +90,77 @@ def find_nipple(z_offset, distance, side_len):
     robot_control.close_connection(robot)
 
     return points_of_min_laser_point, z_offset + min_laser_point, laser_data
+
+def find_lowest_point(z_offset=-130):
+    laser = optoNCDT1402("/dev/ttyUSB0", 10)  # Serial port of the Raspberry Pi
+    transistor.init()
+    robot = robot_control.robot_init(1)
+    temp_laser_data = [0, 0, 0, 0, 0]
+
+    initial_point = [0, 0, 0]
+    q = [1, 0, 0, 0]
+
+    inc = [10, 5, 1, 0.5, 0.3, 0.1]
+    i = 0
+
+    center_point = initial_point + [0, 0, z_offset]
+    x_pos_point = center_point + [inc[i], 0, 0]
+    x_neg_point = center_point + [-inc[i], 0, 0]
+    y_pos_point = center_point + [0, inc[i], 0]
+    y_neg_point = center_point + [0, -inc[i], 0]
+
+    lowest_point = [10, 10, 10]
+
+    while(center_point != lowest_point and i != 6):
+        robot_control.move_robot_linear(robot, [center_point, q])
+        sleep(2)
+        transistor.laserON()
+        temp_laser_data[0] = laser.measure()
+        transistor.laserOff()
+
+        robot_control.move_robot_linear(robot, [x_pos_point, q])
+        sleep(2)
+        transistor.laserON()
+        temp_laser_data[1] = laser.measure()
+        transistor.laserOff()
+
+        robot_control.move_robot_linear(robot, [x_neg_point, q])
+        sleep(2)
+        transistor.laserON()
+        temp_laser_data[2] = laser.measure()
+        transistor.laserOff()
+
+        robot_control.move_robot_linear(robot, [y_pos_point, q])
+        sleep(2)
+        transistor.laserON()
+        temp_laser_data[3] = laser.measure()
+        transistor.laserOff()
+
+        robot_control.move_robot_linear(robot, [y_neg_point, q])
+        sleep(2)
+        transistor.laserON()
+        temp_laser_data[4] = laser.measure()
+        transistor.laserOff()
+
+        if min(temp_laser_data) == temp_laser_data[0]:
+            i = i + 1
+            lowest_point = center_point
+        if min(temp_laser_data) == temp_laser_data[1]:
+            lowest_point = x_pos_point
+            center_point = x_pos_point
+        if min(temp_laser_data) == temp_laser_data[2]:
+            lowest_point = x_neg_point
+            center_point = x_neg_point
+        if min(temp_laser_data) == temp_laser_data[3]:
+            lowest_point = y_pos_point
+            center_point = y_pos_point
+        if min(temp_laser_data) == temp_laser_data[4]:
+            lowest_point = y_neg_point
+            center_point = y_neg_point
+        
+        x_pos_point = center_point + [inc[i], 0, 0]
+        x_neg_point = center_point + [-inc[i], 0, 0]    
+        y_pos_point = center_point + [0, inc[i], 0] 
+        y_neg_point = center_point + [0, -inc[i], 0]    
+        
+        return lowest_point + [0, 0, z_offset]
