@@ -97,10 +97,12 @@ def find_lowest_point(z_offset=-130):
     robot = robot_control.robot_init(1)
     temp_laser_data = [0, 0, 0, 0, 0]
 
+    tol = 0.5
+
     initial_point = [0, 0, 0]
     q = [1, 0, 0, 0]
 
-    inc = [10, 5, 1, 0.5, 0.3, 0.1]
+    inc = [10, 5, 1, 0.5, 0.3, 0.1, 0.05]
 
     center_point = np.add(initial_point, [0, 0, z_offset])
     x_pos_point = np.add(center_point, [10, 0, 0])
@@ -113,7 +115,7 @@ def find_lowest_point(z_offset=-130):
         was_center = False
         while not was_center:
             robot_control.move_robot_linear(robot, [center_point, q])
-            while not (np.round(robot.get_cartesian()[0], 1) == center_point).all():
+            while not (np.isclose(robot.get_cartesian()[0], center_point, rtol=tol)).all():
                 continue
             sleep(2)
             transistor.laserON()
@@ -121,7 +123,7 @@ def find_lowest_point(z_offset=-130):
             transistor.laserOff()
 
             robot_control.move_robot_linear(robot, [x_pos_point, q])
-            while not (np.round(robot.get_cartesian()[0], 1) == x_pos_point).all():
+            while not (np.isclose(robot.get_cartesian()[0], x_pos_point, rtol=tol)).all():
                 continue
             sleep(2)
             transistor.laserON()
@@ -129,7 +131,7 @@ def find_lowest_point(z_offset=-130):
             transistor.laserOff()
 
             robot_control.move_robot_linear(robot, [x_neg_point, q])
-            while not (np.round(robot.get_cartesian()[0], 1) == x_neg_point).all():
+            while not (np.isclose(robot.get_cartesian()[0], x_neg_point, rtol=tol)).all():
                 continue
             sleep(2)
             transistor.laserON()
@@ -137,7 +139,7 @@ def find_lowest_point(z_offset=-130):
             transistor.laserOff()
 
             robot_control.move_robot_linear(robot, [y_pos_point, q])
-            while not (np.round(robot.get_cartesian()[0], 1) == y_pos_point).all():
+            while not (np.isclose(robot.get_cartesian()[0], y_pos_point, rtol=tol)).all():
                 continue
             sleep(2)
             transistor.laserON()
@@ -145,7 +147,7 @@ def find_lowest_point(z_offset=-130):
             transistor.laserOff()
 
             robot_control.move_robot_linear(robot, [y_neg_point, q])
-            while not (np.round(robot.get_cartesian()[0], 1) == y_neg_point).all():
+            while not (np.isclose(robot.get_cartesian()[0], y_neg_point, rtol=tol)).all():
                 continue
             sleep(2)
             transistor.laserON()
