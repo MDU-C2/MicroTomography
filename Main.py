@@ -158,7 +158,7 @@ def save_laser_scan(file_name, data):
 def mw_scan(mesh):
     while True:
         number_of_points = get_numeric_input(
-            "How many points would you like to scan?", False, False
+            "Enter the number of points you want to scan: ", False, False
         )
         if number_of_points > 0:
             break
@@ -166,9 +166,9 @@ def mw_scan(mesh):
     points = []
     for i in range(number_of_points):
         print(f"Enter coordinates for point {i}:")
-        x = get_numeric_input("X coordinate:", None, True)
-        y = get_numeric_input("Y coordinate:", None, True)
-        z = get_numeric_input("Z coordinate:", True, True)
+        x = get_numeric_input("X coordinate: ", None, True)
+        y = get_numeric_input("Y coordinate: ", None, True)
+        z = get_numeric_input("Z coordinate: ", True, True)
         points.append([x, y, z])
 
     data = mw_boob(mesh, points)
@@ -177,7 +177,6 @@ def mw_scan(mesh):
 
 
 # ------------ Main starts here ---------------------
-
 print("Hello, please pick a pattern for the scanning")
 choice = input(
     "Enter 1 for cylindrical pattern and 2 for half-sphere pattern (or 3 or 4): "

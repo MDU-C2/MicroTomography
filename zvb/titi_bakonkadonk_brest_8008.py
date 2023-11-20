@@ -1,4 +1,4 @@
-import zvb8
+from zvb import zvb8
 from RobotArm import robot_control
 from ObjectReconstruction import choose_points_microwave
 

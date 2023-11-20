@@ -109,10 +109,10 @@ def fileget(Instrument):
 # just calling the functions
 # ---------------------------
 
-z = zvb8_setup()
+# z = zvb8_setup()
 # d = measure(z)
 # print(d)
-saves2p(z)
+# saves2p(z)
 
 # comprep()
 # comcheck()
