@@ -7,12 +7,12 @@ import time
 
 
 def read_csv(filename):
-    data = pd.read_csv(filename, header=None, delimiter=r"\s+")
-    return data.values
+    data = pd.read_csv(filename)
+    return data.to_numpy()
 
 
 def save_csv(filename, points):
-    filename = time.strftime("%Y-%m-%d-%H_%M-")+filename
+    filename = time.strftime("%Y-%m-%d-%H_%M-") + filename
     saveDirectory = os.path.join(os.getcwd(), "scanned_data")
     os.makedirs(saveDirectory, exist_ok=True)
     filepath = os.path.join(saveDirectory, filename)

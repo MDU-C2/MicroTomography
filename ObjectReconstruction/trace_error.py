@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-from mayavi import mlab
+# from mayavi import mlab
 
 
 def line_trace(GT_mesh, reconstructed_mesh, test, points):

@@ -182,7 +182,7 @@ choice = input(
     "Enter 1 for cylindrical pattern and 2 for half-sphere pattern (or 3 or 4): "
 )
 
-while choice not in ("1", "2", "3", "4"):
+while choice not in ("1", "2", "3", "4", "5"):
     print("Try again.")
     choice = input("Enter 1, 2, 3 4: ")
 
@@ -198,12 +198,14 @@ elif choice == "3":
 elif choice == "4":
     result = find_lowest_pointt()
 
+if choice != "5":
+    file_name = input(
+        "Please enter your desired name for the file where the data will be saved:"
+    )
+    save_laser_scan(file_name + ".csv", result)
+from ObjectReconstruction.read_save_csv import read_csv
 
-file_name = input(
-    "Please enter your desired name for the file where the data will be saved:"
-)
-save_laser_scan(file_name + ".csv", result)
-
+result = read_csv("scanned_data/2023-11-20-14_11-test2.csv")
 mesh = poisson_surface_reconstruction(result, save=False)
 
 mw_data = mw_scan(mesh)

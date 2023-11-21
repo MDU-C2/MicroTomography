@@ -6,7 +6,8 @@
 import numpy as np
 import scipy as sp
 import pandas as pd
-from mayavi import mlab
+
+# from mayavi import mlab
 
 
 import time
