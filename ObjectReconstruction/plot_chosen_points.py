@@ -66,6 +66,7 @@ def plot_choosen(recon_mesh, choosenPoints, distance_from_mesh):
         s2,
         scale_factor=4.0,
         scale_mode="none",
+        color=(0.1, 0.9, 0.1),
     )
     choosenPlot = mlab.points3d(
         choosenPoints[:, 0],
@@ -74,10 +75,15 @@ def plot_choosen(recon_mesh, choosenPoints, distance_from_mesh):
         s1,
         scale_factor=4.0,
         scale_mode="none",
+        color=(0.9, 0.1, 0.1),
     )
-    ColorBar = np.full((len(closestPoints[:, 0]), 4), [255, 0, 0, 255])
-    ColorSet = np.full((len(choosenPoints[:, 0]), 4), [0, 255, 0, 255])
-    choosenPlot.module_manager.scalar_lut_manager.lut.number_of_colors = 2
+    if len(closestPoints[:, 0]) < 2:
+        ColorBar = np.full((2, 4), [255, 0, 0, 255])
+        ColorSet = np.full((2, 4), [0, 255, 0, 255])
+    elif len(closestPoints[:, 0]) >= 2:
+        ColorBar = np.full((len(closestPoints[:, 0]), 4), [255, 0, 0, 255])
+        ColorSet = np.full((len(choosenPoints[:, 0]), 4), [0, 255, 0, 255])
+
     src = mlab.quiver3d(
         closestPoints[:, 0],
         closestPoints[:, 1],
@@ -88,11 +94,13 @@ def plot_choosen(recon_mesh, choosenPoints, distance_from_mesh):
         scale_factor=20,
     )
     # mlab.pipeline.vectors(src, mask_points=20, scale_factor=10.0)
+
+    choosenPlot.module_manager.scalar_lut_manager.lut.number_of_colors = 2
     setPoint.module_manager.scalar_lut_manager.lut.number_of_colors = 2
 
     choosenPlot.module_manager.scalar_lut_manager.lut.table = ColorBar
     setPoint.module_manager.scalar_lut_manager.lut.table = ColorSet
-    mlab.axes(xlabel="X", ylabel="Y")
+    # mlab.axes(xlabel="X", ylabel="Y")
     mlab.draw()
     mlab.show()
 

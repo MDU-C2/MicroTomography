@@ -96,35 +96,15 @@ def line_trace(GT_mesh, reconstructed_mesh, test, points):
     print("Distance average error (mm): ", np.sum(errorDist) / len(errorDist))
 
     newList = []
-    print(len(np.asarray(GT_mesh.vertices)[:, 0]))
-    if test == 1:
+    # print(len(np.asarray(GT_mesh.vertices)[:, 0]))
+    """if test == 1:
         print(len(np.asarray(reconstructed_mesh.vertices)[:, 0]))
     if test == 2:
-        print(len(recon_vertices[:, 0]))
+        print(len(recon_vertices[:, 0]))"""
 
-    Color = np.full((len(np.asarray(GT_mesh.vertices)[:, 0]), 4), [255, 0, 0, 255])
+    """Color = np.full((len(np.asarray(GT_mesh.vertices)[:, 0]), 4), [255, 0, 0, 255])
     newList = np.interp(errorDist, (np.min(errorDist), np.max(errorDist)), (1, 255))
 
-    """####
-    for i in range(len(errorDist)):
-        if errorDist[i] < 1:
-            Color[i, 0] = 0
-            Color[i, 1] = 0
-            Color[i, 2] = 255
-
-        elif errorDist[i] >= 1 and errorDist[i] < 2:
-            Color[i, 0] = 0
-            Color[i, 1] = 255
-            Color[i, 2] = 0
-
-        elif errorDist[i] >= 2:
-            Color[i, 0] = 255
-            Color[i, 1] = 0
-            Color[i, 2] = 0
-
-    Color = ColorBar
-    Color[:, 3] = 255
-    ####"""
     for i in range(len(newList)):
         Color[i, 0] = newList[i]
         Color[i, 1] = 255 - newList[i]
@@ -166,25 +146,6 @@ def line_trace(GT_mesh, reconstructed_mesh, test, points):
     ColorBar = np.full((len(np.asarray(GT_mesh.vertices)[:, 0]), 4), [255, 0, 0, 1])
     errorDistSorted = np.sort(errorDist, axis=None)
 
-    ###
-    """for i in range(len(errorDistSorted)):
-        if errorDistSorted[i] < 1.0:
-            ColorBar[i, 0] = 0
-            ColorBar[i, 1] = 0
-            ColorBar[i, 2] = 255
-
-        elif errorDistSorted[i] >= 1.0 and errorDistSorted[i] < 2.0:
-            ColorBar[i, 0] = 0
-            ColorBar[i, 1] = 255
-            ColorBar[i, 2] = 0
-
-        elif errorDistSorted[i] >= 2.0:
-            ColorBar[i, 0] = 255
-            ColorBar[i, 1] = 0
-            ColorBar[i, 2] = 0"""
-
-    ###
-
     listColorBar = np.interp(
         errorDistSorted,
         (np.min(errorDistSorted), np.max(errorDistSorted)),
@@ -213,4 +174,6 @@ def line_trace(GT_mesh, reconstructed_mesh, test, points):
     mlab.axes(xlabel="X", ylabel="Y")
     mlab.draw()
     mlab.show()
-    print("test")
+    print("test")"""
+    print("MAX : ", np.max(errorDist))
+    return np.max(errorDist)

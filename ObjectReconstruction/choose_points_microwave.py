@@ -5,6 +5,7 @@ import open3d as o3d
 from scipy.spatial.transform import Rotation as R
 from pytransform3d.rotations import plot_basis, matrix_from_quaternion
 import matplotlib.pyplot as plt
+from mathutils import Matrix, Vector
 
 #### Function returns the closes point on the mesh to the choosen points cP
 
@@ -59,6 +60,7 @@ def ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
     vector = [0, 0, 1]
     temp = []
     quaternion = []
+    quaternions_test = []
 
     for n in closestNormals:  ##
         theta = np.arccos(np.dot(vector, n))
@@ -72,7 +74,24 @@ def ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
 
         q = np.append(q, np.sin(theta / 2) * b_hat[2])
         quat.append(q)
+        y_vector = np.cross(n, vector)
+        x_vector = np.cross(y_vector, n)
+
+        # Initialise matrix
+        mat = Matrix.Identity(3)
+
+        # Set matrix values
+        mat.col[0] = x_vector
+        mat.col[1] = y_vector
+        mat.col[2] = n
+
+        # Make the quaternion from the matrix
+        quaternions_test = mat.to_quaternion()
+        quaternion.append(quaternions_test)
         plot_basis(R=matrix_from_quaternion(q))
+
+        plt.show()
+        plot_basis(R=matrix_from_quaternion(quaternions_test))
         plt.show()
 
     return closestPoints, quat
