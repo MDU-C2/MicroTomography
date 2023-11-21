@@ -4,7 +4,7 @@ from mayavi import mlab
 from scipy.spatial.transform import Rotation as R
 
 
-def ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
+def plot_choosen(recon_mesh, choosenPoints, distance_from_mesh):
     recon_vertices = np.asarray(recon_mesh.vertices)
     recon_triangles = np.asarray(recon_mesh.triangles)
     recon_vertices = o3d.core.Tensor(
@@ -92,6 +92,7 @@ def ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
 
     choosenPlot.module_manager.scalar_lut_manager.lut.table = ColorBar
     setPoint.module_manager.scalar_lut_manager.lut.table = ColorSet
+    mlab.axes(xlabel="X", ylabel="Y")
     mlab.draw()
     mlab.show()
 
