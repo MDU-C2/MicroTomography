@@ -57,7 +57,16 @@ def ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
         r = R.from_rotvec(-normal)
         quat.append(r.as_quat())
 
-    return closestPoints, quat
+    temp = []
+    quaternion = []
+
+    for quats in quat:
+        temp = quats[3]
+        temp = np.append(temp, quats[0:3])
+
+        quaternion.append(temp)
+
+    return closestPoints, quaternion
 
 
 ### Run the raycasting from a specific point, with the normal pointing towards the mesh, This will results in barycemtric coordinates,
