@@ -340,20 +340,20 @@ class Robot:
         data = self.sock.recv(4096)
         log.debug("%-14s recieved: %s", caller, data)
         return data
-    
-    
+
     def receive_data(self):
         """
         Receive data from the robot socket.
         """
-            # Use select to check if there is data available to be read
-        ready_to_read, _, _ = select.select([self.sock], [], [], 0.05)  # Set a timeout, here 0.05 seconds
+        # Use select to check if there is data available to be read
+        ready_to_read, _, _ = select.select(
+            [self.sock], [], [], 0.05
+        )  # Set a timeout, here 0.05 seconds
 
         if not ready_to_read:
             # No data available in the socket
             log.warn("No data available in the socket.")
-            return None  
-
+            return None
 
         data = self.sock.recv(4096)
         log.debug("Received data from robot logger: %s", data)
@@ -367,12 +367,16 @@ class Robot:
             # If the "addString" part is present and represents an integer, we can extract it too
             add_string = int(parts[2]) if len(parts) >= 3 else None
 
-            log.debug("Instruction Code: %d, OK: %d, Add String: %s", instruction_code, ok, add_string)
+            log.debug(
+                "Instruction Code: %d, OK: %d, Add String: %s",
+                instruction_code,
+                ok,
+                add_string,
+            )
 
             return instruction_code, ok, add_string
 
         log.warn("Invalid data format: %s", data)
-
 
     def format_pose(self, pose):
         pose = check_coordinates(pose)
