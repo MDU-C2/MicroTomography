@@ -48,7 +48,7 @@ def ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
         )
         print(normal)
         print(np.linalg.norm(normal))
-        closestNormals.append(-normal)
+        closestNormals.append(normal)
         closestPoints.append(ans["points"].numpy())
 
     closestPoints = np.vstack(closestPoints)
@@ -60,9 +60,9 @@ def ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
     temp = []
     quaternion = []
 
-    for n in closestNormals:  ## -normal to get the correct direction
-        theta = np.arccos(np.dot(vector, -n))
-        b = np.cross(vector, -n)
+    for n in closestNormals:  ##
+        theta = np.arccos(np.dot(vector, n))
+        b = np.cross(vector, n)
         b_hat = b / np.linalg.norm(b)
         q = np.cos(theta / 2)
 
