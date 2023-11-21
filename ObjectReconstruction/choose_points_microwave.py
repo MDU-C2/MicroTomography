@@ -74,6 +74,7 @@ def ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
 
         q = np.append(q, np.sin(theta / 2) * b_hat[2])
         quat.append(q)
+        vector = [0, 0, -1]
         y_vector = np.cross(n, vector)
         x_vector = np.cross(y_vector, n)
 
@@ -89,10 +90,10 @@ def ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
         quaternions_test = mat.to_quaternion()
         quaternion.append(quaternions_test)
         """plot_basis(R=matrix_from_quaternion(q))
-
-        plt.show()
         plot_basis(R=matrix_from_quaternion(quaternions_test))
-        plt.show()"""
+        plt.show()
+
+        # plt.show()"""
 
     return closestPoints, quaternion
 

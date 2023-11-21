@@ -95,7 +95,7 @@ average_error_1 = line_trace(GT_mesh, recon_mesh, test, data)
 
 # ChosenPoints Functions gets the closest points on the mesh
 choosen_points = np.array(
-    [[50, -50, -60]]
+    [[60, 0, -50]]
 )  # Needs atleast two points to be able to plot them.
 distance_from_mesh = 2  # in mm
 closestPoints, quats = ray_cast_points(
