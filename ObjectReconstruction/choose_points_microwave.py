@@ -3,6 +3,8 @@
 import numpy as np
 import open3d as o3d
 from scipy.spatial.transform import Rotation as R
+from pytransform3d.rotations import plot_basis, matrix_from_quaternion
+import matplotlib.pyplot as plt
 
 #### Function returns the closes point on the mesh to the choosen points cP
 
@@ -53,20 +55,45 @@ def ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
     closestNormals = np.vstack(closestNormals)
 
     quat = []
-    for normal in closestNormals:
-        r = R.from_rotvec(-normal)
-        quat.append(r.as_quat())
 
+    vector = [0, 0, 1]
     temp = []
     quaternion = []
 
-    for quats in quat:
+    """for normals in closestNormals:
+        vector = np.cross(vector, -normals)
+        temp = np.sqrt(
+            (np.linalg.norm(vector) ** 2) * (np.linalg.norm(-normals) ** 2)
+            + np.dot(vector, -normals)
+        )
+        temp = np.append(temp, vector)
+        quat.append(temp)
+        plot_basis(R=matrix_from_quaternion(temp))
+        plt.show()
+        r = R.from_rotvec(normals)
+        quat.append(r.as_quat())"""
+    for n in closestNormals:
+        theta = np.arccos(np.dot(vector, -n))
+        b = np.cross(vector, -n)
+        b_hat = b / np.linalg.norm(b)
+        q = np.cos(theta / 2)
+
+        q = np.append(q, np.sin(theta / 2) * b_hat[0])
+
+        q = np.append(q, np.sin(theta / 2) * b_hat[1])
+
+        q = np.append(q, np.sin(theta / 2) * b_hat[2])
+        quat.append(q)
+        plot_basis(R=matrix_from_quaternion(q))
+        plt.show()
+
+    """for quats in quat:
         temp = quats[3]
         temp = np.append(temp, quats[0:3])
+        
+        quaternion.append(temp)"""
 
-        quaternion.append(temp)
-
-    return closestPoints, quaternion
+    return closestPoints, quat
 
 
 ### Run the raycasting from a specific point, with the normal pointing towards the mesh, This will results in barycemtric coordinates,
