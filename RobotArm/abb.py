@@ -17,12 +17,14 @@ from threading import Thread
 from collections import deque
 import logging
 
+import select
+
 log = logging.getLogger(__name__)
 log.addHandler(logging.NullHandler())
 
 
 class Robot:
-    def __init__(self, ip="192.168.0.50", port_motion=5000, port_logger=5001):
+    def __init__(self, ip="127.0.0.1", port_motion=5000, port_logger=5001):
         self.delay = 0.08
 
         self.connect_motion((ip, port_motion))
@@ -338,6 +340,39 @@ class Robot:
         data = self.sock.recv(4096)
         log.debug("%-14s recieved: %s", caller, data)
         return data
+    
+    
+    def receive_data(self):
+        """
+        Receive data from the robot socket.
+        """
+            # Use select to check if there is data available to be read
+        ready_to_read, _, _ = select.select([self.sock], [], [], 0.05)  # Set a timeout, here 0.05 seconds
+
+        if not ready_to_read:
+            # No data available in the socket
+            log.warn("No data available in the socket.")
+            return None  
+
+
+        data = self.sock.recv(4096)
+        log.debug("Received data from robot logger: %s", data)
+
+        # Assuming the data is in the format "instructionCode ok addString"
+        # Extracting the values from the received data
+        parts = data.decode().split()
+        if len(parts) >= 2:
+            instruction_code = int(parts[0])
+            ok = int(parts[1])
+            # If the "addString" part is present and represents an integer, we can extract it too
+            add_string = int(parts[2]) if len(parts) >= 3 else None
+
+            log.debug("Instruction Code: %d, OK: %d, Add String: %s", instruction_code, ok, add_string)
+
+            return instruction_code, ok, add_string
+
+        log.warn("Invalid data format: %s", data)
+
 
     def format_pose(self, pose):
         pose = check_coordinates(pose)
