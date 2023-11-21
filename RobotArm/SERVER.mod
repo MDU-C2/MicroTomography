@@ -485,7 +485,7 @@ PROC main()
         
                 ok := SERVER_OK;
                 moveCompleted := FALSE;
-                MoveL resetPosition, currentSpeed, currentZone, Laser_TCP \WObj:=currentWobj;
+                MoveL resetPosition, currentSpeed, currentZone, laser_TCP \WObj:=currentWobj;
                 moveCompleted := TRUE;
 
             CASE 11: !Set current coordinates as new workspace
@@ -506,9 +506,9 @@ PROC main()
             CASE 12: !Change the current TCP tool
                 IF nParams = 1 THEN
                     IF params{1} = 1 THEN
-                        currentTool := Laser_TCP;
+                        currentTool := laser_TCP;
                     ELSE
-                        currentTool := Antenna_TCP;
+                        currentTool := antenna_TCP;
                     ENDIF
                 ELSE
                     ok:=SERVER_BAD_MSG;
