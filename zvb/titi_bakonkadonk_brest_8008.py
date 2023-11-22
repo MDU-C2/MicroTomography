@@ -6,9 +6,11 @@ from ObjectReconstruction import choose_points_microwave
 def mw_boob(mesh, points: list, distance):
     # instrument = zvb8.zvb8_setup()
     robot = robot_control.robot_init(2)
-    robot_control.set_zone_use(robot, 1)
+    robot_control.set_zone_use(robot, True)
 
-    antenna_points, antenna_q = choose_points_microwave.ray_cast_points(mesh, points, distance)
+    antenna_points, antenna_q = choose_points_microwave.ray_cast_points(
+        mesh, points, distance
+    )
     print(f"Coordinate: {antenna_points}, Quats: {antenna_q}")
 
     data = []
@@ -17,5 +19,3 @@ def mw_boob(mesh, points: list, distance):
         # data.append(zvb8.measure(instrument))
 
     return data
-
-

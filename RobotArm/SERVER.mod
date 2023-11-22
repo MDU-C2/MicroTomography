@@ -306,7 +306,6 @@ PROC main()
                     !Move through zones before move to target coordinate
                     
                     IF use_zones = 1 THEN
-
                         !Move up through the zones
                         IF newZonePosID > zonePlacement() THEN
                             MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
@@ -349,7 +348,8 @@ PROC main()
                                 MoveAbsJ newJointPos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
                                 !MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
                             ENDWHILE
-                            
+                        ELSE
+                            MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
                         ENDIF
                     ENDIF
 
