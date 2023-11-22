@@ -55,11 +55,14 @@ def set_robot_tool(robot, tool):
 def set_zone_use(robot, zone_use):
     """Set use of zone traversment.
 
-    0 for no zone traversement
+    False: for no zone traversement
 
-    1 for zone traversement
+    True: for zone traversement
     """
-    robot.use_zone_traverse(zone_use)
+    if zone_use == True:
+        robot.use_zone_traverse(1)
+    else:
+        robot.use_zone_traverse(0)
 
 
 def return_robot_to_start(robot):
