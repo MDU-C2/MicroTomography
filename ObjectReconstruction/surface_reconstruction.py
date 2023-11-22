@@ -72,13 +72,13 @@ def poisson_surface_reconstruction(points, save=False):
     pcd = o3d.geometry.PointCloud()
     pcd.points = o3d.utility.Vector3dVector(points)
     points = np.asarray(pcd.points)
-    mask = points[:, 2] < -14
+    mask = points[:, 2] < -12
     pcd.points = o3d.utility.Vector3dVector(
         points[mask]
     )  # normals and colors are unchanged
 
     # alternative
-    pcd = pcd.select_by_index(np.where(points[:, 2] < -14)[0])
+    pcd = pcd.select_by_index(np.where(points[:, 2] < -12)[0])
 
     norm_Radius = 30
     norm_NN = 20
@@ -107,7 +107,7 @@ def poisson_surface_reconstruction(points, save=False):
     mesh = mesh.crop(bounding_box)
 
     mesh.paint_uniform_color(np.array([[0.5], [0.5], [0.5]]))
-    # o3d.visualization.draw_geometries([pcd, mesh], mesh_show_back_face=True)
+    o3d.visualization.draw_geometries([pcd, mesh], mesh_show_back_face=True)
     elapsed = time.time() - t
     # print("Time to do surface reconstruction:", elapsed)
 
