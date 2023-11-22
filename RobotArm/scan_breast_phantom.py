@@ -29,7 +29,7 @@ def scan_points(*args):
             args[0], args[1], args[2], args[3], args[4]
         )
 
-    laser = optoNCDT1402("/dev/ttyUSB0")  # Serial port of the Raspberry Pi
+    laser = optoNCDT1402("/dev/ttyUSB0", 10)  # Serial port of the Raspberry Pi
     laser_data = []
 
     transistor.init()

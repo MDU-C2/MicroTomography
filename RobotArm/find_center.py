@@ -28,6 +28,6 @@ robot_control.set_robot_tool(robot, 1)
 robot_control.set_robot_speed(robot, [75, 25, 50, 25])
 
 
-robot_control.move_robot_linear(robot, [[0, 0, -110], [1, 0, 0, 0]])
+robot_control.move_robot_linear(robot, [[0, 0, -130], [1, 0, 0, 0]])
 
 transistor.laserON()

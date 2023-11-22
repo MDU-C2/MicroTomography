@@ -21,7 +21,7 @@ from RaspberryPi import transistor
 
 
 robot = robot_control.connect_to_robot()
-laser = optoNCDT1402.optoNCDT1402("/dev/ttyUSB0")  # Serial port of the Raspberry
+laser = optoNCDT1402.optoNCDT1402("/dev/ttyUSB0", 20)  # Serial port of the Raspberry
 transistor.init()
 robot_control.set_reference_coordinate_system(
     robot, [[-5.27669, -4.89651, 764.097], [1, 0, 0, 0]]
