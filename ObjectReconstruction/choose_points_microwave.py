@@ -94,6 +94,9 @@ def ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
         plt.show()
 
         # plt.show()"""
+    closestPoints[:, 0] = closestPoints[:, 0] - distance_from_mesh * closestNormals[:, 0]
+    closestPoints[:, 1] = closestPoints[:, 1] - distance_from_mesh * closestNormals[:, 1]
+    closestPoints[:, 2] = closestPoints[:, 2] - distance_from_mesh * closestNormals[:, 2]
 
     return closestPoints, quaternion
 

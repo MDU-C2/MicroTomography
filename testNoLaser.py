@@ -1,4 +1,4 @@
-from RobotArm import robot_Control, generate_Scan_points_Cylinder
+from RobotArm import robot_control, generate_scan_points
 from Laser import optoNCDT1402
 from time import sleep
 
@@ -15,34 +15,24 @@ offset = -60
 elevationPoints = 10
 zMin = -60
 
-pointsCylinder = generate_Scan_points_Cylinder.generate_scan_points_cylinder(
+pointsCylinder = generate_scan_points.generate_scan_points_cylinder(
     circle_radius, z_stepsize, max_depth, azimuthPoints, offset
 )
 
-pointsSphere = generate_Scan_points_Cylinder.generate_scan_points_halfSphere(
+pointsSphere = generate_scan_points.generate_scan_points_halfsphere(
     circle_radius, azimuthPoints, elevationPoints, zMin, offset
 )
 
 
-robot = robot_Control.connect_To_Robot()
+robot = robot_control.robot_init(2)
 
-robot_Control.set_Reference_Coordinate_System(robot, [43.37, 38.92, 754.16])
-
-
-robot_Control.set_Robot_Tool(robot, 1)
-
-robotSpeed = [75, 25, 50, 25]
-
-
-robot_Control.set_Robot_Speed(robot, robotSpeed)
-
-robot_Control.return_Robot_To_Start(robot)
+robot_control.set_zone_use(robot, False)
 
 for point in pointsCylinder:
-    robot_Control.move_Robot_Linear(robot, point)
+    robot_control.move_robot_linear(robot, point)
     sleep(0.5)
-    print("Robot Coordinate: ", robot_Control.fetch_Robot_Coordinates(robot))
+    print("Robot Coordinate: ", robot_control.fetch_robot_coordinates(robot))
 
-robot_Control.return_Robot_To_Start(robot)
+robot_control.return_robot_to_start(robot)
 
-robot_Control.close_Connection(robot)
+robot_control.close_connection(robot)
