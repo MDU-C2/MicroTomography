@@ -96,7 +96,7 @@ def move_down_1mm():
     GPIO.cleanup()
 
 
-"""
+
 while True:
 
     
@@ -109,7 +109,7 @@ while True:
     elif total_steps_changes > 10000:
          total_steps_changes = 10000
     
-    #choice = input("Enter: 1:(desired location), 2:(move to zero), 3:(up 1mm), 4:(down 1mm):")
+    choice = input("Enter: 1:(desired location), 2:(move to zero), 3:(up 1mm), 4:(down 1mm):")
     
 
     if choice == '1':   
@@ -131,13 +131,12 @@ while True:
         total_steps_changes = total_steps_changes -100
         
         
-    #elif choice == 'q':
-     #    break
+    elif choice == 'q':
+        break
     
-    #else:
-       #  print('Invalid input')
+    else:
+      print('Invalid input')
     #char =getch.getch()
-"""
 
 
 ## example for how the master script would look líke
