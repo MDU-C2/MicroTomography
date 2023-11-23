@@ -35,18 +35,8 @@ VAR robtarget currentCartesianPose;
 VAR jointtarget jointsTarget;
 VAR bool moveCompleted; !Set to true after finishing a Move instruction.
 
-
-!//Buffered move variables
-CONST num MAX_BUFFER := 512;
-VAR num BUFFER_POS := 0;
-VAR robtarget bufferTargets{MAX_BUFFER};
-VAR speeddata bufferSpeeds{MAX_BUFFER};
-
 !//External axis position variables
 VAR extjoint externalAxis;
-
-!//Circular move buffer
-VAR robtarget circPoint;
 
 !//Correct Instruction Execution and possible return values
 VAR num ok;
@@ -75,11 +65,6 @@ VAR jointtarget targetZone3 := [[45, -115, 20, 0, 95, 0], [0, 0, 0, 0 ,0 ,0]];
 
 VAR robtarget cartesianTargetZone4 := [[141.42135623730948, -141.42135623730954, -150], [-0.27059805, 0.65328148, -0.27059805, -0.65328148], [2,1,1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
 VAR jointtarget targetZone4 := [[80, -80, 10, 40, 120, -60], [-60, 0, 0, 0 ,0 ,0]];
-
-!//Coordinate of the point the user wants to calibrate from
-VAR robtarget calibrationCoordinate;
-
-VAR robtarget resetPosition := [[-38.859585784,0.000707752,416.889532938],[0.53729967,-0.00000001,0.843391406,-0.000000007],[0,0,0,4],[90,9E+09,9E+09,9E+09,9E+09,9E+09]];
 
 VAR robtarget currentZonePos;
 VAR jointtarget newJointPos;
@@ -400,19 +385,6 @@ PROC main()
                     ok := SERVER_OK;
                 ELSE
                     ok:=SERVER_BAD_MSG;
-                ENDIF
-			CASE 5: !Get external axis positions
-                IF nParams = 0 THEN
-                    jointsPose := CJointT();
-                    addString := NumToStr(jointsTarget.extax.eax_a, 2) + " ";
-                    !addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_b,2),1,8) + " ";
-                    !addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_c,2),1,8) + " ";
-                    !addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_d,2),1,8) + " ";
-                    !addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_e,2),1,8) + " ";
-                    !addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_f,2),1,8); !End of string
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
                 ENDIF	
 		
             CASE 6: !Set Tool
@@ -462,47 +434,7 @@ PROC main()
 				ELSE
                     ok:=SERVER_BAD_MSG;
                 ENDIF
-
-            CASE 9: !Set zone data
-                IF nParams = 4 THEN
-                    IF params{1}=1 THEN
-                        currentZone.finep := TRUE;
-                        currentZone.pzone_tcp := 0.0;
-                        currentZone.pzone_ori := 0.0;
-                        currentZone.zone_ori := 0.0;
-                    ELSE
-                        currentZone.finep := FALSE;
-                        currentZone.pzone_tcp := params{2};
-                        currentZone.pzone_ori := params{3};
-                        currentZone.zone_ori := params{4};
-                    ENDIF
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
-                ENDIF
-
-            CASE 10: !Unlock joint, NOT currently implemented
-        
-                ok := SERVER_OK;
-                moveCompleted := FALSE;
-                MoveL resetPosition, currentSpeed, currentZone, laser_TCP \WObj:=currentWobj;
-                moveCompleted := TRUE;
-
-            CASE 11: !Set current coordinates as new workspace
-                IF nParams = 0 THEN
-                    calibrationCoordinate := CRobT(\Tool:=calibration_antenna_TCP \WObj:=currentWObj);
-                    currentWobj.oframe.trans.x := calibrationCoordinate.trans.x;
-                    currentWobj.oframe.trans.y := calibrationCoordinate.trans.y;
-                    currentWobj.oframe.trans.z := calibrationCoordinate.trans.z;
-                    currentWobj.oframe.rot.q1 := 1;
-                    currentWobj.oframe.rot.q2 := 0;
-                    currentWobj.oframe.rot.q3 := 0;
-                    currentWobj.oframe.rot.q4 := 0;
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
-                ENDIF
-
+ 
             CASE 12: !Change the current TCP tool
                 IF nParams = 1 THEN
                     IF params{1} = 1 THEN
@@ -524,95 +456,6 @@ PROC main()
                     ENDIF
                 ELSE
                     ok:=SERVER_BAD_MSG;
-                ENDIF
-            
-
-            CASE 30: !Add Cartesian Coordinates to buffer
-                IF nParams = 7 THEN
-                    cartesianTarget :=[[params{1},params{2},params{3}],
-                                        [params{4},params{5},params{6},params{7}],
-                                        [0,0,0,0],
-                                        externalAxis];
-                    IF BUFFER_POS < MAX_BUFFER THEN
-                        BUFFER_POS := BUFFER_POS + 1;
-                        bufferTargets{BUFFER_POS} := cartesianTarget;
-                        bufferSpeeds{BUFFER_POS} := currentSpeed;
-                    ENDIF
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
-                ENDIF
-
-            CASE 31: !Clear Cartesian Buffer
-                IF nParams = 0 THEN
-                    BUFFER_POS := 0;	
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
-                ENDIF
-
-            CASE 32: !Get Buffer Size)
-                IF nParams = 0 THEN
-                    addString := NumToStr(BUFFER_POS,2);
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
-                ENDIF
-
-            CASE 33: !Execute moves in cartesianBuffer as linear moves
-                IF nParams = 0 THEN
-                    FOR i FROM 1 TO (BUFFER_POS) DO 
-                        MoveL bufferTargets{i}, bufferSpeeds{i}, currentZone, currentTool \WObj:=currentWobj ;
-                    ENDFOR			
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
-                ENDIF
-
-            CASE 34: !External Axis move
-                IF nParams = 6 THEN
-                    externalAxis :=[params{1},params{2},params{3},params{4},params{5},params{6}];
-                    jointsTarget := CJointT();
-                    jointsTarget.extax := externalAxis;
-                    ok := SERVER_OK;
-                    moveCompleted := FALSE;
-                    MoveAbsJ jointsTarget, currentSpeed, currentZone, currentTool \Wobj:=currentWobj;
-                    moveCompleted := TRUE;
-                ELSE
-                    ok :=SERVER_BAD_MSG;
-                ENDIF
-
-            CASE 35: !Specify circPoint for circular move, and then wait on toPoint
-                IF nParams = 7 THEN
-                    circPoint :=[[params{1},params{2},params{3}],
-                                [params{4},params{5},params{6},params{7}],
-                                [0,0,0,0],
-                                externalAxis];
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
-                ENDIF
-
-            CASE 36: !specify toPoint, and use circPoint specified previously
-                IF nParams = 7 THEN
-                    cartesianTarget :=[[params{1},params{2},params{3}],
-                                        [params{4},params{5},params{6},params{7}],
-                                        [0,0,0,0],
-                                        externalAxis];
-                    MoveC circPoint, cartesianTarget, currentSpeed, currentZone, currentTool \WObj:=currentWobj ;
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
-                ENDIF
-				
-            CASE 98: !returns current robot info: serial number, robotware version, and robot type
-                IF nParams = 0 THEN
-                    addString := GetSysInfo(\SerialNo) + "*";
-                    addString := addString + GetSysInfo(\SWVersion) + "*";
-                    addString := addString + GetSysInfo(\RobotType);
-                    ok := SERVER_OK;
-                ELSE
-                    ok :=SERVER_BAD_MSG;
                 ENDIF
 			
             CASE 99: !Close Connection
@@ -683,4 +526,3 @@ PROC main()
 ENDPROC
 
 ENDMODULE
-
