@@ -5,7 +5,7 @@ import time
 pul_pin = 17  # GPIO 17 for pulse
 dir_pin = 27  # GPIO 27 for direction
 # ena_pin = 22  # GPIO 22 for enable
-# total_steps_changes = 0 # Global value_ calculate the steps +1 for step up and -1 for step down
+total_steps_changes = 0 # Global value_ calculate the steps +1 for step up and -1 for step down
 
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(pul_pin, GPIO.OUT)
