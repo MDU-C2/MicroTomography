@@ -13,6 +13,7 @@ class linear_actuator:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(PUL_PIN, GPIO.OUT)
         GPIO.setup(DIR_PIN, GPIO.OUT)
+
         self.total_steps_changes = 0
 
     # Function to calculate the number of steps needed to move a certain linear distance
@@ -38,11 +39,11 @@ class linear_actuator:
         # return total_steps_changes
 
     def move_to_desired_location_upwards(
-        self, desired_distance_mm
+        self
     ):  # Get distance from app.py
         GPIO.output(DIR_PIN, GPIO.HIGH)  # set the direction UP
 
-        # desired_distance_mm = float(input("Enter the desired distance (mm)")) # choosing the desired distance in mm
+        desired_distance_mm = float(input("Enter the desired distance (mm)")) # choosing the desired distance in mm
 
         steps_to_move = self.calculate_steps(
             desired_distance_mm
@@ -50,7 +51,7 @@ class linear_actuator:
 
         self.move(steps_to_move)  # call the move function
 
-        GPIO.cleanup()
+        #GPIO.cleanup()
         # return total_steps_changes
 
     def move_to_zeroLocation(self):  # This function move the motor to zero location
@@ -64,9 +65,9 @@ class linear_actuator:
             GPIO.output(PUL_PIN, GPIO.LOW)
             time.sleep(delay)
 
-        GPIO.cleanup()
+        #GPIO.cleanup()
 
-    def move_up_1mm():
+    def move_up_1mm(self):
         GPIO.output(DIR_PIN, GPIO.HIGH)
         delay = 0.001
         t = 100
@@ -76,9 +77,9 @@ class linear_actuator:
             GPIO.output(PUL_PIN, GPIO.LOW)
             time.sleep(delay)
 
-        GPIO.cleanup()
+        #GPIO.cleanup()
 
-    def move_down_1mm():
+    def move_down_1mm(self):
         GPIO.output(DIR_PIN, GPIO.LOW)
         delay = 0.001
         t = 100
@@ -89,7 +90,7 @@ class linear_actuator:
             GPIO.output(PUL_PIN, GPIO.LOW)
             time.sleep(delay)
 
-        GPIO.cleanup()
+        #GPIO.cleanup()
 
     def move_actuator(self):
         while True:
@@ -133,5 +134,6 @@ class linear_actuator:
     # it should be within a loop so that the total steps
 
 
-lin = linear_actuator()
+'''lin = linear_actuator()
 lin.move_actuator()
+'''

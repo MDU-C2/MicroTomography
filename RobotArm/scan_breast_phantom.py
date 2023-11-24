@@ -29,7 +29,7 @@ def scan_points(*args):
             args[0], args[1], args[2], args[3], args[4]
         )
 
-    laser = optoNCDT1402("/dev/ttyUSB0", 10)  # Serial port of the Raspberry Pi
+    laser = optoNCDT1402("/dev/ttyUSB0", 1)  # Serial port of the Raspberry Pi
     laser_data = []
 
     transistor.init()
@@ -41,10 +41,9 @@ def scan_points(*args):
     # Visit all points and scan the laser at the given points
     for point in points:
         robot_control.move_robot_linear(robot, point)
-        #while not (np.round(robot.get_cartesian()[0], 1) == point).all():
-            #print(np.round(robot.get_cartesian()[0], 1))
-        #    continue
-        sleep(1)
+        while not (np.round(robot.get_cartesian()[0], 1) == np.round(point[0], 1)).all():
+            continue
+        #sleep(0.25)
 
         transistor.laserON()
 
