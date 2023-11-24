@@ -100,6 +100,7 @@ def move_down_1mm():
 while True:
 
     
+    
    # print(total_steps_changes)
    # print("\n")
 
