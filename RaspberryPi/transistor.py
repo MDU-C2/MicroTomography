@@ -8,7 +8,7 @@ sys.path.append("../Microtomography")
 
 import RPi.GPIO as GPIO
 
-transistorPin = 22 # Pin of the Raspberry Pi which the transistor is connected to
+transistorPin = 22  # Pin of the Raspberry Pi which the transistor is connected to
 
 
 def laserOff():
@@ -24,3 +24,8 @@ def init():
     GPIO.setmode(GPIO.BCM)
     GPIO.setup(transistorPin, GPIO.OUT)
     laserOff()
+
+
+def close():
+    laserOff()
+    GPIO.cleanup()

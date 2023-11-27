@@ -56,7 +56,7 @@ def scan_points(*args):
             )
         transistor.laserOff()
 
-    robot_control.set_zone_use(robot, True)
+    transistor.close()
     robot_control.close_connection(robot)
     return laser_data
 
@@ -72,7 +72,7 @@ def find_nipple(z_offset, distance, side_len):
     transistor.init()
     robot = robot_control.robot_init(1)
 
-    robot_control.set_zone_use(robot, 0)
+    robot_control.set_zone_use(robot, False)
     laser_data = []
 
     for point in points:
@@ -97,7 +97,7 @@ def find_nipple(z_offset, distance, side_len):
 
         transistor.laserOff()
 
-    robot_control.return_robot_to_start(robot)
+    transistor.close()
     robot_control.close_connection(robot)
 
     return points_of_min_laser_point, z_offset + min_laser_point, laser_data
