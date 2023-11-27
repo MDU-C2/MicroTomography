@@ -41,9 +41,11 @@ def scan_points(*args):
     # Visit all points and scan the laser at the given points
     for point in points:
         robot_control.move_robot_linear(robot, point)
-        while not (np.round(robot.get_cartesian()[0], 1) == np.round(point[0], 1)).all():
+        while not (
+            np.round(robot.get_cartesian()[0], 1) == np.round(point[0], 1)
+        ).all():
             continue
-        #sleep(0.25)
+        sleep(1)
 
         transistor.laserON()
 
@@ -60,7 +62,9 @@ def scan_points(*args):
 
 
 def find_nipple(z_offset, distance, side_len):
-    points = generate_scan_points.generate_points_in_square_plane(z_offset, distance, side_len)
+    points = generate_scan_points.generate_points_in_square_plane(
+        z_offset, distance, side_len
+    )
     min_laser_point = 1000
     points_of_min_laser_point = []
 
@@ -74,9 +78,9 @@ def find_nipple(z_offset, distance, side_len):
     for point in points:
         robot_control.move_robot_linear(robot, [point, [1, 0, 0, 0]])
 
-        #while not (np.round(robot.get_cartesian()[0], 1) == point).all():
-            #print(np.round(robot.get_cartesian()[0], 1))
-            #continue
+        # while not (np.round(robot.get_cartesian()[0], 1) == point).all():
+        # print(np.round(robot.get_cartesian()[0], 1))
+        # continue
         sleep(1)
         transistor.laserON()
         laser_point = laser.measure()
@@ -85,7 +89,11 @@ def find_nipple(z_offset, distance, side_len):
             if laser_point < min_laser_point:
                 min_laser_point = laser_point
                 points_of_min_laser_point = point
-            laser_data.append(generate_scan_points.transform_laser_distance([point, [1, 0, 0, 0]], laser_point))
+            laser_data.append(
+                generate_scan_points.transform_laser_distance(
+                    [point, [1, 0, 0, 0]], laser_point
+                )
+            )
 
         transistor.laserOff()
 
@@ -93,6 +101,7 @@ def find_nipple(z_offset, distance, side_len):
     robot_control.close_connection(robot)
 
     return points_of_min_laser_point, z_offset + min_laser_point, laser_data
+
 
 def find_lowest_point(z_offset=-130):
     laser = optoNCDT1402("/dev/ttyUSB0", 10)  # Serial port of the Raspberry Pi
@@ -118,7 +127,9 @@ def find_lowest_point(z_offset=-130):
         was_center = False
         while not was_center:
             robot_control.move_robot_linear(robot, [center_point, q])
-            while not (np.isclose(robot.get_cartesian()[0], center_point, rtol=tol)).all():
+            while not (
+                np.isclose(robot.get_cartesian()[0], center_point, rtol=tol)
+            ).all():
                 continue
             sleep(2)
             transistor.laserON()
@@ -126,7 +137,9 @@ def find_lowest_point(z_offset=-130):
             transistor.laserOff()
 
             robot_control.move_robot_linear(robot, [x_pos_point, q])
-            while not (np.isclose(robot.get_cartesian()[0], x_pos_point, rtol=tol)).all():
+            while not (
+                np.isclose(robot.get_cartesian()[0], x_pos_point, rtol=tol)
+            ).all():
                 continue
             sleep(2)
             transistor.laserON()
@@ -134,7 +147,9 @@ def find_lowest_point(z_offset=-130):
             transistor.laserOff()
 
             robot_control.move_robot_linear(robot, [x_neg_point, q])
-            while not (np.isclose(robot.get_cartesian()[0], x_neg_point, rtol=tol)).all():
+            while not (
+                np.isclose(robot.get_cartesian()[0], x_neg_point, rtol=tol)
+            ).all():
                 continue
             sleep(2)
             transistor.laserON()
@@ -142,7 +157,9 @@ def find_lowest_point(z_offset=-130):
             transistor.laserOff()
 
             robot_control.move_robot_linear(robot, [y_pos_point, q])
-            while not (np.isclose(robot.get_cartesian()[0], y_pos_point, rtol=tol)).all():
+            while not (
+                np.isclose(robot.get_cartesian()[0], y_pos_point, rtol=tol)
+            ).all():
                 continue
             sleep(2)
             transistor.laserON()
@@ -150,7 +167,9 @@ def find_lowest_point(z_offset=-130):
             transistor.laserOff()
 
             robot_control.move_robot_linear(robot, [y_neg_point, q])
-            while not (np.isclose(robot.get_cartesian()[0], y_neg_point, rtol=tol)).all():
+            while not (
+                np.isclose(robot.get_cartesian()[0], y_neg_point, rtol=tol)
+            ).all():
                 continue
             sleep(2)
             transistor.laserON()
@@ -172,11 +191,11 @@ def find_lowest_point(z_offset=-130):
             if min(temp_laser_data) == temp_laser_data[4]:
                 lowest_point = y_neg_point
                 center_point = y_neg_point
-            
+
             x_pos_point = np.add(center_point, [i, 0, 0])
-            x_neg_point = np.add(center_point, [-i, 0, 0])    
-            y_pos_point = np.add(center_point, [0, i, 0]) 
-            y_neg_point = np.add(center_point, [0, -i, 0])    
-    
+            x_neg_point = np.add(center_point, [-i, 0, 0])
+            y_pos_point = np.add(center_point, [0, i, 0])
+            y_neg_point = np.add(center_point, [0, -i, 0])
+
     print(np.add(lowest_point, [0, 0, temp_laser_data[0]]))
     return np.add(lowest_point, [0, 0, temp_laser_data[0]])

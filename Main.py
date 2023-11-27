@@ -16,7 +16,7 @@ from ObjectReconstruction.surface_reconstruction import (
 )
 
 from zvb.titi_bakonkadonk_brest_8008 import mw_boob
-import LinearActuator.linearActuatorController
+from LinearActuator.linearActuatorController import linear_actuator
 
 
 # Control if the user input is valid.
@@ -173,7 +173,7 @@ def mw_scan(mesh):
         points.append([x, y, z])
 
     print("Enter distance to place the MWI antenna (mm): ")
-    distance = get_numeric_input("Distance:",None,True)
+    distance = get_numeric_input("Distance:", None, True)
 
     data = mw_boob(mesh, points, distance)
 
@@ -186,7 +186,7 @@ choice = input(
     "Enter 1 for cylindrical pattern and 2 for half-sphere pattern (or 3 or 4), 5 for testing MWI scann, 6 for testing the complete system from scanning to mwi scanning: "
 )
 
-while choice not in ("1", "2", "3", "4", "5","6"):
+while choice not in ("1", "2", "3", "4", "5", "6"):
     print("Try again.")
     choice = input("Enter 1, 2, 3 4: ")
 
@@ -215,6 +215,9 @@ from ObjectReconstruction.read_save_csv import read_csv
 
 result = read_csv("scanned_data/2023-11-16-1329-filip.csv")
 mesh = poisson_surface_reconstruction(result, save=False)
+
+la = linear_actuator()
+la.move_actuator()
 
 mw_data = mw_scan(mesh)
 
