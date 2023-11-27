@@ -134,5 +134,6 @@ class linear_actuator:
     # it should be within a loop so that the total steps
 
 
-lin = linear_actuator()
+"""lin = linear_actuator()
 lin.move_actuator()
+"""
