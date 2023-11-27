@@ -202,6 +202,53 @@ FUNC num zonePlacement()
 ENDFUNC
 
 
+PROC zoneTraversement()
+    !Move up through the zones
+    IF newZonePosID > zonePlacement() THEN
+        MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
+        WHILE newZonePosID > zonePlacement() DO                           
+                                
+            IF zonePlacement() = 1 THEN
+                newZonePos := cartesianTargetZone2;
+                newJointPos := targetZone2;
+                                
+            ELSEIF zonePlacement() = 2 THEN
+                newZonePos := cartesianTargetZone3;
+                newJointPos := targetZone3;
+            ELSE
+                newZonePos := cartesianTargetZone4;
+                newJointPos := targetZone4;
+            ENDIF
+                                
+            MoveAbsJ newJointPos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
+            !MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
+        ENDWHILE
+                        
+        !Move down through the zones
+    ELSEIF newZonePosID < zonePlacement() THEN
+        MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
+                            
+        WHILE newZonePosID < zonePlacement() DO  
+                                
+            IF zonePlacement() = 4 THEN
+                newZonePos := cartesianTargetZone3;
+                newJointPos := targetZone3;
+                                    
+            ELSEIF zonePlacement() = 3 THEN
+                newZonePos := cartesianTargetZone2;
+                newJointPos := targetZone2;
+            ELSE
+                newZonePos := cartesianTargetZone1;
+                newJointPos := targetZone1;
+            ENDIF
+            MoveAbsJ newJointPos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
+            !MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
+        ENDWHILE
+    ELSE
+        MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
+    ENDIF
+ENDPROC
+
 !////////////////////////
 !//SERVER: Main procedure
 !////////////////////////
@@ -291,51 +338,7 @@ PROC main()
                     !Move through zones before move to target coordinate
                     
                     IF use_zones = 1 THEN
-                        !Move up through the zones
-                        IF newZonePosID > zonePlacement() THEN
-                            MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
-                            WHILE newZonePosID > zonePlacement() DO                           
-                                
-                                IF zonePlacement() = 1 THEN
-                                    newZonePos := cartesianTargetZone2;
-                                    newJointPos := targetZone2;
-                                
-                                ELSEIF zonePlacement() = 2 THEN
-                                    newZonePos := cartesianTargetZone3;
-                                    newJointPos := targetZone3;
-                                ELSE
-                                    newZonePos := cartesianTargetZone4;
-                                    newJointPos := targetZone4;
-                                ENDIF
-                                
-                                MoveAbsJ newJointPos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
-                                !MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
-                            ENDWHILE
-                        
-                        !Move down through the zones
-                        ELSEIF newZonePosID < zonePlacement() THEN
-                            MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
-                            
-                            WHILE newZonePosID < zonePlacement() DO
-                                
-                                
-                                IF zonePlacement() = 4 THEN
-                                    newZonePos := cartesianTargetZone3;
-                                    newJointPos := targetZone3;
-                                    
-                                ELSEIF zonePlacement() = 3 THEN
-                                    newZonePos := cartesianTargetZone2;
-                                    newJointPos := targetZone2;
-                                ELSE
-                                    newZonePos := cartesianTargetZone1;
-                                    newJointPos := targetZone1;
-                                ENDIF
-                                MoveAbsJ newJointPos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
-                                !MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
-                            ENDWHILE
-                        ELSE
-                            MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
-                        ENDIF
+                        zoneTraversement;
                     ENDIF
 
 
@@ -383,6 +386,25 @@ PROC main()
                     addString := addString + NumToStr(jointsPose.robax.rax_6,2) + " ";
                     addString := addString + NumToStr(jointsPose.extax.eax_a,2); !End of string
                     ok := SERVER_OK;
+                ELSE
+                    ok:=SERVER_BAD_MSG;
+                ENDIF	
+
+            CASE 5: !Return to start position
+                IF nParams = 0 THEN
+                    IF zonePlacement() < 3 THEN
+                        newZonePosID := 2;
+                        zoneTraversement;
+
+                    ELSE
+                        newZonePosID := 3;
+                        zoneTraversement;
+                    ENDIF
+
+                    externalAxis := [0,0,0,0,0,0];
+                    jointsTarget:=[[0, -135, 55, 0, 105, 0], externalAxis];
+                    MoveAbsJ jointsTarget, currentSpeed, currentZone, currentTool \Wobj:=currentWobj;
+
                 ELSE
                     ok:=SERVER_BAD_MSG;
                 ENDIF	

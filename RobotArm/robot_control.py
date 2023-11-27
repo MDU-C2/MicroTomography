@@ -71,7 +71,7 @@ def return_robot_to_start(robot):
 
 def close_connection(robot):
     "Returns robot to start and closes the TCP connection to robot"
-    return_robot_to_start(robot)
+    robot.return_to_start()
     robot.close()
 
 
@@ -87,7 +87,12 @@ def robot_init(tool):
         robot,
         [
             [-1.55, -4.51, 760.2787866568916],
-            [0.9999431292112558,0.010580670532612012,0.0013370534780490603,6.502210241618077e-06],
+            [
+                0.9999431292112558,
+                0.010580670532612012,
+                0.0013370534780490603,
+                6.502210241618077e-06,
+            ],
         ],
     )
 

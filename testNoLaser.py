@@ -10,7 +10,7 @@ import pandas as pd
 circle_radius = 120
 z_stepsize = 10
 max_depth = -60
-azimuthPoints = 16
+azimuthPoints = 2
 offset = -60
 elevationPoints = 10
 zMin = -60
@@ -32,7 +32,5 @@ for point in pointsCylinder:
     robot_control.move_robot_linear(robot, point)
     sleep(0.5)
     print("Robot Coordinate: ", robot_control.fetch_robot_coordinates(robot))
-
-robot_control.return_robot_to_start(robot)
 
 robot_control.close_connection(robot)

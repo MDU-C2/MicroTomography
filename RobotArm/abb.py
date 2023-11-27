@@ -99,6 +99,13 @@ class Robot:
         data = self.send(msg).split()
         return [float(s) / self.scale_angle for s in data[2:9]]
 
+    def return_to_start(self):
+        """
+        Returns the robot to its start position
+        """
+        msg = "05 #"
+        self.send(msg).split()
+
     def set_tool(self, tool=[[0, 0, 0], [1, 0, 0, 0]]):
         """
         Sets the tool centerpoint (TCP) of the robot.
