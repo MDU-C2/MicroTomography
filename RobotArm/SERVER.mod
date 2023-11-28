@@ -45,9 +45,8 @@ CONST num SERVER_OK := 1;
 
 !//TCP data in relation to the end effector
 PERS tooldata laser_TCP := [TRUE,[[-52,6.502,80.05],[1,0,0,0]],[0.1,[-29.004,-0.354,42.84],[1,0,0,0],0,0,0]];
-PERS tooldata antenna_TCP := [TRUE,[[-54.5,36.262,94],[1,0,0,0]],[0.1,[-29.004,-0.354,42.84],[1,0,0,0],0,0,0]];
-PERS tooldata calibration_laser_TCP := [TRUE,[[-62,-10.987,55.727],[0.707106781,0,-0.707106781,0]],[0.1,[-29.004,-0.354,42.84],[1,0,0,0],0,0,0]];
-PERS tooldata calibration_antenna_TCP := [TRUE,[[-53.947,37.22,128],[1,0,0,0]],[0.1,[-29.004,-0.354,42.84],[1,0,0,0],0,0,0]];
+PERS tooldata antenna_TCP := [TRUE,[[-54.5,36.262,136],[1,0,0,0]],[0.1,[-29.004,-0.354,42.84],[1,0,0,0],0,0,0]];
+
 
 !//Used to determine the x and y coordinates when determining the current zone of the TCP
 VAR num x;
