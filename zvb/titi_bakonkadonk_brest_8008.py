@@ -1,18 +1,19 @@
-# from zvb import zvb8
-# from RobotArm import robot_control
-# from ObjectReconstruction import choose_points_microwave
+from zvb import zvb8
+from RobotArm import robot_control
+from ObjectReconstruction import choose_points_microwave
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import os
 import time
+from RobotArm.generate_scan_points import generate_scan_points_cylinder
 
 from RsInstrument import *
-from InstrumentClass import VisaInstrument
+from zvb.InstrumentClass import VisaInstrument
 
 
 def mw_init():
-    resource = "TCPIP0::169.254.224.141::INSTR"
+    resource = "TCPIP0::192.168.0.70::INSTR"
     Instrument = RsInstrument(resource, True, True, "SelectVisa='rs'")
 
     # Create new VisaInstrument class and setup environment
@@ -29,13 +30,17 @@ def mw_boob(mesh, points: list, distance):
     robot = robot_control.robot_init(2)
     robot_control.set_zone_use(robot, True)
 
-    antenna_points, antenna_q = choose_points_microwave.ray_cast_points(
+    '''antenna_points, antenna_q = choose_points_microwave.ray_cast_points(
         mesh, points, distance
-    )
+    )'''
+
+    points = generate_scan_points_cylinder(120, 2, -30, 4, -30, 0)
 
     i = 0
     data = []
-    for point, q in zip(antenna_points, antenna_q):
+    for point_1 in points:
+        point = point_1[0]
+        q = point_1[1]
         print(f"Going to Coordinate: {point}, Quats: {q}")
         robot_control.move_robot_linear(robot, [point, q])
         freq_33, data_33 = visa_instrument.measure(meas_param="S33")
@@ -43,7 +48,7 @@ def mw_boob(mesh, points: list, distance):
         freq_23, data_23 = visa_instrument.measure(meas_param="S23")
         freq_22, data_22 = visa_instrument.measure(meas_param="S22")
         save_csv(
-            "MW_measurement_" + str(i),
+            "MW_measurement_" + str(i)+".csv",
             {
                 "Frequency": freq_33,
                 "Complex S33": data_33,
@@ -69,31 +74,3 @@ def save_csv(filename, points):
     df.to_csv(
         filepath, index=False
     )  # Specify index=False to avoid writing row numbers as a column
-
-
-e = np.genfromtxt(
-    r"mw_data\2023-11-28-12_48-MW_measurement_0.csv",
-    dtype=complex,
-    delimiter=",",
-    skip_header=True,
-)
-b = pd.read_csv(r"mw_data\2023-11-28-12_40-MW_measurement_0.csv")
-a = b.values
-c = np.complex128(a)
-np.loadtxt(r"mw_data\2023-11-28-11_59-MW_measurement_0.csv").view(complex)
-freq_33 = [8, 553, 1, 67]
-data_33 = [8 + 6j, 553, 1, 67]
-data_32 = [8 + 6j, 553, 1, 67]
-data_23 = [8 + 6j, 553, 1, 67]
-data_22 = [8 + 6j, 553, 1, 67]
-i = 0
-save_csv(
-    "MW_measurement_" + str(i) + ".csv",
-    {
-        "Real S33": freq_33,
-        "Complex S33": data_33,
-        "Complex S32": data_32,
-        "Complex S23": data_23,
-        "Complex S22": data_22,
-    },
-)
