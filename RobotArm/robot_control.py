@@ -114,6 +114,6 @@ def robot_init(tool):
     """
     set_robot_tool(robot, tool)
     set_robot_speed(robot, [75, 25, 50, 25])
-    return_robot_to_start(robot)
+    robot.return_to_start()
 
     return robot
