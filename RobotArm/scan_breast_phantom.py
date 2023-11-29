@@ -10,7 +10,7 @@ import numpy as np
 
 
 # Function for scanning points in either cylinder form or halfsphere form
-def scan_points(*args):
+def scan_points(*args) -> list:
     """
     Parameters
     ----------
