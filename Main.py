@@ -20,7 +20,28 @@ from LinearActuator.linearActuatorController import linear_actuator
 
 
 # Control if the user input is valid.
-def get_numeric_input(prompt, negative, allow_float):
+def get_numeric_input(
+    prompt: str, negative: (True | False | None), allow_float: bool
+) -> int | float:
+    """Prompts the user with a string and checks whether the user inputs the correct type of number based on the parameters.
+
+    Parameters
+    ----------
+    prompt : str
+        The prompth for the user to answer.
+    negative : True  |  False  |  None
+        Parameter to decide if the value should be negative, positive or if it does not matter.
+        True means the value must be negative.
+        False means it must be positive or zero.
+        None means the value can be either positive or negative.
+    allow_float : bool
+        Parameter to decide if the value can be a float or must be int. True means it can be a float and False means it must be an integer.
+
+    Returns
+    -------
+    int | float
+        Returns the value based on the input parameters.
+    """
     while True:
         user_input = input(prompt)
         try:
@@ -157,20 +178,33 @@ def save_laser_scan(file_name, data):
 
 
 def mw_scan(mesh):
-    while True:
-        number_of_points = get_numeric_input(
-            "Enter the number of points you want to scan: ", False, False
+    scan_type = 0
+    while scan_type not in [1, 2]:
+        scan_type = get_numeric_input(
+            "Enter what type of scanning you want to do, 1 or circular and 2 for manual coordinates: ",
+            False,
+            False,
         )
-        if number_of_points > 0:
-            break
+    if scan_type == 1:
+        radius = get_numeric_input("Enter the radius of the cylinder: ", False, True)
+        z_offset = get_numeric_input("Enter the distance from the roof: ", True, True)
+        azi = get_numeric_input("Enter the amount of azimouth angles: ", False, False)
+        points = scan_points(radius, 0, z_offset, azi, z_offset, 0)
+    if scan_type == 2:
+        while True:
+            number_of_points = get_numeric_input(
+                "Enter the number of points you want to scan: ", False, False
+            )
+            if number_of_points > 0:
+                break
 
-    points = []
-    for i in range(number_of_points):
-        print(f"Enter coordinates for point {i}:")
-        x = get_numeric_input("X coordinate: ", None, True)
-        y = get_numeric_input("Y coordinate: ", None, True)
-        z = get_numeric_input("Z coordinate: ", True, True)
-        points.append([x, y, z])
+        points = []
+        for i in range(number_of_points):
+            print(f"Enter coordinates for point {i}:")
+            x = get_numeric_input("X coordinate: ", None, True)
+            y = get_numeric_input("Y coordinate: ", None, True)
+            z = get_numeric_input("Z coordinate: ", True, True)
+            points.append([x, y, z])
 
     print("Enter distance to place the MWI antenna (mm): ")
     distance = get_numeric_input("Distance:", None, True)
@@ -181,45 +215,45 @@ def mw_scan(mesh):
 
 
 # ------------ Main starts here ---------------------
-print("Hello, please pick a pattern for the scanning")
-choice = input(
-    "Enter 1 for cylindrical pattern and 2 for half-sphere pattern (or 3 or 4), 5 for testing MWI scann, 6 for testing the complete system from scanning to mwi scanning: "
-)
+if __name__ == "__main__":
+    print("Hello, please pick a pattern for the scanning")
+    choice = input(
+        "Enter 1 for cylindrical pattern and 2 for half-sphere pattern (or 3 or 4), 5 for testing MWI scann, 6 for testing the complete system from scanning to mwi scanning: "
+    )
 
-while choice not in ("1", "2", "3", "4", "5", "6"):
-    print("Try again.")
-    choice = input("Enter 1, 2, 3 4: ")
+    while choice not in ("1", "2", "3", "4", "5", "6"):
+        print("Try again.")
+        choice = input("Enter 1, 2, 3 4: ")
 
-if choice == "1":
-    result = cylinder()
-    print(result)
-elif choice == "2":
-    result = half_sphere()
-    print(result)
-elif choice == "3":
-    result1, result2, result = scan_the_nipple()
-    print(result1, result2)
-elif choice == "4":
-    result = find_lowest_pointt()
-elif choice == "6":
-    result = cylinder()
+    if choice == "1":
+        result = cylinder()
+        print(result)
+    elif choice == "2":
+        result = half_sphere()
+        print(result)
+    elif choice == "3":
+        result1, result2, result = scan_the_nipple()
+        print(result1, result2)
+    elif choice == "4":
+        result = find_lowest_pointt()
+    elif choice == "6":
+        result = cylinder()
+        mesh = poisson_surface_reconstruction(result, save=False)
+        mw_data = mw_scan(mesh)
+
+    if choice != "5":
+        file_name = input(
+            "Please enter your desired name for the file where the data will be saved:"
+        )
+        save_laser_scan(file_name + ".csv", result)
+    from ObjectReconstruction.read_save_csv import read_csv
+
+    result = read_csv("scanned_data/2023-11-29-09_01-brest_no_nipple.csv")
     mesh = poisson_surface_reconstruction(result, save=False)
+
+    la = linear_actuator()
+    la.move_actuator()
+
     mw_data = mw_scan(mesh)
 
-if choice != "5":
-    file_name = input(
-        "Please enter your desired name for the file where the data will be saved:"
-    )
-    save_laser_scan(file_name + ".csv", result)
-from ObjectReconstruction.read_save_csv import read_csv
-
-result = read_csv("scanned_data/2023-11-29-09_01-brest_no_nipple.csv")
-mesh = poisson_surface_reconstruction(result, save=False)
-
-la = linear_actuator()
-la.move_actuator()
-
-mw_data = mw_scan(mesh)
-
-
-# -----------------------------------------------------
+    # -----------------------------------------------------
