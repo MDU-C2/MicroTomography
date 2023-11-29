@@ -25,7 +25,7 @@ VAR num instructionCode;
 VAR num params{10};
 VAR num nParams;
 
-PERS string ipController:= "192.168.0.50"; !robot default IP
+PERS string ipController:= "192.168.0.50"; !static robot IP from DHCP router
 !PERS string ipController:= "127.0.0.1"; !local IP for testing in simulation
 PERS num serverPort:= 5000;
 
@@ -391,11 +391,11 @@ PROC main()
 
             CASE 5: !Return to start position
                 IF nParams = 0 THEN
-                    IF zonePlacement() < 3 THEN
+                    IF zonePlacement() = 1 THEN
                         newZonePosID := 2;
                         zoneTraversement;
 
-                    ELSE
+                    ELSEIF zonePlacement() = 4 THEN
                         newZonePosID := 3;
                         zoneTraversement;
                     ENDIF
