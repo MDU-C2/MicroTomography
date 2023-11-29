@@ -16,7 +16,7 @@ from ObjectReconstruction.surface_reconstruction import (
 )
 
 from zvb.titi_bakonkadonk_brest_8008 import mw_boob
-from LinearActuator.linearActuatorController import linear_actuator
+from RaspberryPi.linearActuatorController import linear_actuator
 
 
 # Control if the user input is valid.
