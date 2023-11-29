@@ -67,16 +67,23 @@ def mw_boob(mesh, points: list, distance: (int | float)):
         _, data_32 = visa_instrument.measure(meas_param="S32")
         _, data_23 = visa_instrument.measure(meas_param="S23")
         _, data_22 = visa_instrument.measure(meas_param="S22")
+        data = {
+            "Frequency": freq,
+            "S33": data_33,
+            "S32": data_32,
+            "S23": data_23,
+            "S22": data_22,
+        }
         save_csv(
             "MW_measurement_" + str(i),
-            {
-                "Frequency": freq,
-                "S33": data_33,
-                "S32": data_32,
-                "S23": data_23,
-                "S22": data_22,
-            },
+            data,
         )
+
+        for key, value in data.items():
+            if key != "Frequency":
+                plt.plot(np.abs(data["Frequency"]), np.abs(value), label=key)
+        plt.legend()
+        plt.show()
         i += 1
     robot_control.close_connection(robot)
 
@@ -135,7 +142,7 @@ def save_s2p(filename: str, frequency: list, **kwargs):
     net.write_touchstone(filename=filename, dir=saveDirectory)
 
 
-def read_complex_csv(path: str) -> list:
+def read_complex_csv(path: str) -> pd.DataFrame:
     """Reads the complex data from a .csv file
 
     Parameters
@@ -149,7 +156,7 @@ def read_complex_csv(path: str) -> list:
         A list containing the complex data stored in the path
     """
     data = pd.read_csv(path)
-    for name in data.columns[1:]:
+    for name in data.columns:
         data[name] = data[name].apply(lambda s: complex(s))
 
     """data = np.genfromtxt(
@@ -164,9 +171,10 @@ def read_complex_csv(path: str) -> list:
 if __name__ == "__main__":
     data = read_complex_csv(r"mw_data\2023-11-28-14_59-MW_measurement_0.csv")
 
-    plt.plot(np.abs(data[:, 0]), np.abs(data[:, 1]), label="S33")
-    plt.plot(np.abs(data[:, 0]), np.abs(data[:, 2]), label="S32")
-    plt.plot(np.abs(data[:, 0]), np.abs(data[:, 3]), label="S23")
-    plt.plot(np.abs(data[:, 0]), np.abs(data[:, 4]), label="S22")
+    data = {name: data[name] for name in data.columns}
+
+    for key, value in data.items():
+        if key != "Frequency":
+            plt.plot(np.abs(data["Frequency"]), np.abs(value), label=key)
     plt.legend()
     plt.show()
