@@ -45,7 +45,7 @@ def scan_points(*args):
             np.round(robot.get_cartesian()[0], 1) == np.round(point[0], 1)
         ).all():
             continue
-        sleep(1)
+        sleep(0.1)
 
         transistor.laserON()
 

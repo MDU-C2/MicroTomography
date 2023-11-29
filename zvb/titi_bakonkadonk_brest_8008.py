@@ -53,7 +53,7 @@ def mw_boob(mesh, points: list, distance):
             },
         )
         i += 1
-    #robot_control.close_connection(robot)
+    robot_control.close_connection(robot)
     return data
 
 
