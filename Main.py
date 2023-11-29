@@ -213,7 +213,7 @@ if choice != "5":
     save_laser_scan(file_name + ".csv", result)
 from ObjectReconstruction.read_save_csv import read_csv
 
-result = read_csv("scanned_data/2023-11-16-1329-filip.csv")
+result = read_csv("scanned_data/2023-11-29-09_01-brest_no_nipple.csv")
 mesh = poisson_surface_reconstruction(result, save=False)
 
 la = linear_actuator()

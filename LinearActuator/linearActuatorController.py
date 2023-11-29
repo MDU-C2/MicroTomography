@@ -64,9 +64,9 @@ class linear_actuator:
             GPIO.output(PUL_PIN, GPIO.LOW)
             time.sleep(delay)
 
-        GPIO.cleanup()
+        #GPIO.cleanup()
 
-    def move_up_1mm():
+    def move_up_1mm(self):
         GPIO.output(DIR_PIN, GPIO.HIGH)
         delay = 0.001
         t = 100
@@ -76,9 +76,9 @@ class linear_actuator:
             GPIO.output(PUL_PIN, GPIO.LOW)
             time.sleep(delay)
 
-        GPIO.cleanup()
+        #GPIO.cleanup()
 
-    def move_down_1mm():
+    def move_down_1mm(self):
         GPIO.output(DIR_PIN, GPIO.LOW)
         delay = 0.001
         t = 100
