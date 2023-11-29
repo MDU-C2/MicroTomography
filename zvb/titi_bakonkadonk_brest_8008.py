@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import os
 import time
-from RobotArm.generate_scan_points import generate_scan_points_cylinder
 
 from RsInstrument import *
 from zvb.InstrumentClass import VisaInstrument
@@ -30,17 +29,13 @@ def mw_boob(mesh, points: list, distance):
     robot = robot_control.robot_init(2)
     robot_control.set_zone_use(robot, True)
 
-    '''antenna_points, antenna_q = choose_points_microwave.ray_cast_points(
+    antenna_points, antenna_q = choose_points_microwave.ray_cast_points(
         mesh, points, distance
-    )'''
-
-    points = generate_scan_points_cylinder(120, 2, -30, 4, -30, 0)
+    )
 
     i = 0
     data = []
-    for point_1 in points:
-        point = point_1[0]
-        q = point_1[1]
+    for point, q in zip(antenna_points, antenna_q):
         print(f"Going to Coordinate: {point}, Quats: {q}")
         robot_control.move_robot_linear(robot, [point, q])
         freq_33, data_33 = visa_instrument.measure(meas_param="S33")
@@ -48,7 +43,7 @@ def mw_boob(mesh, points: list, distance):
         freq_23, data_23 = visa_instrument.measure(meas_param="S23")
         freq_22, data_22 = visa_instrument.measure(meas_param="S22")
         save_csv(
-            "MW_measurement_" + str(i)+".csv",
+            "MW_measurement_" + str(i) + ".csv",
             {
                 "Frequency": freq_33,
                 "Complex S33": data_33,
@@ -58,7 +53,7 @@ def mw_boob(mesh, points: list, distance):
             },
         )
         i += 1
-
+    #robot_control.close_connection(robot)
     return data
 
 
