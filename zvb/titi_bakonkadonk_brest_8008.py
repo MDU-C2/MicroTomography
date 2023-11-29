@@ -1,3 +1,8 @@
+import sys
+import os
+
+sys.path.append("C:/Users/jjn17015/Documents/MicroTomography")
+
 from RobotArm import robot_control
 from ObjectReconstruction import choose_points_microwave
 import matplotlib.pyplot as plt
@@ -66,10 +71,10 @@ def mw_boob(mesh, points: list, distance: (int | float)):
             "MW_measurement_" + str(i),
             {
                 "Frequency": freq,
-                "Complex S33": data_33,
-                "Complex S32": data_32,
-                "Complex S23": data_23,
-                "Complex S22": data_22,
+                "S33": data_33,
+                "S32": data_32,
+                "S23": data_23,
+                "S22": data_22,
             },
         )
         i += 1
@@ -143,10 +148,25 @@ def read_complex_csv(path: str) -> list:
     list
         A list containing the complex data stored in the path
     """
-    data = np.genfromtxt(
+    data = pd.read_csv(path)
+    for name in data.columns[1:]:
+        data[name] = data[name].apply(lambda s: complex(s))
+
+    """data = np.genfromtxt(
         path,
         dtype=complex,
         delimiter=",",
         skip_header=True,
-    )
+    )"""
     return data
+
+
+if __name__ == "__main__":
+    data = read_complex_csv(r"mw_data\2023-11-28-14_59-MW_measurement_0.csv")
+
+    plt.plot(np.abs(data[:, 0]), np.abs(data[:, 1]), label="S33")
+    plt.plot(np.abs(data[:, 0]), np.abs(data[:, 2]), label="S32")
+    plt.plot(np.abs(data[:, 0]), np.abs(data[:, 3]), label="S23")
+    plt.plot(np.abs(data[:, 0]), np.abs(data[:, 4]), label="S22")
+    plt.legend()
+    plt.show()
