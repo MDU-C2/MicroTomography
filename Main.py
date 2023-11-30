@@ -14,6 +14,7 @@ from ObjectReconstruction.read_save_csv import save_csv
 from ObjectReconstruction.surface_reconstruction import (
     poisson_surface_reconstruction,
 )
+from ObjectReconstruction.interpolate_up import interpolate_up
 
 from zvb.titi_bakonkadonk_brest_8008 import mw_boob
 from RaspberryPi.linearActuatorController import linear_actuator
@@ -249,6 +250,8 @@ if __name__ == "__main__":
     from ObjectReconstruction.read_save_csv import read_csv
 
     result = read_csv("scanned_data/2023-11-29-09_01-brest_no_nipple.csv")
+
+    result = interpolate_up(result, step_size=2)
     mesh = poisson_surface_reconstruction(result, save=False)
 
     la = linear_actuator()
