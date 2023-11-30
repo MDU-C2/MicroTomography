@@ -33,7 +33,7 @@ def mw_init() -> VisaInstrument:
     # Create new VisaInstrument class and setup environment
     MyVisaInstrument = VisaInstrument(Instrument)
     MyVisaInstrument.comcheck()
-    MyVisaInstrument.meassetup(f_start=3.8e9, f_stop=4.2e9, points=401)
+    MyVisaInstrument.meassetup(f_start=3.8e9, f_stop=4.6e9, points=801)
 
     return MyVisaInstrument
 
@@ -59,6 +59,17 @@ def mw_boob(mesh, points: list, distance: (int | float)):
         mesh, points, distance
     )
 
+    fig, ax1 = plt.subplots()
+
+    color1 = "tab:red"
+    ax1.set_xlabel("Frequency (Hz)")
+    ax1.set_ylabel("dB", color=color1)
+
+    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+
+    color2 = "tab:blue"
+    ax2.set_ylabel("dB", color=color2)  # we already handled the x-label with ax1
+
     i = 0
     for point, q in zip(antenna_points, antenna_q):
         print(f"Going to Coordinate: {point}, Quats: {q}")
@@ -79,10 +90,28 @@ def mw_boob(mesh, points: list, distance: (int | float)):
             data,
         )
 
-        for key, value in data.items():
+        """for key, value in data.items():
             if key != "Frequency":
-                plt.plot(np.abs(data["Frequency"]), np.abs(value), label=key)
-        plt.legend()
+                plt.plot(np.abs(data["Frequency"]), np.abs(value), label=key)"""
+
+        (line1,) = ax1.plot(
+            np.abs(data["Frequency"]),
+            20 * np.log10(np.abs(data["S22"])),
+            color=color1,
+            label="S22",
+        )
+        ax1.tick_params(axis="y", labelcolor=color1)
+
+        (line2,) = ax2.plot(
+            np.abs(data["Frequency"]),
+            20 * np.log10(np.abs(data["S23"])),
+            color=color2,
+            label="S23",
+        )
+        ax2.tick_params(axis="y", labelcolor=color2)
+
+        ax1.legend(handles=[line1, line2])
+        fig.tight_layout()  # otherwise the right y-label is slightly clipped
         plt.show()
         i += 1
     robot_control.close_connection(robot)
@@ -152,19 +181,13 @@ def read_complex_csv(path: str) -> pd.DataFrame:
 
     Returns
     -------
-    list
-        A list containing the complex data stored in the path
+    Pandas Dataframe
+        A Dataframe containing the complex data stored in the path
     """
     data = pd.read_csv(path)
     for name in data.columns:
         data[name] = data[name].apply(lambda s: complex(s))
 
-    """data = np.genfromtxt(
-        path,
-        dtype=complex,
-        delimiter=",",
-        skip_header=True,
-    )"""
     return data
 
 
@@ -173,8 +196,38 @@ if __name__ == "__main__":
 
     data = {name: data[name] for name in data.columns}
 
-    for key, value in data.items():
+    """for key, value in data.items():
         if key != "Frequency":
-            plt.plot(np.abs(data["Frequency"]), np.abs(value), label=key)
-    plt.legend()
+            plt.plot(np.abs(data["Frequency"]), np.abs(value), label=key)"""
+
+    fig, ax1 = plt.subplots()
+
+    color1 = "tab:red"
+    ax1.set_xlabel("Frequency (Hz)")
+    ax1.set_ylabel("dB", color=color1)
+
+    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+
+    color2 = "tab:blue"
+    ax2.set_ylabel("dB", color=color2)  # we already handled the x-label with ax1
+
+    (axis_1,) = ax1.plot(
+        np.abs(data["Frequency"]),
+        20 * np.log10(np.abs(data["Complex S22"])),
+        color=color1,
+        label="S22",
+    )
+    ax1.tick_params(axis="y", labelcolor=color1)
+
+    (axis_2,) = ax2.plot(
+        np.abs(data["Frequency"]),
+        20 * np.log10(np.abs(data["Complex S23"])),
+        color=color2,
+        label="S23",
+    )
+    ax2.tick_params(axis="y", labelcolor=color2)
+    # plt.legend()
+    ax1.legend(handles=[axis_1, axis_2])
+
+    fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.show()
