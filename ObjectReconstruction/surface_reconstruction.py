@@ -107,7 +107,8 @@ def poisson_surface_reconstruction(points, save=False):
     mesh = mesh.crop(bounding_box)
 
     mesh.paint_uniform_color(np.array([[0.5], [0.5], [0.5]]))
-    o3d.visualization.draw_geometries([pcd, mesh], mesh_show_back_face=True)
+    o3d.visualization.Visualizer.create_window()
+    o3d.visualization.draw_geometries([pcd,mesh]) #mesh_show_back_face=True)
     elapsed = time.time() - t
     # print("Time to do surface reconstruction:", elapsed)
 

@@ -9,6 +9,7 @@ pathname = os.getcwd()
 sys.path.append("../Microtomography")
 
 from RobotArm.scan_breast_phantom import scan_points, find_nipple, find_lowest_point
+from RobotArm.generate_scan_points import generate_scan_points_cylinder
 from ObjectReconstruction.read_save_csv import save_csv
 
 from ObjectReconstruction.surface_reconstruction import (
@@ -21,8 +22,7 @@ from RaspberryPi.linearActuatorController import linear_actuator
 
 # Control if the user input is valid.
 def get_numeric_input(
-    prompt: str, negative: (True | False | None), allow_float: bool
-) -> int | float:
+    prompt, negative, allow_float):
     """Prompts the user with a string and checks whether the user inputs the correct type of number based on the parameters.
 
     Parameters
@@ -189,7 +189,8 @@ def mw_scan(mesh):
         radius = get_numeric_input("Enter the radius of the cylinder: ", False, True)
         z_offset = get_numeric_input("Enter the distance from the roof: ", True, True)
         azi = get_numeric_input("Enter the amount of azimouth angles: ", False, False)
-        points = scan_points(radius, 0, z_offset, azi, z_offset, 0)
+        points = generate_scan_points_cylinder(radius, 1, z_offset, azi, z_offset)
+        points = [p[0] for p in points]
     if scan_type == 2:
         while True:
             number_of_points = get_numeric_input(

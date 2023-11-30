@@ -14,9 +14,9 @@ import time
 from RsInstrument import *
 
 from zvb.InstrumentClass import VisaInstrument
-from InstrumentClass import VisaInstrument
+#from InstrumentClass import VisaInstrument
 
-from skrf import Frequency, Network
+#from skrf import Frequency, Network
 
 
 def mw_init() -> VisaInstrument:
