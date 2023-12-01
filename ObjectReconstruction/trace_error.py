@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import math
 
-# from mayavi import mlab
+from mayavi import mlab
 
 
 def line_trace(GT_mesh, reconstructed_mesh, test, points):
@@ -102,12 +102,19 @@ def line_trace(GT_mesh, reconstructed_mesh, test, points):
     if test == 2:
         print(len(recon_vertices[:, 0]))"""
 
-    """Color = np.full((len(np.asarray(GT_mesh.vertices)[:, 0]), 4), [255, 0, 0, 255])
+    Color = np.full((len(np.asarray(GT_mesh.vertices)[:, 0]), 4), [255, 0, 0, 255])
     newList = np.interp(errorDist, (np.min(errorDist), np.max(errorDist)), (1, 255))
+    x_new = 255 / len(newList)
 
-    for i in range(len(newList)):
-        Color[i, 0] = newList[i]
-        Color[i, 1] = 255 - newList[i]
+    sort_index = np.argsort(newList, axis=0)
+    test_list = newList.copy()
+
+    for i in range(len(test_list)):
+        test_list[sort_index[i]] = x_new * i
+
+    for i in range(len(test_list)):
+        Color[i, 0] = test_list[i]
+        Color[i, 1] = 255 - test_list[i]
         Color[i, 2] = 0
 
     s = np.arange(len(np.asarray(GT_mesh.vertices)[:, 0]))
@@ -126,7 +133,7 @@ def line_trace(GT_mesh, reconstructed_mesh, test, points):
             np.asarray(reconstructed_mesh.vertices)[:, 0],
             np.asarray(reconstructed_mesh.vertices)[:, 1],
             np.asarray(reconstructed_mesh.vertices)[:, 2],
-            scale_factor=2.0,
+            scale_factor=0,
             scale_mode="none",
         )
 
@@ -149,13 +156,16 @@ def line_trace(GT_mesh, reconstructed_mesh, test, points):
     listColorBar = np.interp(
         errorDistSorted,
         (np.min(errorDistSorted), np.max(errorDistSorted)),
-        (1, 255),
+        (1, len(errorDistSorted)),
     )
 
+    x_new = 255 / len(errorDistSorted)
+    x = x_new
     for i in range(len(listColorBar)):
-        ColorBar[i, 0] = listColorBar[i]
-        ColorBar[i, 1] = 255 - listColorBar[i]
+        ColorBar[i, 0] = x
+        ColorBar[i, 1] = 255 - x
         ColorBar[i, 2] = 0
+        x = x + x_new
 
     p3d2 = mlab.points3d(
         np.asarray(GT_mesh.vertices)[:, 0],
@@ -171,9 +181,10 @@ def line_trace(GT_mesh, reconstructed_mesh, test, points):
     ########################Show mlab plot
 
     mlab.colorbar(object=p3d2, title="Error(mm)", orientation="vertical")
-    mlab.axes(xlabel="X", ylabel="Y")
+    # mlab.axes(xlabel="X", ylabel="Y")
+    # mlab.savefig("test.png", size=[2000, 2000], magnification=10)
     mlab.draw()
     mlab.show()
-    print("test")"""
+    print("test")
     print("MAX : ", np.max(errorDist))
     return np.max(errorDist)

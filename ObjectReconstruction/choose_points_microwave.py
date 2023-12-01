@@ -89,7 +89,7 @@ def ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
         # Make the quaternion from the matrix
         quaternions_test = mat.to_quaternion()
         quaternion.append(quaternions_test)
-        """plot_basis(R=matrix_from_quaternion(q))
+        plot_basis(R=matrix_from_quaternion(q))
         plot_basis(R=matrix_from_quaternion(quaternions_test))
         plt.show()
 

@@ -31,9 +31,11 @@ from plot_chosen_points import plot_choosen
 from trace_error import line_trace
 from choose_points_microwave import ray_cast_points
 from read_save_csv import save_csv
+from interpolate_up import interpolate_up as int_up
+from move_pointcloud import move_pointcloud
 
 
-filename = "scanned_data/2023-11-20-14_11-test2.csv"
+filename = "scanned_data/2023-11-16-1354-joel.csv"
 # f = sp.io.loadmat(fileName, squeeze_me=False)
 data = pd.read_csv(filename)  # Gets the surface points from the .mat file
 # data_2 = pd.read_csv(filename_2)
@@ -46,9 +48,12 @@ mesh, points = load_stl_file()
 # Reshapes the array into a points array
 # points_2 = fix_points(data)
 
+step_size = 2
+data = int_up(data, step_size)
+data = move_pointcloud(data)
 
-"""### Plot pointcloud
-mlab.figure()
+### Plot pointcloud
+"""mlab.figure()
 s = np.arange(len(np.asarray(data)[:, 0]))
 p3d = mlab.points3d(
     np.asarray(data)[:, 0],
@@ -60,8 +65,8 @@ p3d = mlab.points3d(
 )
 
 mlab.draw()
-mlab.show()
-###"""
+mlab.show()"""
+###
 
 #################################################################################
 # print("Number of datapoint :", len(points))
@@ -72,18 +77,23 @@ test = 1
 
 if test == 1:
     t = time.time()
-    recon_mesh = poisson_surface_reconstruction(data, save)
+    re_resolution = 15
+    save = False
+    recon_mesh = poisson_surface_reconstruction(data, save, re_resolution)
     totalElapsed = time.time() - t
     print("Time to complete reconstruction : ", totalElapsed)
 
 if test == 2:
     t = time.time()
+    save = False
     recon_mesh = delaunay_original(data, save)
     totalElapsed = time.time() - t
     print("Time to complete reconstruction : ", totalElapsed)
 
+gt_resolution = 5
 t = time.time()
-GT_mesh = poisson_surface_reconstruction(points, save)
+save = False
+GT_mesh = poisson_surface_reconstruction(points, save, gt_resolution)
 
 totalElapsed = time.time() - t
 # print("Time to complete reconstruction : ", totalElapsed)
@@ -95,7 +105,7 @@ average_error_1 = line_trace(GT_mesh, recon_mesh, test, data)
 
 # ChosenPoints Functions gets the closest points on the mesh
 choosen_points = np.array(
-    [[60, 0, -50]]
+    [[-100, 0, -15], [-100, 0, -25]]
 )  # Needs atleast two points to be able to plot them.
 distance_from_mesh = 2  # in mm
 closestPoints, quats = ray_cast_points(

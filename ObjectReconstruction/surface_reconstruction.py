@@ -66,7 +66,7 @@ def ball_pivoting(points, save):
         o3d.io.write_triangle_mesh("mesh.obj", rec_mesh, print_progress=True)
 
 
-def poisson_surface_reconstruction(points, save=False):
+def poisson_surface_reconstruction(points, save, re_resolution):
     t = time.time()
 
     pcd = o3d.geometry.PointCloud()
@@ -95,7 +95,7 @@ def poisson_surface_reconstruction(points, save=False):
     )  ##Very expensive time and resource wise.
 
     mesh, densities = o3d.geometry.TriangleMesh.create_from_point_cloud_poisson(
-        pcd, depth=5, linear_fit=True
+        pcd, depth=re_resolution, linear_fit=True
     )
 
     mesh = mesh.compute_vertex_normals()
@@ -107,7 +107,9 @@ def poisson_surface_reconstruction(points, save=False):
     mesh = mesh.crop(bounding_box)
 
     mesh.paint_uniform_color(np.array([[0.5], [0.5], [0.5]]))
-    o3d.visualization.draw_geometries([pcd, mesh], mesh_show_back_face=True)
+
+    o3d.visualization.draw_geometries([mesh], mesh_show_back_face=True)
+
     elapsed = time.time() - t
     # print("Time to do surface reconstruction:", elapsed)
 
