@@ -49,11 +49,11 @@ The Filter Type should then read moving average and the Filter Number should rea
 This document explains how to use the distance measurement sensor optoNCDT1402 and all of its functionalities.
 The class needs the library pyserial 3.15. To install the library run the command
 ```
-$ pip install pyserial
+pip install pyserial
 ```
 or the command
 ```
-$ pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 in the command prompt.
 
