@@ -10,6 +10,79 @@ from mathutils import Matrix, Vector
 #### Function returns the closes point on the mesh to the choosen points cP
 
 
+def get_points(recon_mesh, choosenPoints, distance_from_mesh):
+    recon_vertices = np.asarray(recon_mesh.vertices)
+    recon_triangles = np.asarray(recon_mesh.triangles)
+
+    recon_vertices_o3d = o3d.core.Tensor(
+        recon_vertices,
+        dtype=o3d.core.Dtype.Float32,
+    )
+
+    recon_triangles_o3d = o3d.core.Tensor(
+        recon_triangles,
+        dtype=o3d.core.Dtype.UInt32,
+    )
+    scene = o3d.t.geometry.RaycastingScene()
+
+    recond_id = scene.add_triangles(recon_vertices_o3d, recon_triangles_o3d)
+
+    closestPoints = []
+    closestNormals = []
+    # normalized_v = normal / np.sqrt(np.sum(normal**2))
+    for points in choosenPoints:
+        normal = [0, 0, points[2]] - points
+        normal = normal / np.linalg.norm(normal)
+        rays = o3d.core.Tensor(
+            [
+                [
+                    points[0],
+                    points[1],
+                    points[2],
+                    normal[0],
+                    normal[1],
+                    normal[2],
+                ],
+                [
+                    points[0],
+                    points[1],
+                    points[2],
+                    -normal[0],
+                    -normal[1],
+                    -normal[2],
+                ],
+            ],
+            dtype=o3d.core.Dtype.Float32,
+        )
+
+        ans = scene.cast_rays(rays)
+        distance = ans["t_hit"].numpy()
+        idx = np.argmin(distance)
+        triangle_id = ans["primitive_ids"].numpy()[idx]
+        barycentric_coords = ans["primitive_uvs"].numpy()[idx]
+        normal = ans["primitive_normals"].numpy()[idx]
+        barycentric_coords = np.append(
+            barycentric_coords, 1 - barycentric_coords[0] - barycentric_coords[1]
+        )
+
+        triangle_vert = recon_triangles[triangle_id]
+        p_one = recon_vertices[triangle_vert[0]]
+        p_two = recon_vertices[triangle_vert[1]]
+        p_three = recon_vertices[triangle_vert[2]]
+
+        b = np.array(barycentric_coords)  # Barycentric coordinates
+        t = np.transpose([p_one, p_two, p_three])  # Triangle
+        c = np.dot(t, b)
+
+        c = c - distance_from_mesh * normal
+        closestPoints.append(c)
+        closestNormals.append(-normal)
+        print(ans)
+        print(c)
+
+    return closestPoints, closestNormals
+
+
 def ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
     recon_vertices = np.asarray(recon_mesh.vertices)
     recon_triangles = np.asarray(recon_mesh.triangles)
@@ -94,9 +167,15 @@ def ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
         plt.show()
 
         # plt.show()"""
-    closestPoints[:, 0] = closestPoints[:, 0] - distance_from_mesh * closestNormals[:, 0]
-    closestPoints[:, 1] = closestPoints[:, 1] - distance_from_mesh * closestNormals[:, 1]
-    closestPoints[:, 2] = closestPoints[:, 2] - distance_from_mesh * closestNormals[:, 2]
+    closestPoints[:, 0] = (
+        closestPoints[:, 0] - distance_from_mesh * closestNormals[:, 0]
+    )
+    closestPoints[:, 1] = (
+        closestPoints[:, 1] - distance_from_mesh * closestNormals[:, 1]
+    )
+    closestPoints[:, 2] = (
+        closestPoints[:, 2] - distance_from_mesh * closestNormals[:, 2]
+    )
 
     return closestPoints, quaternion
 
