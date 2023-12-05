@@ -38,7 +38,7 @@ def mw_init() -> VisaInstrument:
     return MyVisaInstrument
 
 
-def mw_boob(mesh, points: list, distance: (int | float)):
+def mw_boob(mesh, points: list, distance: (int | float)) -> None:
     """Scans the mesh with the points on the mesh closest to the input points with a distance from the mesh
 
     Parameters
@@ -55,7 +55,7 @@ def mw_boob(mesh, points: list, distance: (int | float)):
     robot = robot_control.robot_init(2)
     robot_control.set_zone_use(robot, True)
 
-    antenna_points, antenna_q = choose_points_microwave.ray_cast_points(
+    antenna_points, antenna_q = choose_points_microwave.get_points(
         mesh, points, distance
     )
 
@@ -68,7 +68,7 @@ def mw_boob(mesh, points: list, distance: (int | float)):
     ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
 
     color2 = "tab:blue"
-    ax2.set_ylabel("dB", color=color2)  # we already handled the x-label with ax1
+    ax2.set_ylabel("dB", color=color2)
 
     i = 0
     for point, q in zip(antenna_points, antenna_q):
@@ -195,6 +195,12 @@ if __name__ == "__main__":
     data = read_complex_csv(r"mw_data\2023-11-28-14_59-MW_measurement_0.csv")
 
     data = {name: data[name] for name in data.columns}
+
+    plt.plot(data["Frequency"], 20 * np.log10(np.abs(data["Complex S22"])))
+    plt.plot(data["Frequency"], 20 * np.log10(np.abs(data["Complex S23"])))
+    plt.plot(data["Frequency"], 20 * np.log10(np.abs(data["Complex S32"])))
+    plt.plot(data["Frequency"], 20 * np.log10(np.abs(data["Complex S33"])))
+    plt.show()
 
     """for key, value in data.items():
         if key != "Frequency":

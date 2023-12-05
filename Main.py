@@ -22,7 +22,7 @@ from RaspberryPi.linearActuatorController import linear_actuator
 
 # Control if the user input is valid.
 def get_numeric_input(
-    prompt: str, negative: (True | False | None), allow_float: bool
+    prompt: str, negative: (bool | None), allow_float: bool
 ) -> int | float:
     """Prompts the user with a string and checks whether the user inputs the correct type of number based on the parameters.
 
@@ -30,7 +30,7 @@ def get_numeric_input(
     ----------
     prompt : str
         The prompth for the user to answer.
-    negative : True  |  False  |  None
+    negative : Bool  |  None
         Parameter to decide if the value should be negative, positive or if it does not matter.
         True means the value must be negative.
         False means it must be positive or zero.
