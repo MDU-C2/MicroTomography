@@ -78,17 +78,25 @@ the pcd part draws the point cloud, the mesh part draws the mesh
 This works for all except delaunay. If you need to print delaunay it's trivial using python libraries.
 
 ## [choosen_points_microwave.py]:
+This file includes 3 different functions.
+I suggest using "get_points" since this is most optimal for finding the correct point on the mesh.
+The difference lies within how it raycasts. "get_point()" uses a normal that points directly to the [0,0,z] point, whilst the function "ray_cast_points()" finds the closest point on the mesh(Which does not always lie on the same Z as the whished point.).
+The last function "get_quaternions()" simply computes the quaternions from the normals.
 
-The script takes three arguments.
+The function calls looks like the following : 
+get_points(recon_mesh, choosenPoints, distance_from_mesh):
+ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
 
+Where the arguments are explained as follows:
 recon_mesh : The reconstructed mesh (i.e from scanned point cloud.).
 choosenPoints : A list of arbitrary points (Where the you want the microwave antenna to be placed.).
 distance_from_mesh : The distance in mm from the mesh where you want the antenna to be placed.
 
 
-The script returns closestPoints, quaternion where : 
+The script returns closestPoints, quaternion,closestNormals where : 
 closestPoints : is a list of the points where the antenna should be placed. 
 quaternion : a list of quaternions for the end effector. 
+closestNormals : is a list of the normals that correlates to the points in closestPoints list.
 
 ### [plot_chosen_points.py]
 
@@ -97,7 +105,7 @@ It takes the same input arguments.
 
 ## [trace_error.py]:
 
-The script takes five arguments.
+The script takes five input arguments.
 
 GT_mesh : The reconstructed ground truth mesh. (i.e CAD object mesh)
 reconstruced_mesh : The reconstructed mesh. (from scanned point cloud)
@@ -110,7 +118,7 @@ The script will raycast from each point in GT_mesh and compute the distance to t
 The script will also plot a 3d point cloud with colours indicated based on the distances of each point in the GT_mesh. 
 The point cloud shown will be the GT_mesh's point cloud and the colours indicate the distance to the reconstructed_mesh.
 
-The script will return a the max distance. 
+The script will return a the average distance. 
 
 
 
@@ -119,7 +127,7 @@ The script will return a the max distance.
 
 ## [move_pointcloud.py]:
 
-This script takes one input 
+This script takes one input argument. 
 
 points : a point cloud (i.e scanned data)
 
