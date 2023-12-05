@@ -7,7 +7,48 @@ from pytransform3d.rotations import plot_basis, matrix_from_quaternion
 import matplotlib.pyplot as plt
 from mathutils import Matrix, Vector
 
+
 #### Function returns the closes point on the mesh to the choosen points cP
+def get_quaternions(closestNormals):
+    quat = []
+
+    vector = [0, 0, 1]
+    temp = []
+    quaternion = []
+    quaternions_test = []
+
+    for n in closestNormals:  ##
+        theta = np.arccos(np.dot(vector, n))
+        b = np.cross(vector, n)
+        b_hat = b / np.linalg.norm(b)
+        q = np.cos(theta / 2)
+
+        q = np.append(q, np.sin(theta / 2) * b_hat[0])
+
+        q = np.append(q, np.sin(theta / 2) * b_hat[1])
+
+        q = np.append(q, np.sin(theta / 2) * b_hat[2])
+        quat.append(q)
+        vector = [0, 0, -1]
+        y_vector = np.cross(n, vector)
+        x_vector = np.cross(y_vector, n)
+
+        # Initialise matrix
+        mat = Matrix.Identity(3)
+
+        # Set matrix values
+        mat.col[0] = x_vector
+        mat.col[1] = y_vector
+        mat.col[2] = n
+
+        # Make the quaternion from the matrix
+        quaternions_test = mat.to_quaternion()
+        quaternion.append(quaternions_test)
+        plot_basis(R=matrix_from_quaternion(q))
+        plot_basis(R=matrix_from_quaternion(quaternions_test))
+        plt.show()
+
+    return quaternion
 
 
 def get_points(recon_mesh, choosenPoints, distance_from_mesh):
@@ -80,7 +121,12 @@ def get_points(recon_mesh, choosenPoints, distance_from_mesh):
         print(ans)
         print(c)
 
-    return closestPoints, closestNormals
+    closestPoints = np.vstack(closestPoints)
+    closestNormals = np.vstack(closestNormals)
+
+    quaternion = get_quaternions(closestNormals)
+
+    return closestPoints, quaternion, closestNormals
 
 
 def ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
@@ -128,45 +174,9 @@ def ray_cast_points(recon_mesh, choosenPoints, distance_from_mesh):
     closestPoints = np.vstack(closestPoints)
     closestNormals = np.vstack(closestNormals)
 
-    quat = []
+    quaternion = get_quaternions(closestNormals)
 
-    vector = [0, 0, 1]
-    temp = []
-    quaternion = []
-    quaternions_test = []
-
-    for n in closestNormals:  ##
-        theta = np.arccos(np.dot(vector, n))
-        b = np.cross(vector, n)
-        b_hat = b / np.linalg.norm(b)
-        q = np.cos(theta / 2)
-
-        q = np.append(q, np.sin(theta / 2) * b_hat[0])
-
-        q = np.append(q, np.sin(theta / 2) * b_hat[1])
-
-        q = np.append(q, np.sin(theta / 2) * b_hat[2])
-        quat.append(q)
-        vector = [0, 0, -1]
-        y_vector = np.cross(n, vector)
-        x_vector = np.cross(y_vector, n)
-
-        # Initialise matrix
-        mat = Matrix.Identity(3)
-
-        # Set matrix values
-        mat.col[0] = x_vector
-        mat.col[1] = y_vector
-        mat.col[2] = n
-
-        # Make the quaternion from the matrix
-        quaternions_test = mat.to_quaternion()
-        quaternion.append(quaternions_test)
-        plot_basis(R=matrix_from_quaternion(q))
-        plot_basis(R=matrix_from_quaternion(quaternions_test))
-        plt.show()
-
-        # plt.show()"""
+    # plt.show()"""
     closestPoints[:, 0] = (
         closestPoints[:, 0] - distance_from_mesh * closestNormals[:, 0]
     )

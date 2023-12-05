@@ -4,8 +4,10 @@ from mayavi import mlab
 from scipy.spatial.transform import Rotation as R
 
 
-def plot_choosen(recon_mesh, choosenPoints, distance_from_mesh):
-    recon_vertices = np.asarray(recon_mesh.vertices)
+def plot_choosen(
+    closestPoints, closestNormals, choosenPoints, recon_mesh, distance_from_mesh
+):
+    """recon_vertices = np.asarray(recon_mesh.vertices)
     recon_triangles = np.asarray(recon_mesh.triangles)
     recon_vertices = o3d.core.Tensor(
         recon_vertices,
@@ -44,8 +46,7 @@ def plot_choosen(recon_mesh, choosenPoints, distance_from_mesh):
         print(normal)
         print(np.linalg.norm(normal))
         closestNormals.append(-normal)
-        closestPoints.append(ans["points"].numpy())
-
+        closestPoints.append(ans["points"].numpy())"""
     closestPoints = np.vstack(closestPoints)
     closestNormals = np.vstack(closestNormals)
 
