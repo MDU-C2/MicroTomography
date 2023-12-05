@@ -44,9 +44,9 @@ def get_quaternions(closestNormals):
         # Make the quaternion from the matrix
         quaternions_test = mat.to_quaternion()
         quaternion.append(quaternions_test)
-        plot_basis(R=matrix_from_quaternion(q))
+        """plot_basis(R=matrix_from_quaternion(q))
         plot_basis(R=matrix_from_quaternion(quaternions_test))
-        plt.show()
+        plt.show()"""
 
     return quaternion
 
@@ -116,11 +116,14 @@ def get_points(recon_mesh, choosenPoints, distance_from_mesh):
         c = np.dot(t, b)
 
         c = c - distance_from_mesh * normal
+
         closestPoints.append(c)
-        closestNormals.append(-normal)
+        closestNormals.append(normal)
         print(ans)
         print(c)
 
+    if not closestNormals:
+        print("No points found.")
     closestPoints = np.vstack(closestPoints)
     closestNormals = np.vstack(closestNormals)
 
