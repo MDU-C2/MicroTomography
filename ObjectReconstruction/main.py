@@ -21,12 +21,13 @@ import os
 path = os.getcwd()
 
 sys.path.append(path)
+sys.path.append("~/Downloads/glfw-master")
 
 from spline_data import spline
 from reshape_list import fix_points
 from surface_reconstruction import poisson_surface_reconstruction, delaunay_original
 from load_cad_file import load_stl_file
-from plot_chosen_points import plot_choosen
+#from plot_chosen_points import plot_choosen
 
 from trace_error import line_trace
 from choose_points_microwave import ray_cast_points
@@ -114,4 +115,4 @@ closestPoints, quats = ray_cast_points(
 # closestNormals is the normals for each triangle which the points in closestPoints inhabit.
 print(closestPoints)
 print("Quaternions : ", quats)
-plot_choosen(recon_mesh, choosen_points, distance_from_mesh)
+#plot_choosen(recon_mesh, choosen_points, distance_from_mesh)

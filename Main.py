@@ -9,6 +9,7 @@ pathname = os.getcwd()
 sys.path.append("../Microtomography")
 
 from RobotArm.scan_breast_phantom import scan_points, find_nipple, find_lowest_point
+from RobotArm.generate_scan_points import generate_scan_points_cylinder
 from ObjectReconstruction.read_save_csv import save_csv
 
 from ObjectReconstruction.surface_reconstruction import (
@@ -22,7 +23,7 @@ from RaspberryPi.linearActuatorController import linear_actuator
 
 # Control if the user input is valid.
 def get_numeric_input(
-    prompt: str, negative: (True | False | None), allow_float: bool
+    prompt: str, negative: (bool | None), allow_float: bool
 ) -> int | float:
     """Prompts the user with a string and checks whether the user inputs the correct type of number based on the parameters.
 
@@ -30,7 +31,7 @@ def get_numeric_input(
     ----------
     prompt : str
         The prompth for the user to answer.
-    negative : True  |  False  |  None
+    negative : Bool  |  None
         Parameter to decide if the value should be negative, positive or if it does not matter.
         True means the value must be negative.
         False means it must be positive or zero.
@@ -190,7 +191,8 @@ def mw_scan(mesh):
         radius = get_numeric_input("Enter the radius of the cylinder: ", False, True)
         z_offset = get_numeric_input("Enter the distance from the roof: ", True, True)
         azi = get_numeric_input("Enter the amount of azimouth angles: ", False, False)
-        points = scan_points(radius, 0, z_offset, azi, z_offset, 0)
+        points = generate_scan_points_cylinder(radius, 1, z_offset, azi, z_offset)
+        points = [p[0] for p in points]
     if scan_type == 2:
         while True:
             number_of_points = get_numeric_input(
@@ -247,9 +249,10 @@ if __name__ == "__main__":
             "Please enter your desired name for the file where the data will be saved:"
         )
         save_laser_scan(file_name + ".csv", result)
-    from ObjectReconstruction.read_save_csv import read_csv
+    else:
+        from ObjectReconstruction.read_save_csv import read_csv
 
-    result = read_csv("scanned_data/2023-11-29-09_01-brest_no_nipple.csv")
+        result = read_csv("scanned_data/2023-11-29-09_01-brest_no_nipple.csv")
 
     result = interpolate_up(result, step_size=2)
     mesh = poisson_surface_reconstruction(result, save=False)
