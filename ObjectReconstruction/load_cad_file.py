@@ -7,7 +7,7 @@ from stl import mesh
 
 def load_stl_file():
     your_mesh = mesh.Mesh.from_file(
-        "stl_files/SimpleBreast_R62_centered_surface_origin_aligned.STL"
+        "stl_files\SimpleBreast_R62_centered_nonipple_surface_origin.STL"
     )
 
     points_x = your_mesh.x.flatten()

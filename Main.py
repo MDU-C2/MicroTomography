@@ -15,6 +15,7 @@ from ObjectReconstruction.read_save_csv import save_csv
 from ObjectReconstruction.surface_reconstruction import (
     poisson_surface_reconstruction,
 )
+from ObjectReconstruction.interpolate_up import interpolate_up
 
 from zvb.titi_bakonkadonk_brest_8008 import mw_boob
 from RaspberryPi.linearActuatorController import linear_actuator
@@ -22,14 +23,15 @@ from RaspberryPi.linearActuatorController import linear_actuator
 
 # Control if the user input is valid.
 def get_numeric_input(
-    prompt, negative, allow_float):
+    prompt: str, negative: (bool | None), allow_float: bool
+) -> int | float:
     """Prompts the user with a string and checks whether the user inputs the correct type of number based on the parameters.
 
     Parameters
     ----------
     prompt : str
         The prompth for the user to answer.
-    negative : True  |  False  |  None
+    negative : Bool  |  None
         Parameter to decide if the value should be negative, positive or if it does not matter.
         True means the value must be negative.
         False means it must be positive or zero.
@@ -250,6 +252,8 @@ if __name__ == "__main__":
     from ObjectReconstruction.read_save_csv import read_csv
 
     result = read_csv("scanned_data/2023-11-29-09_01-brest_no_nipple.csv")
+
+    result = interpolate_up(result, step_size=2)
     mesh = poisson_surface_reconstruction(result, save=False)
 
     la = linear_actuator()
