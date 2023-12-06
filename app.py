@@ -19,6 +19,7 @@ import LinearActuator.linearActuatorController as linearController
 
 class Thread_Scanning(QThread):
     finished = pyqtSignal()
+    printText = pyqtSignal(str)
     disableButtons = pyqtSignal(bool)
     displayPointClound = pyqtSignal()
 
@@ -101,14 +102,14 @@ class Thread_Scanning(QThread):
         
         # Generate points for laser scanning if no item in the table or read data from table
         if tabIndex == 0:
-            printLog(self.logbox,"Auto generate scanning points and scanning...")
+            self.printText.emit("Auto generate scanning points and scanning...")
             result = autoScan(self.scanModeIndex, self.classdata.quaternion, self.radius, self.z_stepsize, self.azimuth_points, self.z_offset, self.elevation_points, self.z_min, self.laser_angle, self.logbox)
 
             writeResultToTable(result, self.tableResult)
-            printLog(self.logbox,"Scanning Finished.")
+            self.printText.emit("Scanning Finished.")
             self.displayPointClound.emit()
         else:
-            printLog(self.logbox,"Reading position list...")
+            self.printText.emit("Reading position list...")
             
             # Check if it is empty in the position list or not
             if not self.tablePosition.rowCount() == 0:
@@ -131,10 +132,10 @@ class Thread_Scanning(QThread):
                     self.label_x_RobPos, self.label_y_RobPos, self.label_z_RobPos, self.label_dist_laser,
                     self.label_x_Surface, self.label_y_Surface,self.label_z_Surface)
 
-                printLog(self.logbox,"Moving Finished.")
+                self.printText.emit("Moving Finished.")
                 #self.displayPointClound.emit()
             else:
-                printLog(self.logbox,"No item in the Position list")
+                self.printText.emit("No item in the Position list")
 
         #Enable buttons
         self.disableButtons.emit(False)
@@ -258,6 +259,10 @@ class AppWindow(QMainWindow):
 
         # print message in the text browser
         self.ui.tbx_log.append("System open")
+
+    # function: print message in the text browser
+    def printLog(self, message):
+        self.ui.tbx_log.append(message)
     
 
     #######Button Functions###########
@@ -318,6 +323,7 @@ class AppWindow(QMainWindow):
         )
 
         #Connect signals and slots
+        self.worker_thread.printText.connect(self.printLog)
         self.worker_thread.displayPointClound.connect(self.updatePlot)
         self.worker_thread.disableButtons.connect(self.disableButton)
         
