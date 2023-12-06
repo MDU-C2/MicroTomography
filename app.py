@@ -7,7 +7,7 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from threading import Semaphore
 
 #Object reconstruction
-from zvb.titi_bakonkadonk_brest_8008 import mw_boob, networkMeasure
+from zvb.titi_bakonkadonk_brest_8008_GUI import mw_boob, networkMeasure
 
 from GUI import ScanningSystem
 from GUI.GUIFunctions import *
