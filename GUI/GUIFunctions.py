@@ -79,7 +79,7 @@ def writeResultToTable(data, table):
     # Remove all data in the result table before input new data
     table.setRowCount(0)
     
-    df = pd.DataFrame(data)
+    df = pd.DataFrame(data, columns=["X", "Y", "Z"])
 
     table.setRowCount(df.shape[0])
     table.setColumnCount(df.shape[1])
@@ -93,17 +93,17 @@ def writeResultToTable(data, table):
 #function: plot data by reading values from table
 def plotData(table, figure, color, log):
     #Plot maunal positions
-    if table.rowCount() != 0:
-        tableData = readDataFromTable(table, log)
+    
+    tableData = readDataFromTable(table, log)
 
-        data = pd.DataFrame(tableData, columns=["X", "Y", "Z"])
+    data = pd.DataFrame(tableData, columns=["X", "Y", "Z"])
 
-        data_X = data["X"]  # Reorganize the data into rows
-        data_Y = data["Y"]
-        data_Z = data["Z"]
+    data_X = data["X"]  # Reorganize the data into rows
+    data_Y = data["Y"]
+    data_Z = data["Z"]
 
-        #Create a 3D scatter plot
-        figure.scatter(data_X, data_Y, data_Z, c = color, marker="o")
+    #Create a 3D scatter plot
+    figure.scatter(data_X, data_Y, data_Z, c = color, marker="o")
 
 #function: add item to table
 def insertDataToTable(value_x, value_y, value_z, table, tab, log):
@@ -171,7 +171,7 @@ def add2DDiagramInGUI(viewer):
     return network_ax, canvasNetwork
 
 #function: generate scanning points and peform scanning
-def autoScan(currentIndex, quaternion, radius, z_stepsize, azimuth_points, z_offset, elevation_points, z_min, laser_angle, log, network_ax, canvasNetwork, cbx_S33, cbx_S32, cbx_S23, cbx_S22):
+def autoScan(currentIndex, quaternion, radius, z_stepsize, azimuth_points, z_offset, elevation_points, z_min, laser_angle, log):
 
     if not -90 < laser_angle < 90:
         log.append("Laser_angle must be -90 < laser_angle < 90")
@@ -179,11 +179,11 @@ def autoScan(currentIndex, quaternion, radius, z_stepsize, azimuth_points, z_off
     
     if currentIndex == 0:  # Cylinder
         log.append(f"Cylinder scan with quaternion: {quaternion}")
-        result = scan_points(network_ax, canvasNetwork, cbx_S33, cbx_S32, cbx_S23, cbx_S22, quaternion, radius, z_stepsize, z_min, azimuth_points, z_offset, laser_angle)
+        result = scan_points(quaternion, radius, z_stepsize, z_min, azimuth_points, z_offset, laser_angle)
         return result
     elif currentIndex == 1:  # halve sphere
         log.append(f"Halve sphere scan with quaternion: {quaternion}")
-        result = scan_points(network_ax, canvasNetwork, cbx_S33, cbx_S32, cbx_S23, cbx_S22, quaternion, radius, azimuth_points, elevation_points, z_min, z_offset)
+        result = scan_points(quaternion, radius, azimuth_points, elevation_points, z_min, z_offset)
         return result
     
 #functions: plot network analyser diagram

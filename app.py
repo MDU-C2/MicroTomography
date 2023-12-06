@@ -102,8 +102,7 @@ class Thread_Scanning(QThread):
         # Generate points for laser scanning if no item in the table or read data from table
         if tabIndex == 0:
             self.logbox.append("Auto generate scanning points and scanning...")
-            result = autoScan(self.scanModeIndex, self.classdata.quaternion, self.radius, self.z_stepsize, self.azimuth_points, self.z_offset, self.elevation_points, self.z_min, self.laser_angle, self.logbox, 
-                              self.network_ax, self.canvasNetwork, self.cbx_S33, self.cbx_S32, self.cbx_S23, self.cbx_S22, freq, data_33, data_32, data_23, data_22)
+            result = autoScan(self.scanModeIndex, self.classdata.quaternion, self.radius, self.z_stepsize, self.azimuth_points, self.z_offset, self.elevation_points, self.z_min, self.laser_angle, self.logbox)
 
             writeResultToTable(result, self.tableResult)
             self.logbox.append("Scanning Finished.")
@@ -133,7 +132,7 @@ class Thread_Scanning(QThread):
                     self.label_x_Surface, self.label_y_Surface,self.label_z_Surface)
 
                 self.logbox.append("Moving Finished.")
-                self.displayPointClound.emit()
+                #self.displayPointClound.emit()
             else:
                 self.logbox.append("No item in the Position list")
 
@@ -267,7 +266,7 @@ class AppWindow(QMainWindow):
         load_model(self.ui.tbw_result, self.ui.tbx_log)  # Load the data from .mat file
 
         if self.ui.tbw_result.rowCount() != 0:
-            result = readDataFromTable(self.ui.tbw_result, self.ui.tbx_log)
+            readDataFromTable(self.ui.tbw_result, self.ui.tbx_log)
             self.updatePlot()  # Plot the figure after spline
 
     #funciton: save file
@@ -440,7 +439,7 @@ class AppWindow(QMainWindow):
         plotData(self.ui.tbw_result, self.ax, "b", self.ui.tbx_log)
 
         #plot positions in manually inputs
-        plotData(self.ui.tbw_positionlist, self.ax, "g", self.ui.tbx_log)
+        #plotData(self.ui.tbw_positionlist, self.ax, "g", self.ui.tbx_log)
 
         self.canvas.draw()
 
