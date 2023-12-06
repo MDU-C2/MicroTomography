@@ -75,7 +75,15 @@ def close_connection(robot):
     robot.close()
 
 
-def robot_init(tool):
+def robot_init(
+    tool,
+    quaternion=[
+        0.9999431292112558,
+        0.010580670532612012,
+        0.0013370534780490603,
+        6.502210241618077e-06,
+    ],
+):
     """Connects to and sets initial parameters of the robot
 
     tool == 1: for laser TCP
@@ -85,15 +93,7 @@ def robot_init(tool):
     robot = connect_to_robot()
     set_reference_coordinate_system(
         robot,
-        [
-            [-1.55, -4.51, 760.2787866568916],
-            [
-                0.9999431292112558,
-                0.010580670532612012,
-                0.0013370534780490603,
-                6.502210241618077e-06,
-            ],
-        ],
+        [[-1.55, -4.51, 760.2787866568916], quaternion],
     )
 
     """
