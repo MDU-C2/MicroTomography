@@ -26,10 +26,10 @@
    <widget class="QLabel" name="label_x_RobPos">
     <property name="geometry">
      <rect>
-      <x>140</x>
-      <y>830</y>
-      <width>111</width>
-      <height>31</height>
+      <x>250</x>
+      <y>570</y>
+      <width>50</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="font">
@@ -40,16 +40,16 @@
      </font>
     </property>
     <property name="text">
-     <string>x:</string>
+     <string>0</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_y_RobPos">
     <property name="geometry">
      <rect>
-      <x>280</x>
-      <y>830</y>
-      <width>131</width>
-      <height>31</height>
+      <x>410</x>
+      <y>570</y>
+      <width>50</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="font">
@@ -60,16 +60,16 @@
      </font>
     </property>
     <property name="text">
-     <string>y: </string>
+     <string>0</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_z_RobPos">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>830</y>
-      <width>131</width>
-      <height>31</height>
+      <x>570</x>
+      <y>570</y>
+      <width>50</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="font">
@@ -80,16 +80,16 @@
      </font>
     </property>
     <property name="text">
-     <string>z:</string>
+     <string>0</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_dist_laser">
+   <widget class="QLabel" name="label_d">
     <property name="geometry">
      <rect>
-      <x>590</x>
-      <y>830</y>
-      <width>211</width>
-      <height>31</height>
+      <x>720</x>
+      <y>570</y>
+      <width>71</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="font">
@@ -106,18 +106,18 @@
    <widget class="QTextBrowser" name="tbx_log">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>930</y>
-      <width>691</width>
-      <height>251</height>
+      <x>30</x>
+      <y>670</y>
+      <width>351</width>
+      <height>421</height>
      </rect>
     </property>
    </widget>
-   <widget class="QLabel" name="label_Log">
+   <widget class="QLabel" name="label_nonvalue_Log">
     <property name="geometry">
      <rect>
-      <x>60</x>
-      <y>880</y>
+      <x>30</x>
+      <y>640</y>
       <width>51</width>
       <height>31</height>
      </rect>
@@ -136,21 +136,11 @@
      <bool>false</bool>
     </property>
    </widget>
-   <widget class="QTextEdit" name="ted_x">
-    <property name="geometry">
-     <rect>
-      <x>1030</x>
-      <y>390</y>
-      <width>81</width>
-      <height>31</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QPushButton" name="btn_Scan">
     <property name="geometry">
      <rect>
-      <x>970</x>
-      <y>20</y>
+      <x>920</x>
+      <y>10</y>
       <width>111</width>
       <height>71</height>
      </rect>
@@ -165,8 +155,8 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>1210</x>
-      <y>20</y>
+      <x>1160</x>
+      <y>10</y>
       <width>111</width>
       <height>71</height>
      </rect>
@@ -178,8 +168,8 @@
    <widget class="QPushButton" name="btn_Load">
     <property name="geometry">
      <rect>
-      <x>1330</x>
-      <y>20</y>
+      <x>1280</x>
+      <y>10</y>
       <width>111</width>
       <height>71</height>
      </rect>
@@ -188,107 +178,14 @@
      <string>Load</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label_x">
-    <property name="geometry">
-     <rect>
-      <x>1000</x>
-      <y>390</y>
-      <width>21</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>x:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_y">
-    <property name="geometry">
-     <rect>
-      <x>1130</x>
-      <y>390</y>
-      <width>21</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>y:</string>
-    </property>
-   </widget>
-   <widget class="QTextEdit" name="ted_y">
-    <property name="geometry">
-     <rect>
-      <x>1160</x>
-      <y>390</y>
-      <width>81</width>
-      <height>31</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QTextEdit" name="ted_z">
-    <property name="geometry">
-     <rect>
-      <x>1290</x>
-      <y>390</y>
-      <width>81</width>
-      <height>31</height>
-     </rect>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_z">
-    <property name="geometry">
-     <rect>
-      <x>1260</x>
-      <y>390</y>
-      <width>21</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>z:</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_input">
-    <property name="geometry">
-     <rect>
-      <x>1380</x>
-      <y>390</y>
-      <width>91</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Input</string>
-    </property>
-   </widget>
    <widget class="QPushButton" name="btn_Stop">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
-      <x>1090</x>
-      <y>20</y>
+      <x>1040</x>
+      <y>10</y>
       <width>111</width>
       <height>71</height>
      </rect>
@@ -297,7 +194,7 @@
      <bool>false</bool>
     </property>
     <property name="styleSheet">
-     <string notr="true">background-color : red; color: black</string>
+     <string notr="true"/>
     </property>
     <property name="text">
      <string>Stop</string>
@@ -306,26 +203,32 @@
    <widget class="QTabWidget" name="twg_table">
     <property name="geometry">
      <rect>
-      <x>1060</x>
-      <y>440</y>
-      <width>465</width>
-      <height>460</height>
+      <x>910</x>
+      <y>410</y>
+      <width>621</width>
+      <height>481</height>
      </rect>
     </property>
+    <property name="minimumSize">
+     <size>
+      <width>621</width>
+      <height>0</height>
+     </size>
+    </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
-      <string>Default</string>
+      <string>Scanning Result</string>
      </attribute>
-     <widget class="QTableWidget" name="tbw_default">
+     <widget class="QTableWidget" name="tbw_result">
       <property name="geometry">
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>450</width>
-        <height>430</height>
+        <width>610</width>
+        <height>450</height>
        </rect>
       </property>
       <property name="columnCount">
@@ -350,15 +253,15 @@
     </widget>
     <widget class="QWidget" name="tab_2">
      <attribute name="title">
-      <string>My List</string>
+      <string>Scanning Position list</string>
      </attribute>
-     <widget class="QTableWidget" name="tbw_mylist">
+     <widget class="QTableWidget" name="tbw_positionlist">
       <property name="geometry">
        <rect>
         <x>0</x>
         <y>0</y>
-        <width>450</width>
-        <height>430</height>
+        <width>610</width>
+        <height>450</height>
        </rect>
       </property>
       <property name="columnCount">
@@ -382,184 +285,13 @@
      </widget>
     </widget>
    </widget>
-   <widget class="QLabel" name="label_robotMove">
-    <property name="geometry">
-     <rect>
-      <x>780</x>
-      <y>970</y>
-      <width>221</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Robotic Arm movement</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_xUp">
-    <property name="geometry">
-     <rect>
-      <x>790</x>
-      <y>1030</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Up</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_xDown">
-    <property name="geometry">
-     <rect>
-      <x>790</x>
-      <y>1080</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Down</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_rob_x">
-    <property name="geometry">
-     <rect>
-      <x>830</x>
-      <y>1000</y>
-      <width>21</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>x:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_roby">
-    <property name="geometry">
-     <rect>
-      <x>970</x>
-      <y>1000</y>
-      <width>21</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>y:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_robz">
-    <property name="geometry">
-     <rect>
-      <x>1110</x>
-      <y>1000</y>
-      <width>21</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>z:</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_yUp">
-    <property name="geometry">
-     <rect>
-      <x>930</x>
-      <y>1030</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Up</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_zUp">
-    <property name="geometry">
-     <rect>
-      <x>1070</x>
-      <y>1027</y>
-      <width>93</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Up</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_yDown">
-    <property name="geometry">
-     <rect>
-      <x>930</x>
-      <y>1080</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Down</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_zDown">
-    <property name="geometry">
-     <rect>
-      <x>1070</x>
-      <y>1080</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Down</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_clearTable">
-    <property name="geometry">
-     <rect>
-      <x>1490</x>
-      <y>390</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Clear</string>
-    </property>
-   </widget>
    <widget class="QWidget" name="viewer_scanning" native="true">
     <property name="geometry">
      <rect>
       <x>30</x>
-      <y>20</y>
-      <width>891</width>
-      <height>781</height>
+      <y>9</y>
+      <width>811</width>
+      <height>551</height>
      </rect>
     </property>
     <property name="font">
@@ -578,8 +310,8 @@
    <widget class="QPushButton" name="btn_Calibration">
     <property name="geometry">
      <rect>
-      <x>1450</x>
-      <y>20</y>
+      <x>1400</x>
+      <y>10</y>
       <width>111</width>
       <height>71</height>
      </rect>
@@ -588,298 +320,11 @@
      <string>Calibration</string>
     </property>
    </widget>
-   <widget class="QDoubleSpinBox" name="spb_circle_radius">
+   <widget class="QLabel" name="label_ScanningSetting">
     <property name="geometry">
      <rect>
-      <x>1030</x>
-      <y>190</y>
-      <width>131</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="decimals">
-     <number>2</number>
-    </property>
-    <property name="minimum">
-     <double>10.000000000000000</double>
-    </property>
-    <property name="maximum">
-     <double>300.000000000000000</double>
-    </property>
-    <property name="singleStep">
-     <double>10.000000000000000</double>
-    </property>
-    <property name="value">
-     <double>120.000000000000000</double>
-    </property>
-   </widget>
-   <widget class="QDoubleSpinBox" name="spb_azimuthPoints">
-    <property name="geometry">
-     <rect>
-      <x>1200</x>
-      <y>190</y>
-      <width>131</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="decimals">
-     <number>2</number>
-    </property>
-    <property name="minimum">
-     <double>1.000000000000000</double>
-    </property>
-    <property name="maximum">
-     <double>360.000000000000000</double>
-    </property>
-    <property name="singleStep">
-     <double>1.000000000000000</double>
-    </property>
-    <property name="value">
-     <double>16.000000000000000</double>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_SampleStep_2">
-    <property name="geometry">
-     <rect>
-      <x>1030</x>
-      <y>150</y>
-      <width>121</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>circle_radius:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_SampleStep_4">
-    <property name="geometry">
-     <rect>
-      <x>1200</x>
-      <y>150</y>
-      <width>121</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>azimuthPoints:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_linear_updown">
-    <property name="geometry">
-     <rect>
-      <x>1200</x>
-      <y>1090</y>
-      <width>91</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Move 1 mm:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_linear_moveto">
-    <property name="geometry">
-     <rect>
-      <x>1200</x>
-      <y>1000</y>
-      <width>141</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Move to:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_LinearActuator">
-    <property name="geometry">
-     <rect>
-      <x>1190</x>
-      <y>970</y>
-      <width>221</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-      <weight>75</weight>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Linear actuator (mm)</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_linear_zero">
-    <property name="geometry">
-     <rect>
-      <x>1190</x>
-      <y>1050</y>
-      <width>171</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-      <weight>50</weight>
-      <bold>false</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Move to zero position:</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_linear_up">
-    <property name="geometry">
-     <rect>
-      <x>1320</x>
-      <y>1090</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Up</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_linear_down">
-    <property name="geometry">
-     <rect>
-      <x>1430</x>
-      <y>1090</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Down</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_linear_zero_pos">
-    <property name="geometry">
-     <rect>
-      <x>1370</x>
-      <y>1050</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Zero</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="btn_linear_moveto">
-    <property name="geometry">
-     <rect>
-      <x>1500</x>
-      <y>1000</y>
-      <width>93</width>
-      <height>28</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Move</string>
-    </property>
-   </widget>
-   <widget class="QDoubleSpinBox" name="spb_linearMoveTo">
-    <property name="geometry">
-     <rect>
-      <x>1320</x>
-      <y>1000</y>
-      <width>161</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="decimals">
-     <number>0</number>
-    </property>
-    <property name="minimum">
-     <double>0.000000000000000</double>
-    </property>
-    <property name="maximum">
-     <double>100.000000000000000</double>
-    </property>
-    <property name="singleStep">
-     <double>1.000000000000000</double>
-    </property>
-    <property name="stepType">
-     <enum>QAbstractSpinBox::DefaultStepType</enum>
-    </property>
-    <property name="value">
-     <double>0.000000000000000</double>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_linear_pos">
-    <property name="geometry">
-     <rect>
-      <x>1620</x>
-      <y>1010</y>
-      <width>141</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Position:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label_SampleStep_5">
-    <property name="geometry">
-     <rect>
-      <x>1350</x>
-      <y>150</y>
-      <width>121</width>
-      <height>31</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>offset:</string>
-    </property>
-   </widget>
-   <widget class="QDoubleSpinBox" name="spb_offset">
-    <property name="geometry">
-     <rect>
-      <x>1350</x>
-      <y>190</y>
-      <width>131</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <property name="decimals">
-     <number>2</number>
-    </property>
-    <property name="minimum">
-     <double>-300.000000000000000</double>
-    </property>
-    <property name="maximum">
-     <double>300.000000000000000</double>
-    </property>
-    <property name="singleStep">
-     <double>1.000000000000000</double>
-    </property>
-    <property name="value">
-     <double>-60.000000000000000</double>
-    </property>
-   </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>970</x>
-      <y>110</y>
+      <x>910</x>
+      <y>100</y>
       <width>201</width>
       <height>31</height>
      </rect>
@@ -895,26 +340,652 @@
      <string>Scanning Settings:</string>
     </property>
    </widget>
-   <widget class="QTabWidget" name="twg_scanningMode">
+   <widget class="QLabel" name="label_RobotPosition">
     <property name="geometry">
      <rect>
-      <x>1000</x>
-      <y>250</y>
-      <width>521</width>
-      <height>121</height>
+      <x>30</x>
+      <y>570</y>
+      <width>170</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Robot position:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_SurfacePosition">
+    <property name="geometry">
+     <rect>
+      <x>30</x>
+      <y>610</y>
+      <width>170</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Surface position:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_x_Surface">
+    <property name="geometry">
+     <rect>
+      <x>250</x>
+      <y>610</y>
+      <width>50</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_z_Surface">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>610</y>
+      <width>50</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_y_Surface">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>610</y>
+      <width>50</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>0</string>
+    </property>
+   </widget>
+   <widget class="QTabWidget" name="twg_ManualController">
+    <property name="geometry">
+     <rect>
+      <x>950</x>
+      <y>920</y>
+      <width>541</width>
+      <height>181</height>
      </rect>
     </property>
     <property name="currentIndex">
      <number>0</number>
     </property>
-    <widget class="QWidget" name="tab_4">
+    <widget class="QWidget" name="tab_5">
      <attribute name="title">
-      <string>Halve Sphere Scan</string>
+      <string>Robotic Arm movement</string>
      </attribute>
-     <widget class="QDoubleSpinBox" name="spb_elevationPoints">
+     <widget class="QPushButton" name="btn_zDown">
+      <property name="geometry">
+       <rect>
+        <x>310</x>
+        <y>90</y>
+        <width>93</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Down</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_yDown">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>90</y>
+        <width>93</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Down</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_xDown">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>90</y>
+        <width>93</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Down</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_nonvalue_rob_x">
+      <property name="geometry">
+       <rect>
+        <x>70</x>
+        <y>10</y>
+        <width>21</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>x:</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_xUp">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>40</y>
+        <width>93</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Up</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_nonvalue_robz">
+      <property name="geometry">
+       <rect>
+        <x>350</x>
+        <y>10</y>
+        <width>21</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>z:</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_zUp">
+      <property name="geometry">
+       <rect>
+        <x>310</x>
+        <y>37</y>
+        <width>93</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Up</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_nonvalue_roby">
+      <property name="geometry">
+       <rect>
+        <x>210</x>
+        <y>10</y>
+        <width>21</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>y:</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_yUp">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>40</y>
+        <width>93</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Up</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_nonvalue_LinearActuator_2">
+      <property name="geometry">
+       <rect>
+        <x>440</x>
+        <y>0</y>
+        <width>221</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>(+- 1 )</string>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_6">
+     <attribute name="title">
+      <string>Linear actuator movement</string>
+     </attribute>
+     <widget class="QLabel" name="label_linear_pos">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>60</y>
+        <width>141</width>
+        <height>16</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>0</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_nonvalue_position">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>60</y>
+        <width>131</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>position:</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="spb_linearMoveTo">
+      <property name="geometry">
+       <rect>
+        <x>170</x>
+        <y>10</y>
+        <width>161</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="maximum">
+       <number>100</number>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_nonvalue_LinearActuator">
+      <property name="geometry">
+       <rect>
+        <x>470</x>
+        <y>0</y>
+        <width>221</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>(mm)</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_linear_moveto">
+      <property name="geometry">
+       <rect>
+        <x>350</x>
+        <y>10</y>
+        <width>93</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Move</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_nonvalue_linear_updown">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>100</y>
+        <width>91</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Move 1 mm:</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_linear_down">
+      <property name="geometry">
+       <rect>
+        <x>260</x>
+        <y>100</y>
+        <width>93</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Down</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_nonvalue_linear_moveto">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
+        <y>10</y>
+        <width>141</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Move to:</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_linear_up">
+      <property name="geometry">
+       <rect>
+        <x>140</x>
+        <y>100</y>
+        <width>93</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Up</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_LinearCalibration">
+      <property name="geometry">
+       <rect>
+        <x>350</x>
+        <y>50</y>
+        <width>93</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Calibration</string>
+      </property>
+     </widget>
+    </widget>
+   </widget>
+   <widget class="QLabel" name="label_robotMove">
+    <property name="geometry">
+     <rect>
+      <x>910</x>
+      <y>890</y>
+      <width>221</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Manual Controller:</string>
+    </property>
+   </widget>
+   <widget class="QTabWidget" name="twg_scanSetting">
+    <property name="geometry">
+     <rect>
+      <x>900</x>
+      <y>130</y>
+      <width>651</width>
+      <height>251</height>
+     </rect>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <widget class="QWidget" name="tab_7">
+     <attribute name="title">
+      <string>Auto Generate scanning points</string>
+     </attribute>
+     <widget class="QLabel" name="label_nonvalue_azimuthpoints">
+      <property name="geometry">
+       <rect>
+        <x>200</x>
+        <y>10</y>
+        <width>121</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>azimuthPoints:</string>
+      </property>
+     </widget>
+     <widget class="QTabWidget" name="twg_scanningMode">
       <property name="geometry">
        <rect>
         <x>20</x>
+        <y>90</y>
+        <width>521</width>
+        <height>121</height>
+       </rect>
+      </property>
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="QWidget" name="tab_3">
+       <attribute name="title">
+        <string>Cylinder Scan</string>
+       </attribute>
+       <widget class="QLabel" name="label_nonvalue_laser_angle">
+        <property name="geometry">
+         <rect>
+          <x>170</x>
+          <y>0</y>
+          <width>121</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>laser_angle:</string>
+        </property>
+       </widget>
+       <widget class="QDoubleSpinBox" name="spb_laser_angle">
+        <property name="geometry">
+         <rect>
+          <x>170</x>
+          <y>40</y>
+          <width>131</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="decimals">
+         <number>2</number>
+        </property>
+        <property name="minimum">
+         <double>-90.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>90.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.000000000000000</double>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_nonvalue_zstepsize">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>0</y>
+          <width>121</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>z_stepsize:</string>
+        </property>
+       </widget>
+       <widget class="QSpinBox" name="spb_z_stepsize">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>40</y>
+          <width>131</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="maximum">
+         <number>30</number>
+        </property>
+        <property name="value">
+         <number>5</number>
+        </property>
+       </widget>
+      </widget>
+      <widget class="QWidget" name="tab_4">
+       <attribute name="title">
+        <string>Halve Sphere Scan</string>
+       </attribute>
+       <widget class="QSpinBox" name="spb_elevationPoints">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>40</y>
+          <width>131</width>
+          <height>41</height>
+         </rect>
+        </property>
+        <property name="minimum">
+         <number>1</number>
+        </property>
+        <property name="maximum">
+         <number>300</number>
+        </property>
+        <property name="value">
+         <number>5</number>
+        </property>
+       </widget>
+       <widget class="QLabel" name="label_elevationPoints">
+        <property name="geometry">
+         <rect>
+          <x>20</x>
+          <y>0</y>
+          <width>121</width>
+          <height>31</height>
+         </rect>
+        </property>
+        <property name="text">
+         <string>elevationPoints:</string>
+        </property>
+       </widget>
+      </widget>
+     </widget>
+     <widget class="QLabel" name="label_nonvalue_offset">
+      <property name="geometry">
+       <rect>
+        <x>350</x>
+        <y>10</y>
+        <width>121</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>offset:</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="spb_azimuthPoints">
+      <property name="geometry">
+       <rect>
+        <x>200</x>
+        <y>40</y>
+        <width>131</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <number>16</number>
+      </property>
+      <property name="maximum">
+       <number>359</number>
+      </property>
+      <property name="value">
+       <number>16</number>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="spb_circle_radius">
+      <property name="geometry">
+       <rect>
+        <x>30</x>
         <y>40</y>
         <width>131</width>
         <height>41</height>
@@ -924,7 +995,32 @@
        <number>2</number>
       </property>
       <property name="minimum">
-       <double>1.000000000000000</double>
+       <double>10.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>300.000000000000000</double>
+      </property>
+      <property name="singleStep">
+       <double>10.000000000000000</double>
+      </property>
+      <property name="value">
+       <double>120.000000000000000</double>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="spb_offset">
+      <property name="geometry">
+       <rect>
+        <x>350</x>
+        <y>40</y>
+        <width>131</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="decimals">
+       <number>2</number>
+      </property>
+      <property name="minimum">
+       <double>-300.000000000000000</double>
       </property>
       <property name="maximum">
        <double>300.000000000000000</double>
@@ -933,52 +1029,27 @@
        <double>1.000000000000000</double>
       </property>
       <property name="value">
-       <double>5.000000000000000</double>
+       <double>-20.000000000000000</double>
       </property>
      </widget>
-     <widget class="QLabel" name="label_SampleStep_6">
+     <widget class="QLabel" name="label_nonvalue_circleradius">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>0</y>
+        <x>30</x>
+        <y>10</y>
         <width>121</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>elevationPoints:</string>
+       <string>circle_radius:</string>
       </property>
      </widget>
-     <widget class="QDoubleSpinBox" name="spb_zMin">
+     <widget class="QLabel" name="label_nonvalue_zMin">
       <property name="geometry">
        <rect>
-        <x>180</x>
-        <y>40</y>
-        <width>131</width>
-        <height>41</height>
-       </rect>
-      </property>
-      <property name="decimals">
-       <number>2</number>
-      </property>
-      <property name="minimum">
-       <double>-200.000000000000000</double>
-      </property>
-      <property name="maximum">
-       <double>100.000000000000000</double>
-      </property>
-      <property name="singleStep">
-       <double>1.000000000000000</double>
-      </property>
-      <property name="value">
-       <double>-90.000000000000000</double>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_SampleStep_7">
-      <property name="geometry">
-       <rect>
-        <x>180</x>
-        <y>0</y>
+        <x>500</x>
+        <y>10</y>
         <width>121</width>
         <height>31</height>
        </rect>
@@ -987,30 +1058,125 @@
        <string>zMin:</string>
       </property>
      </widget>
-    </widget>
-    <widget class="QWidget" name="tab_3">
-     <attribute name="title">
-      <string>Cylinder Scan</string>
-     </attribute>
-     <widget class="QLabel" name="label_SampleStep_8">
+     <widget class="QDoubleSpinBox" name="spb_zMin">
       <property name="geometry">
        <rect>
-        <x>340</x>
-        <y>0</y>
-        <width>121</width>
+        <x>500</x>
+        <y>40</y>
+        <width>131</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <double>-200.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>0.000000000000000</double>
+      </property>
+      <property name="singleStep">
+       <double>0.100000000000000</double>
+      </property>
+      <property name="value">
+       <double>-60.000000000000000</double>
+      </property>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="tab_8">
+     <attribute name="title">
+      <string>Manual input scanning points</string>
+     </attribute>
+     <widget class="QPushButton" name="btn_clearTable">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>110</y>
+        <width>93</width>
+        <height>28</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Clear all</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="btn_input">
+      <property name="geometry">
+       <rect>
+        <x>490</x>
+        <y>60</y>
+        <width>91</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>laser_angle:</string>
+       <string>Input</string>
       </property>
      </widget>
-     <widget class="QDoubleSpinBox" name="spb_laser_angle">
+     <widget class="QLabel" name="label_nonvalue_x">
       <property name="geometry">
        <rect>
-        <x>340</x>
-        <y>40</y>
-        <width>131</width>
+        <x>50</x>
+        <y>60</y>
+        <width>21</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>x:</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_nonvalue_y">
+      <property name="geometry">
+       <rect>
+        <x>180</x>
+        <y>50</y>
+        <width>21</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>y:</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_nonvalue_z">
+      <property name="geometry">
+       <rect>
+        <x>330</x>
+        <y>50</y>
+        <width>21</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+        <weight>50</weight>
+        <bold>false</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>z:</string>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="ted_x">
+      <property name="geometry">
+       <rect>
+        <x>70</x>
+        <y>50</y>
+        <width>91</width>
         <height>41</height>
        </rect>
       </property>
@@ -1018,24 +1184,49 @@
        <number>2</number>
       </property>
       <property name="minimum">
-       <double>-90.000000000000000</double>
+       <double>-300.000000000000000</double>
       </property>
       <property name="maximum">
-       <double>90.000000000000000</double>
+       <double>300.000000000000000</double>
       </property>
       <property name="singleStep">
-       <double>1.000000000000000</double>
+       <double>10.000000000000000</double>
       </property>
       <property name="value">
-       <double>90.000000000000000</double>
+       <double>120.000000000000000</double>
       </property>
      </widget>
-     <widget class="QDoubleSpinBox" name="spb_max_depth">
+     <widget class="QDoubleSpinBox" name="ted_y">
       <property name="geometry">
        <rect>
-        <x>180</x>
-        <y>40</y>
-        <width>131</width>
+        <x>210</x>
+        <y>50</y>
+        <width>91</width>
+        <height>41</height>
+       </rect>
+      </property>
+      <property name="decimals">
+       <number>2</number>
+      </property>
+      <property name="minimum">
+       <double>-300.000000000000000</double>
+      </property>
+      <property name="maximum">
+       <double>300.000000000000000</double>
+      </property>
+      <property name="singleStep">
+       <double>10.000000000000000</double>
+      </property>
+      <property name="value">
+       <double>120.000000000000000</double>
+      </property>
+     </widget>
+     <widget class="QDoubleSpinBox" name="ted_z">
+      <property name="geometry">
+       <rect>
+        <x>350</x>
+        <y>50</y>
+        <width>91</width>
         <height>41</height>
        </rect>
       </property>
@@ -1049,64 +1240,343 @@
        <double>0.000000000000000</double>
       </property>
       <property name="singleStep">
-       <double>1.000000000000000</double>
-      </property>
-      <property name="value">
-       <double>-50.000000000000000</double>
-      </property>
-     </widget>
-     <widget class="QLabel" name="label_SampleStep">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>0</y>
-        <width>121</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>z_stepsize:</string>
-      </property>
-     </widget>
-     <widget class="QDoubleSpinBox" name="spb_z_stepsize">
-      <property name="geometry">
-       <rect>
-        <x>20</x>
-        <y>40</y>
-        <width>131</width>
-        <height>41</height>
-       </rect>
-      </property>
-      <property name="decimals">
-       <number>2</number>
-      </property>
-      <property name="minimum">
-       <double>0.100000000000000</double>
-      </property>
-      <property name="maximum">
-       <double>30.000000000000000</double>
-      </property>
-      <property name="singleStep">
-       <double>0.100000000000000</double>
-      </property>
-      <property name="value">
        <double>10.000000000000000</double>
       </property>
-     </widget>
-     <widget class="QLabel" name="label_SampleStep_3">
-      <property name="geometry">
-       <rect>
-        <x>180</x>
-        <y>0</y>
-        <width>121</width>
-        <height>31</height>
-       </rect>
-      </property>
-      <property name="text">
-       <string>max_depth:</string>
+      <property name="value">
+       <double>-30.000000000000000</double>
       </property>
      </widget>
     </widget>
+   </widget>
+   <widget class="QLabel" name="label_ScanningSetting_2">
+    <property name="geometry">
+     <rect>
+      <x>910</x>
+      <y>380</y>
+      <width>201</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Result:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_nonvalue_distance">
+    <property name="geometry">
+     <rect>
+      <x>1320</x>
+      <y>110</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>distance:</string>
+    </property>
+   </widget>
+   <widget class="QDoubleSpinBox" name="spb_laser_distance">
+    <property name="geometry">
+     <rect>
+      <x>1400</x>
+      <y>100</y>
+      <width>131</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="decimals">
+     <number>2</number>
+    </property>
+    <property name="minimum">
+     <double>0.000000000000000</double>
+    </property>
+    <property name="maximum">
+     <double>10.000000000000000</double>
+    </property>
+    <property name="singleStep">
+     <double>0.500000000000000</double>
+    </property>
+    <property name="value">
+     <double>2.000000000000000</double>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_nonvalue_netwrok">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>640</y>
+      <width>81</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>75</weight>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Network:</string>
+    </property>
+    <property name="wordWrap">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QWidget" name="viewer_network" native="true">
+    <property name="geometry">
+     <rect>
+      <x>410</x>
+      <y>670</y>
+      <width>471</width>
+      <height>421</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="contextMenuPolicy">
+     <enum>Qt::DefaultContextMenu</enum>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_nonvalue_x_2">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>570</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>x:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_nonvalue_y_3">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>610</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>y: </string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_nonvalue_x_3">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>610</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>x:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_nonvalue_y_2">
+    <property name="geometry">
+     <rect>
+      <x>380</x>
+      <y>570</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>y: </string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_nonvalue_z_3">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>610</y>
+      <width>21</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>z:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_nonvalue_z_2">
+    <property name="geometry">
+     <rect>
+      <x>540</x>
+      <y>570</y>
+      <width>21</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>z:</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_dist_laser">
+    <property name="geometry">
+     <rect>
+      <x>800</x>
+      <y>570</y>
+      <width>50</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>10</pointsize>
+      <weight>50</weight>
+      <bold>false</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>2</string>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cbx_S33">
+    <property name="geometry">
+     <rect>
+      <x>510</x>
+      <y>650</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>S33</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+    <property name="tristate">
+     <bool>false</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cbx_S32">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>650</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>S32</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cbx_S23">
+    <property name="geometry">
+     <rect>
+      <x>630</x>
+      <y>650</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>S23</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QCheckBox" name="cbx_S22">
+    <property name="geometry">
+     <rect>
+      <x>690</x>
+      <y>650</y>
+      <width>51</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>S22</string>
+    </property>
+    <property name="checked">
+     <bool>true</bool>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="btn_Plot">
+    <property name="geometry">
+     <rect>
+      <x>740</x>
+      <y>650</y>
+      <width>81</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Plot</string>
+    </property>
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
