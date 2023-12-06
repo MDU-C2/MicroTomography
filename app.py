@@ -102,7 +102,14 @@ class Thread_Scanning(QThread):
         
         # Generate points for laser scanning if no item in the table or read data from table
         if tabIndex == 0:
+
             self.printText.emit("Auto generate scanning points and scanning...")
+
+            if self.scanModeIndex == 0:  # Cylinder   
+                self.printText.emit(f"Cylinder scan with quaternion: {self.classdata.quaternion}")
+            elif self.scanModeIndex == 1:  # halve sphere
+                self.printText.emit(f"Halve sphere scan with quaternion: {self.classdata.quaternion}")
+            
             result = autoScan(self.scanModeIndex, self.classdata.quaternion, self.radius, self.z_stepsize, self.azimuth_points, self.z_offset, self.elevation_points, self.z_min, self.laser_angle, self.logbox)
 
             writeResultToTable(result, self.tableResult)
@@ -144,6 +151,7 @@ class Thread_Scanning(QThread):
 class Thread_Calibration(QThread):
     #connect functions from main thread
     finished = pyqtSignal()
+    printText = pyqtSignal(str)
     disableButtons = pyqtSignal(bool)
 
     #Get values from main thread
@@ -155,10 +163,10 @@ class Thread_Calibration(QThread):
     def run(self):
         #run calibration
         self.disableButtons.emit(True)
-        printLog(self.logbox,"Calibration runs.")
+        self.printText.emit("Calibration runs.")
         self.classdata.quaternion = calibration()
-        printLog(self.logbox,f"New calibration: {self.classdata.quaternion}")
-        printLog(self.logbox,"Calibration finished!")
+        self.printText.emit(f"New calibration: {self.classdata.quaternion}")
+        self.printText.emit("Calibration finished!")
         self.disableButtons.emit(False)
     
     def stopNow(self):
@@ -343,6 +351,7 @@ class AppWindow(QMainWindow):
         self.worker_thread = Thread_Calibration(self.classdata, self.ui.tbx_log)
 
         self.worker_thread.disableButtons.connect(self.disableButton)
+        self.worker_thread.printText.connect(self.printLog)
         self.worker_thread.finished.connect(self.worker_thread.deleteLater)
 
         self.worker_thread.start()
@@ -445,7 +454,7 @@ class AppWindow(QMainWindow):
         plotData(self.ui.tbw_result, self.ax, "b", self.ui.tbx_log)
 
         #plot positions in manually inputs
-        #plotData(self.ui.tbw_positionlist, self.ax, "g", self.ui.tbx_log)
+        plotData(self.ui.tbw_positionlist, self.ax, "g", self.ui.tbx_log)
 
         self.canvas.draw()
 

@@ -173,16 +173,10 @@ def add2DDiagramInGUI(viewer):
 #function: generate scanning points and peform scanning
 def autoScan(currentIndex, quaternion, radius, z_stepsize, azimuth_points, z_offset, elevation_points, z_min, laser_angle, log):
 
-    if not -90 < laser_angle < 90:
-        log.append("Laser_angle must be -90 < laser_angle < 90")
-        return None
-    
-    if currentIndex == 0:  # Cylinder
-        log.append(f"Cylinder scan with quaternion: {quaternion}")
+    if currentIndex == 0:  # Cylinder   
         result = scan_points(quaternion, radius, z_stepsize, z_min, azimuth_points, z_offset, laser_angle)
         return result
     elif currentIndex == 1:  # halve sphere
-        log.append(f"Halve sphere scan with quaternion: {quaternion}")
         result = scan_points(quaternion, radius, azimuth_points, elevation_points, z_min, z_offset)
         return result
     
