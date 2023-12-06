@@ -117,7 +117,7 @@ def get_points(recon_mesh, choosenPoints, distance_from_mesh):
 
         c = c - distance_from_mesh * normal
         closestPoints.append(c)
-        closestNormals.append(-normal)
+        closestNormals.append(normal)
         print(ans)
         print(c)
 
