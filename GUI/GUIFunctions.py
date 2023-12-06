@@ -275,3 +275,6 @@ def changeLinearActuatorSteps(stepValueNow, label_PosNow, spb_PosGoal):
 def recon3D(result):
     mesh = poisson_surface_reconstruction(result, save=False)
     return mesh
+
+def printLog(log, messange):
+    log.append(messange)

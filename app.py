@@ -101,14 +101,14 @@ class Thread_Scanning(QThread):
         
         # Generate points for laser scanning if no item in the table or read data from table
         if tabIndex == 0:
-            self.logbox.append("Auto generate scanning points and scanning...")
+            printLog(self.logbox,"Auto generate scanning points and scanning...")
             result = autoScan(self.scanModeIndex, self.classdata.quaternion, self.radius, self.z_stepsize, self.azimuth_points, self.z_offset, self.elevation_points, self.z_min, self.laser_angle, self.logbox)
 
             writeResultToTable(result, self.tableResult)
-            self.logbox.append("Scanning Finished.")
+            printLog(self.logbox,"Scanning Finished.")
             self.displayPointClound.emit()
         else:
-            self.logbox.append("Reading position list...")
+            printLog(self.logbox,"Reading position list...")
             
             # Check if it is empty in the position list or not
             if not self.tablePosition.rowCount() == 0:
@@ -131,10 +131,10 @@ class Thread_Scanning(QThread):
                     self.label_x_RobPos, self.label_y_RobPos, self.label_z_RobPos, self.label_dist_laser,
                     self.label_x_Surface, self.label_y_Surface,self.label_z_Surface)
 
-                self.logbox.append("Moving Finished.")
+                printLog(self.logbox,"Moving Finished.")
                 #self.displayPointClound.emit()
             else:
-                self.logbox.append("No item in the Position list")
+                printLog(self.logbox,"No item in the Position list")
 
         #Enable buttons
         self.disableButtons.emit(False)
@@ -154,10 +154,10 @@ class Thread_Calibration(QThread):
     def run(self):
         #run calibration
         self.disableButtons.emit(True)
-        self.logbox.append("Calibration runs.")
+        printLog(self.logbox,"Calibration runs.")
         self.classdata.quaternion = calibration()
-        self.logbox.append(f"New calibration: {self.classdata.quaternion}")
-        self.logbox.append("Calibration finished!")
+        printLog(self.logbox,f"New calibration: {self.classdata.quaternion}")
+        printLog(self.logbox,"Calibration finished!")
         self.disableButtons.emit(False)
     
     def stopNow(self):
