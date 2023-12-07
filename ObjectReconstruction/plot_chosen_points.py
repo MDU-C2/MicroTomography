@@ -7,46 +7,6 @@ from scipy.spatial.transform import Rotation as R
 def plot_choosen(
     closestPoints, closestNormals, choosenPoints, recon_mesh, distance_from_mesh
 ):
-    """recon_vertices = np.asarray(recon_mesh.vertices)
-    recon_triangles = np.asarray(recon_mesh.triangles)
-    recon_vertices = o3d.core.Tensor(
-        recon_vertices,
-        dtype=o3d.core.Dtype.Float32,
-    )
-
-    recon_triangles = o3d.core.Tensor(
-        recon_triangles,
-        dtype=o3d.core.Dtype.UInt32,
-    )
-
-    scene = o3d.t.geometry.RaycastingScene()
-
-    recond_id = scene.add_triangles(recon_vertices, recon_triangles)
-
-    # normal = np.asarray([0, 0, 0]) - np.asarray(cP)
-    closestPoints = []
-    closestNormals = []
-    # normalized_v = normal / np.sqrt(np.sum(normal**2))
-    for points in choosenPoints:
-        rays = o3d.core.Tensor(
-            [
-                [
-                    points[0],
-                    points[1],
-                    points[2],
-                ],
-            ],
-            dtype=o3d.core.Dtype.Float32,
-        )
-        ans = scene.compute_closest_points(rays)
-
-        normal = ans["primitive_normals"].numpy() / np.linalg.norm(
-            ans["primitive_normals"].numpy()
-        )
-        print(normal)
-        print(np.linalg.norm(normal))
-        closestNormals.append(-normal)
-        closestPoints.append(ans["points"].numpy())"""
     closestPoints = np.vstack(closestPoints)
     closestNormals = np.vstack(closestNormals)
 
