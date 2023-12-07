@@ -23,7 +23,15 @@ from zvb.titi_bakonkadonk_brest_8008 import *
 
 
 # Function for scanning points in either cylinder form or halfsphere form
-def scan_points(quaternion, *args):
+def scan_points(
+    quaternion=[
+        0.9999431292112558,
+        0.010580670532612012,
+        0.0013370534780490603,
+        0.000006502210241618077,
+    ],
+    *args,
+):
     """
     Parameters
     ----------
