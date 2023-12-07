@@ -342,7 +342,7 @@ class Ui_MainWindow(object):
         self.label_nonvalue_offset.setObjectName("label_nonvalue_offset")
         self.spb_azimuthPoints = QtWidgets.QSpinBox(self.tab_7)
         self.spb_azimuthPoints.setGeometry(QtCore.QRect(200, 40, 131, 41))
-        self.spb_azimuthPoints.setMinimum(16)
+        self.spb_azimuthPoints.setMinimum(0)
         self.spb_azimuthPoints.setMaximum(359)
         self.spb_azimuthPoints.setProperty("value", 16)
         self.spb_azimuthPoints.setObjectName("spb_azimuthPoints")

@@ -7,7 +7,7 @@ from PyQt5.QtCore import QThread, pyqtSignal
 from threading import Semaphore
 
 #Object reconstruction
-from zvb.titi_bakonkadonk_brest_8008_GUI import mw_boob, networkMeasure
+from zvb.titi_bakonkadonk_brest_8008_GUI import *
 
 from GUI import ScanningSystem
 from GUI.GUIFunctions import *
@@ -138,9 +138,12 @@ class Thread_Scanning(QThread):
                 antenna_points, antenna_q = mw_boob(mesh, positions, self.distance, self.classdata.quaternion)
 
                 for point, q in zip(antenna_points, antenna_q):
+                    robot = connectRobot(self.classdata.quaternion)
                     freq, data_33, data_32, data_23, data_22 = networkMeasure(point, q, i, self.classdata.quaternion)
                     plotNetworkAnalyserDiagram(self.network_ax, self.canvasNetwork, self.cbx_S33, self.cbx_S32, self.cbx_S23, self.cbx_S22, freq, data_33, data_32, data_23, data_22)
                     i += 1
+
+                closeRobot(robot)
                 
                 changeLabels(antenna_points, positions,self.spb_laser_distance.value(), 
                     self.label_x_RobPos, self.label_y_RobPos, self.label_z_RobPos, self.label_dist_laser,

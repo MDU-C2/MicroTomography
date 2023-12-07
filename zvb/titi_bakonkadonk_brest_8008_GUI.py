@@ -53,7 +53,7 @@ def mw_boob(mesh, points: list, distance: (int | float), quaternions):
 
     antenna_points, antenna_q = choose_points_microwave.ray_cast_points(mesh, points, distance)
 
-    robot_control.close_connection(robot)
+    robot_control.close_connection(robot) robot_control.close_connection(robot)
     return antenna_points, antenna_q
 
 def mw_micromovement(mesh, points: list, distance: (int | float), quaternions):
@@ -78,10 +78,10 @@ def mw_micromovement(mesh, points: list, distance: (int | float), quaternions):
     robot_control.close_connection(robot)
     return antenna_points, antenna_q
 
-def networkMeasure(point, q, i, quaternions):
+def networkMeasure(robot,point, q, i, quaternions):
     visa_instrument = mw_init()
-    robot = robot_control.robot_init(2, quaternions)
-    robot_control.set_zone_use(robot, True)
+    #robot = robot_control.robot_init(2, quaternions)
+    #robot_control.set_zone_use(robot, True)
 
     robot_control.move_robot_linear(robot, [point, q])
     freq, data_33 = visa_instrument.measure(meas_param="S33")
@@ -174,3 +174,16 @@ def read_complex_csv(path: str) -> list:
         data[name] = data[name].apply(lambda s: complex(s))
 
     return data
+
+def connectRobot(quaternions):
+    robot = robot_control.robot_init(2, quaternions)
+    robot_control.set_zone_use(robot, True)
+
+    return robot
+
+def closeRobot(robot):
+    robot_control.close_connection(robot)
+
+
+
+    

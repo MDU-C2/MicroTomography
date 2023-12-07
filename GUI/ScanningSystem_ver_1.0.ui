@@ -973,7 +973,7 @@
        </rect>
       </property>
       <property name="minimum">
-       <number>16</number>
+       <number>0</number>
       </property>
       <property name="maximum">
        <number>359</number>
