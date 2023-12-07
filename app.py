@@ -137,9 +137,10 @@ class Thread_Scanning(QThread):
                 #Generate moving data and move robot
                 antenna_points, antenna_q = mw_boob(mesh, positions, self.distance, self.classdata.quaternion)
 
-                for point, q in zip(antenna_points, antenna_q):
-                    robot = connectRobot(self.classdata.quaternion)
-                    freq, data_33, data_32, data_23, data_22 = networkMeasure(point, q, i, self.classdata.quaternion)
+                robot = connectRobot(self.classdata.quaternion)
+
+                for point, q in zip(antenna_points, antenna_q):                
+                    freq, data_33, data_32, data_23, data_22 = networkMeasure(robot, point, q, i, self.classdata.quaternion)
                     plotNetworkAnalyserDiagram(self.network_ax, self.canvasNetwork, self.cbx_S33, self.cbx_S32, self.cbx_S23, self.cbx_S22, freq, data_33, data_32, data_23, data_22)
                     i += 1
 

@@ -53,7 +53,7 @@ def mw_boob(mesh, points: list, distance: (int | float), quaternions):
 
     antenna_points, antenna_q = choose_points_microwave.ray_cast_points(mesh, points, distance)
 
-    robot_control.close_connection(robot) robot_control.close_connection(robot)
+    robot_control.close_connection(robot)
     return antenna_points, antenna_q
 
 def mw_micromovement(mesh, points: list, distance: (int | float), quaternions):
