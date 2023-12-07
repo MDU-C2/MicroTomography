@@ -44,9 +44,9 @@ def get_quaternions(closestNormals):
         # Make the quaternion from the matrix
         quaternions_test = mat.to_quaternion()
         quaternion.append(quaternions_test)
-        plot_basis(R=matrix_from_quaternion(q))
-        plot_basis(R=matrix_from_quaternion(quaternions_test))
-        plt.show()
+        #plot_basis(R=matrix_from_quaternion(q))
+        #plot_basis(R=matrix_from_quaternion(quaternions_test))
+        #plt.show()
 
     return quaternion
 

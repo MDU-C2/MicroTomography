@@ -107,10 +107,17 @@ class Thread_Scanning(QThread):
 
             if self.scanModeIndex == 0:  # Cylinder   
                 self.printText.emit(f"Cylinder scan with quaternion: {self.classdata.quaternion}")
+   
+                result = scan_points(self.classdata.quaternion, self.radius, self.z_stepsize, self.z_min, self.azimuth_points, self.z_offset, self.laser_angle)
+
+                
+ 
             elif self.scanModeIndex == 1:  # halve sphere
                 self.printText.emit(f"Halve sphere scan with quaternion: {self.classdata.quaternion}")
+
+                result = scan_points(self.classdata.quaternion, self.radius, self.azimuth_points, self.elevation_points, self.z_min, self.z_offset)
             
-            result = autoScan(self.scanModeIndex, self.classdata.quaternion, self.radius, self.z_stepsize, self.azimuth_points, self.z_offset, self.elevation_points, self.z_min, self.laser_angle, self.logbox)
+            
 
             writeResultToTable(result, self.tableResult)
             self.printText.emit("Scanning Finished.")
@@ -140,7 +147,7 @@ class Thread_Scanning(QThread):
                     self.label_x_Surface, self.label_y_Surface,self.label_z_Surface)
 
                 self.printText.emit("Moving Finished.")
-                #self.displayPointClound.emit()
+                self.displayPointClound.emit()
             else:
                 self.printText.emit("No item in the Position list")
 

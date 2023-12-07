@@ -29,14 +29,14 @@ from surface_reconstruction import poisson_surface_reconstruction, delaunay_orig
 from load_cad_file import load_stl_file
 #from plot_chosen_points import plot_choosen
 
-from trace_error import line_trace
+#from trace_error import line_trace
 from choose_points_microwave import ray_cast_points
 from read_save_csv import save_csv
 from interpolate_up import interpolate_up as int_up
 from move_pointcloud import move_pointcloud
 
 
-filename = "scanned_data/2023-11-16-1354-joel.csv"
+filename = "Data/OurTest.csv"
 # f = sp.io.loadmat(fileName, squeeze_me=False)
 data = pd.read_csv(filename)  # Gets the surface points from the .mat file
 # data_2 = pd.read_csv(filename_2)
@@ -50,8 +50,8 @@ mesh, points = load_stl_file()
 # points_2 = fix_points(data)
 
 step_size = 2
-data = int_up(data, step_size)
-data = move_pointcloud(data)
+#data = int_up(data, step_size)
+#data = move_pointcloud(data)
 
 ### Plot pointcloud
 """mlab.figure()
@@ -101,7 +101,7 @@ totalElapsed = time.time() - t
 
 # Error metric function.
 
-average_error_1 = line_trace(GT_mesh, recon_mesh, test, data)
+#average_error_1 = line_trace(GT_mesh, recon_mesh, test, data)
 
 
 # ChosenPoints Functions gets the closest points on the mesh

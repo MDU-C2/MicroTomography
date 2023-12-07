@@ -98,8 +98,6 @@ def networkMeasure(point, q, i, quaternions):
             "S22": data_22,
         },
     )
-
-    robot_control.NonReturnClose(robot)
     
     return freq, data_33, data_32, data_23, data_22
 

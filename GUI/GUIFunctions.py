@@ -65,11 +65,11 @@ def readDataFromTable(table, log):
                 try:
                     row_data.append(float(item.text()))
                 except:
-                    log.append(f"[{row}, {column}]is not a number. Please go and check it")
+                    break
 
             tableData.append(row_data)
-    else:
-        log.append("No iteam in the table")
+    #else:
+        #log.append("No iteam in the table")
 
     return tableData
 
@@ -169,16 +169,6 @@ def add2DDiagramInGUI(viewer):
     network_ax.set_ylabel("Abs Complex")
 
     return network_ax, canvasNetwork
-
-#function: generate scanning points and peform scanning
-def autoScan(currentIndex, quaternion, radius, z_stepsize, azimuth_points, z_offset, elevation_points, z_min, laser_angle, log):
-
-    if currentIndex == 0:  # Cylinder   
-        result = scan_points(quaternion, radius, z_stepsize, z_min, azimuth_points, z_offset, laser_angle)
-        return result
-    elif currentIndex == 1:  # halve sphere
-        result = scan_points(quaternion, radius, azimuth_points, elevation_points, z_min, z_offset)
-        return result
     
 #functions: plot network analyser diagram
 def plotNetworkAnalyserDiagram(network_ax, canvasNetwork, cbx_S33, cbx_S32, cbx_S23, cbx_S22, freq, data_33, data_32, data_23, data_22):   
@@ -267,8 +257,5 @@ def changeLinearActuatorSteps(stepValueNow, label_PosNow, spb_PosGoal):
     spb_PosGoal.setValue(stepValueNow)
 
 def recon3D(result):
-    mesh = poisson_surface_reconstruction(result, save=False)
+    mesh = poisson_surface_reconstruction(result, save=False,  re_resolution=15)
     return mesh
-
-def printLog(log, messange):
-    log.append(messange)
