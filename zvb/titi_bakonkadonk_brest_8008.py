@@ -14,9 +14,8 @@ import time
 from RsInstrument import *
 
 from zvb.InstrumentClass import VisaInstrument
-#from InstrumentClass import VisaInstrument
 
-#from skrf import Frequency, Network
+from skrf import Frequency, Network
 
 
 def mw_init() -> VisaInstrument:
@@ -55,23 +54,23 @@ def mw_boob(mesh, points: list, distance: (int | float)) -> None:
     robot = robot_control.robot_init(2)
     robot_control.set_zone_use(robot, True)
 
-    antenna_points, antenna_q = choose_points_microwave.get_points(
+    antenna_points, antenna_q, _ = choose_points_microwave.get_points(
         mesh, points, distance
     )
 
-    fig, ax1 = plt.subplots()
-
-    color1 = "tab:red"
-    ax1.set_xlabel("Frequency (Hz)")
-    ax1.set_ylabel("dB", color=color1)
-
-    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-
-    color2 = "tab:blue"
-    ax2.set_ylabel("dB", color=color2)
-
     i = 0
     for point, q in zip(antenna_points, antenna_q):
+        fig, ax1 = plt.subplots()
+
+        color1 = "tab:red"
+        ax1.set_xlabel("Frequency (Hz)")
+        ax1.set_ylabel("dB", color=color1)
+
+        ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+
+        color2 = "tab:blue"
+        ax2.set_ylabel("dB", color=color2)
+        
         print(f"Going to Coordinate: {point}, Quats: {q}")
         robot_control.move_robot_linear(robot, [point, q])
         freq, data_33 = visa_instrument.measure(meas_param="S33")
@@ -93,6 +92,8 @@ def mw_boob(mesh, points: list, distance: (int | float)) -> None:
         """for key, value in data.items():
             if key != "Frequency":
                 plt.plot(np.abs(data["Frequency"]), np.abs(value), label=key)"""
+
+        save_s2p("MW_measurement_" + str(i), frequency=freq, S22 = data_22, S23=data_23, S32 = data_32, S33=data_33)
 
         (line1,) = ax1.plot(
             np.abs(data["Frequency"]),

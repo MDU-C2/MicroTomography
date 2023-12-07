@@ -1,55 +1,237 @@
-linearActuator = 0
-laserON = 0
-
 ##
 # Modules
 ##
 import sys
-from PyQt5.QtWidgets import (
-    QApplication,
-    QMainWindow,
-    QVBoxLayout,
-    QTableWidgetItem,
-    QMessageBox,
-)
-import pandas as pd
-from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
-from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
-import matplotlib.pyplot as plt
+from PyQt5.QtWidgets import QApplication,QMainWindow
+from PyQt5.QtCore import QThread, pyqtSignal
+from threading import Semaphore
 
+#Object reconstruction
+from zvb.titi_bakonkadonk_brest_8008_GUI import *
 
-import time
-from time import sleep
-
-##
-# Class files
-##
-from ObjectReconstruction.Spline import spline
-from ObjectReconstruction.reshapeArr import reshapeArr
-
-# from ObjectReconstruction.Surface_Reconstruction import surface_Reconstruction
 from GUI import ScanningSystem
-from GUI.ButtonCode import Button_MoveRobotArm
-from GUI.ButtonCode.Button_LOAD import load_model
-from GUI.ButtonCode.Button_SAVE import save_model
-from RobotArm import robot_control
-from RobotArm import generate_scan_points
-from RobotArm import abb
+from GUI.GUIFunctions import *
+from GUI import ClassGUI
+from RobotArm.scan_breast_phantom import scan_points, calibration, microMoveForRobot
 
-if laserON == 1:
-    from Laser import optoNCDT1402
-    from RaspberryPi import transistor
+#linear actuator
+import LinearActuator.linearActuatorController as linearController
 
-if linearActuator == 1:
-    import LinearActuator.linearActuatorController as linearController
+class Thread_Scanning(QThread):
+    finished = pyqtSignal()
+    printText = pyqtSignal(str)
+    disableButtons = pyqtSignal(bool)
+    displayPointClound = pyqtSignal()
 
-# global variables
-robot = None
-# data = None #Global variable for store the data
-laser_x = 0  # laser position x
-laser_y = 0  # laser position y
-laser_z = 0  # laser position z
+    def __init__(self,
+                ScanSetting,
+                scanModeIndex,
+                classdata,
+                radius,
+                z_stepsize,
+                azimuth_points,
+                z_offset,
+                elevation_points,
+                z_min,
+                laser_angle,
+                laser_distance,
+                resultTable,
+                positionTable,
+                log,
+                spb_laser_distance, 
+                label_x_RobPos, 
+                label_y_RobPos,
+                label_z_RobPos,
+                label_dist_laser,
+                label_x_Surface,
+                label_y_Surface,
+                label_z_Surface,
+                network_ax, 
+                canvasNetwork, 
+                cbx_S33, 
+                cbx_S32, 
+                cbx_S23, 
+                cbx_S22
+                ):
+        super().__init__()
+        self.ScanSetting = ScanSetting
+        self.scanModeIndex = scanModeIndex
+        self.classdata = classdata
+        self.radius = radius
+        self.z_stepsize = z_stepsize
+        self.azimuth_points = azimuth_points
+        self.z_offset = z_offset
+        self.elevation_points = elevation_points
+        self.z_min = z_min
+        self.laser_angle = laser_angle
+        self.distance = laser_distance
+        self.tableResult = resultTable
+        self.tablePosition = positionTable
+        self.logbox = log
+        self.spb_laser_distance = spb_laser_distance
+        self.label_x_RobPos = label_x_RobPos
+        self.label_y_RobPos = label_y_RobPos
+        self.label_z_RobPos = label_z_RobPos
+        self.label_dist_laser = label_dist_laser
+        self.label_x_Surface = label_x_Surface
+        self.label_y_Surface = label_y_Surface
+        self.label_z_Surface = label_z_Surface
+        self.network_ax = network_ax
+        self.canvasNetwork = canvasNetwork
+        self.cbx_S33 = cbx_S33
+        self.cbx_S32 = cbx_S32
+        self.cbx_S23 = cbx_S23
+        self.cbx_S22 = cbx_S22
 
+    def run(self):
+        self.scanMode()
+        self.finished.emit()
+    
+    def stopNow(self):
+        self.terminate()
+        self.wait()
+
+    def scanMode(self):
+        i = 0
+        
+        # read which scanning mode tab is on now
+        tabIndex = self.ScanSetting
+
+        #Disable buttons
+        self.disableButtons.emit(True)
+        
+        # Generate points for laser scanning if no item in the table or read data from table
+        if tabIndex == 0:
+
+            self.printText.emit("Auto generate scanning points and scanning...")
+
+            if self.scanModeIndex == 0:  # Cylinder   
+                self.printText.emit(f"Cylinder scan with quaternion: {self.classdata.quaternion}")
+   
+                result = scan_points(self.classdata.quaternion, self.radius, self.z_stepsize, self.z_min, self.azimuth_points, self.z_offset, self.laser_angle)
+
+                
+ 
+            elif self.scanModeIndex == 1:  # halve sphere
+                self.printText.emit(f"Halve sphere scan with quaternion: {self.classdata.quaternion}")
+
+                result = scan_points(self.classdata.quaternion, self.radius, self.azimuth_points, self.elevation_points, self.z_min, self.z_offset)
+            
+            
+
+            writeResultToTable(result, self.tableResult)
+            self.printText.emit("Scanning Finished.")
+            self.displayPointClound.emit()
+        else:
+            self.printText.emit("Reading position list...")
+            
+            # Check if it is empty in the position list or not
+            if not self.tablePosition.rowCount() == 0:
+                #read 3D mesh
+                result = readDataFromTable(self.tableResult, self.logbox)
+                mesh = recon3D(result)
+
+                #read items in the manual input position table
+                positions = readDataFromTable(self.tablePosition, self.logbox)
+
+                #Generate moving data and move robot
+                antenna_points, antenna_q = mw_boob(mesh, positions, self.distance, self.classdata.quaternion)
+
+                robot = connectRobot(self.classdata.quaternion)
+
+                for point, q in zip(antenna_points, antenna_q):                
+                    freq, data_33, data_32, data_23, data_22 = networkMeasure(robot, point, q, i, self.classdata.quaternion)
+                    plotNetworkAnalyserDiagram(self.network_ax, self.canvasNetwork, self.cbx_S33, self.cbx_S32, self.cbx_S23, self.cbx_S22, freq, data_33, data_32, data_23, data_22)
+                    i += 1
+
+                closeRobot(robot)
+                
+                changeLabels(antenna_points, positions,self.spb_laser_distance.value(), 
+                    self.label_x_RobPos, self.label_y_RobPos, self.label_z_RobPos, self.label_dist_laser,
+                    self.label_x_Surface, self.label_y_Surface,self.label_z_Surface)
+
+                self.printText.emit("Moving Finished.")
+                self.displayPointClound.emit()
+            else:
+                self.printText.emit("No item in the Position list")
+
+        #Enable buttons
+        self.disableButtons.emit(False)
+     
+#Thread for calibration    
+class Thread_Calibration(QThread):
+    #connect functions from main thread
+    finished = pyqtSignal()
+    printText = pyqtSignal(str)
+    disableButtons = pyqtSignal(bool)
+
+    #Get values from main thread
+    def __init__(self, classdata, log):
+        super().__init__()
+        self.classdata = classdata
+        self.logbox = log
+
+    def run(self):
+        #run calibration
+        self.disableButtons.emit(True)
+        self.printText.emit("Calibration runs.")
+        self.classdata.quaternion = calibration()
+        self.printText.emit(f"New calibration: {self.classdata.quaternion}")
+        self.printText.emit("Calibration finished!")
+        self.disableButtons.emit(False)
+    
+    def stopNow(self):
+        self.terminate() #Close the thread
+        self.wait()
+
+class Thread_LinearAcutator(QThread):
+    sem_protection = Semaphore(1)
+
+    def __init__(self, label_linear_pos,spb_LinearMoveTo):
+        super().__init__()
+        self.label_PosNow = label_linear_pos
+        self.spb_PosGoal = spb_LinearMoveTo
+        self.actuator = linearController.linear_actuator()
+        
+    def run(self):
+        pass
+
+    def MoveLinearActuatorToPosition(self):
+        self.sem_protection.acquire()
+        total_steps_changes = self.spb_PosGoal.value() 
+        current_position = int(self.label_PosNow.text())
+        
+        if total_steps_changes > current_position:
+            UpOrDown = 1
+        else:
+            UpOrDown = 2
+
+        self.actuator.move_to_desired_location(current_position, total_steps_changes, UpOrDown)
+        steps = total_steps_changes
+        changeLinearActuatorSteps(steps, self.label_PosNow, self.spb_PosGoal)
+
+        self.sem_protection.release()
+
+    def MoveLinearActuatorDown(self):
+        self.sem_protection.acquire()
+        
+        steps = self.actuator.move_down_1mm(self.spb_PosGoal.value())
+        changeLinearActuatorSteps(steps, self.label_PosNow, self.spb_PosGoal)
+
+        self.sem_protection.release()
+
+    def MoveLinearActuatorUp(self):
+        self.sem_protection.acquire()
+
+        steps = self.actuator.move_up_1mm(self.spb_PosGoal.value())
+        changeLinearActuatorSteps(steps, self.label_PosNow, self.spb_PosGoal)
+
+        self.sem_protection.release()
+
+    def setStepToZero(self):
+        self.sem_protection.acquire()
+        changeLinearActuatorSteps(0, self.label_PosNow, self.spb_PosGoal)
+        self.sem_protection.release()
 
 class AppWindow(QMainWindow):
     def __init__(self):
@@ -58,571 +240,234 @@ class AppWindow(QMainWindow):
         self.ui.setupUi(self)
 
         # button functions
-        self.ui.btn_Load.pressed.connect(self.loadFile)
-        self.ui.btn_Save.pressed.connect(self.saveFile)
-        self.ui.btn_input.pressed.connect(self.insert_row)
+        self.ui.btn_Load.pressed.connect(self.loadButton)
+        self.ui.btn_Save.pressed.connect(self.saveButton)
+        self.ui.btn_Scan.pressed.connect(self.scanButton)
+        self.ui.btn_Stop.pressed.connect(self.stopButton)
+        self.ui.btn_Calibration.pressed.connect(self.calibrationButton)
+
+        self.ui.btn_input.pressed.connect(self.inputButton)
+        self.ui.btn_clearTable.pressed.connect(self.clearButton)
+
         self.ui.btn_xUp.pressed.connect(self.MoveRobotArm_XUp)
         self.ui.btn_xDown.pressed.connect(self.MoveRobotArm_XDown)
         self.ui.btn_yUp.pressed.connect(self.MoveRobotArm_YUp)
         self.ui.btn_yDown.pressed.connect(self.MoveRobotArm_YDown)
         self.ui.btn_zUp.pressed.connect(self.MoveRobotArm_ZUp)
         self.ui.btn_zDown.pressed.connect(self.MoveRobotArm_ZDown)
-        self.ui.btn_clearTable.pressed.connect(self.clear_table)
-        self.ui.btn_Scan.pressed.connect(self.scanModel)
-        self.ui.btn_Stop.pressed.connect(self.stopScan)
-        self.ui.btn_Calibration.pressed.connect(self.calibration)
 
-        if linearActuator == 1:
-            self.ui.btn_linear_moveto.pressed.connect(self.MoveLinearActuator(1))
-            self.ui.btn_linear_zero_pos.pressed.connect(self.MoveLinearActuator(2))
-            self.ui.btn_linear_up.pressed.connect(self.MoveLinearActuator(3))
-            self.ui.btn_linear_down.pressed.connect(self.MoveLinearActuator(4))
+        self.ui.btn_linear_moveto.pressed.connect(self.moveLinearToPositionButton)
+        self.ui.btn_linear_up.pressed.connect(self.moveLinearUpButton)
+        self.ui.btn_linear_down.pressed.connect(self.moveLinearDownButton)
+        self.ui.btn_LinearCalibration.pressed.connect(self.linearCalibrationButton)
 
-        # Create a layout for the plot viwer
-        layout = QVBoxLayout(self.ui.viewer_scanning)
-        self.figure = plt.figure(figsize=(700, 700))
+        self.ui.btn_Plot.pressed.connect(self.plotButton)
 
-        ##########################
-        # Create a Matplotlib figure and add a 3D subplot for Scanning
-        self.canvas = FigureCanvas(self.figure)
-        layout.addWidget(self.canvas)
-        self.ax = self.figure.add_subplot(111, projection="3d")
+        ##########################Scanning plot
+        self.ax, self.canvas = add3DPlotInGUI(self.ui.viewer_scanning)
 
-        # Set axis labels
-        # self.ax.set_xlabel("X")
-        # self.ax.set_ylabel("Y")
-        # self.ax.set_zlabel("Z")
+        ########################## Network plot
+        self.network_ax, self.canvasNetwork = add2DDiagramInGUI(self.ui.viewer_network)
 
-        # Create a Matplotlib toolbar
-        self.toolbar = NavigationToolbar(self.canvas, self.ui.viewer_scanning)
-        layout.addWidget(self.toolbar)
+        #Linear actuator
+        self.LinearActuator_thread = Thread_LinearAcutator(self.ui.label_linear_pos, self.ui.spb_linearMoveTo)
+        self.LinearActuator_thread.start()
 
-        self.endEffectorPos(self.ax, 0, 0, 0, None)
-
-        # table label names
-        self.ui.tbw_default.setHorizontalHeaderLabels(["X", "Y", "Z"])
-        self.ui.tbw_mylist.setHorizontalHeaderLabels(["X", "Y", "Z"])
-
-        # Linear Actuator
+        #Class
+        self.classdata = ClassGUI.class_GUI()
 
         # print message in the text browser
-        self.printLog(self.ui.tbx_log, "System open")
-
-    # Set Calibration
-    def calibration(self):
-        global robot
-
-        calibration_message = QMessageBox()
-        calibration_message.setText(
-            "Press Ok when arm is in calibration position to set new calibration point..."
-        )
-        calibration_message.setWindowTitle("Calibration")
-        calibration_message.setStandardButtons(QMessageBox.Ok)
-        calibration_message.exec_()
-
-        if robot != None:
-            robot_control.set_calibration(robot)
-        else:
-            self.printLog(self.ui.tbx_log, "No robot connect")
-
-    # function load file
-    def loadFile(self):
-        global data
-        data, message = load_model()  # Load the data from .mat file
-
-        self.printLog(self.ui.tbx_log, message)
-
-        try:
-            self.writeDefaultTable(data)
-            self.updatePlot()  # Plot the figure after spline
-
-            self.reconstruction3D(data)
-
-        except:
-            pass
-
-    # funciton: save file
-    def saveFile(self):
-        data = self.readTable()
-
-        message = save_model(data)
-        self.printLog(self.ui.tbx_log, message)
+        self.ui.tbx_log.append("System open")
 
     # function: print message in the text browser
-    def printLog(self, txt_box, message):
-        txt_box.append(message)
+    def printLog(self, message):
+        self.ui.tbx_log.append(message)
+    
 
-    # function: laser position
-    def endEffectorPos(self, self_redpoint, value_x, value_y, value_z, distance):
-        global laser_x
-        global laser_y
-        global laser_z
+    #######Button Functions###########
+    #function load file
+    def loadButton(self):
+        load_model(self.ui.tbw_result, self.ui.tbx_log)  # Load the data from .mat file
 
-        laser_x = value_x
-        laser_y = value_y
-        laser_z = value_z
+        if self.ui.tbw_result.rowCount() != 0:
+            readDataFromTable(self.ui.tbw_result, self.ui.tbx_log)
+            self.updatePlot()  # Plot the figure after spline
 
-        self.ui.label_x_RobPos.setText(f"X: {laser_x}")
-        self.ui.label_y_RobPos.setText(f"Y: {laser_y}")
-        self.ui.label_z_RobPos.setText(f"Z: {laser_z}")
+    #funciton: save file
+    def saveButton(self):
+        save_model(self.ui.tbw_result, self.ui.tbx_log)
 
-        if distance != None:
-            self.ui.label_dist_laser.setText(f"Distance: {distance}")
-        else:
-            self.ui.label_dist_laser.setText("Distance: ")
+    #function: add item to table
+    def inputButton(self):
+        insertDataToTable(self.ui.ted_x, self.ui.ted_y, self.ui.ted_z, self.ui.tbw_positionlist, self.ui.twg_table, self.ui.tbx_log)
+        
+    #function: clear the positions list
+    def clearButton(self):
+        # Remove all positions from the positions list table
+        self.ui.tbw_positionlist.setRowCount(0)
 
-        self_redpoint.scatter(laser_x, laser_y, laser_z, color="red")
+    #function: start scanning
+    def scanButton(self):
+        #start scanning (new thread)
+        #Create a worker object
+        self.worker_thread = Thread_Scanning(
+            self.ui.twg_scanSetting.currentIndex(),
+            self.ui.twg_scanningMode.currentIndex(),
+            self.classdata,
+            self.ui.spb_circle_radius.value(),
+            self.ui.spb_z_stepsize.value(),
+            self.ui.spb_azimuthPoints.value(),
+            self.ui.spb_offset.value(),
+            self.ui.spb_elevationPoints.value(),
+            self.ui.spb_zMin.value(),
+            self.ui.spb_laser_angle.value(),
+            self.ui.spb_laser_distance.value(),
+            self.ui.tbw_result,
+            self.ui.tbw_positionlist,
+            self.ui.tbx_log,
+            self.ui.spb_laser_distance, 
+            self.ui.label_x_RobPos, 
+            self.ui.label_y_RobPos,
+            self.ui.label_z_RobPos,
+            self.ui.label_dist_laser,
+            self.ui.label_x_Surface, 
+            self.ui.label_y_Surface,
+            self.ui.label_z_Surface,
+            self.network_ax, 
+            self.canvasNetwork, 
+            self.ui.cbx_S33, 
+            self.ui.cbx_S32, 
+            self.ui.cbx_S23, 
+            self.ui.cbx_S22
+        )
 
-    # functions: move robot arm position
+        #Connect signals and slots
+        self.worker_thread.printText.connect(self.printLog)
+        self.worker_thread.displayPointClound.connect(self.updatePlot)
+        self.worker_thread.disableButtons.connect(self.disableButton)
+        
+        #Delete the thread after work is done
+        self.worker_thread.finished.connect(self.worker_thread.deleteLater)
+        
+        self.worker_thread.start()
+
+    #function: stop scanning
+    def stopButton(self):
+        self.worker_thread.stopNow()
+        self.ui.tbx_log.append("Emergency Stop!")
+
+    #function: calibration
+    def calibrationButton(self):
+        #start calibration (new thread)
+        self.worker_thread = Thread_Calibration(self.classdata, self.ui.tbx_log)
+
+        self.worker_thread.disableButtons.connect(self.disableButton)
+        self.worker_thread.printText.connect(self.printLog)
+        self.worker_thread.finished.connect(self.worker_thread.deleteLater)
+
+        self.worker_thread.start()
+
     def MoveRobotArm_XUp(self):
-        global laser_x
-        laser_x = Button_MoveRobotArm.MoveRobotArm_Up(laser_x)
-        self.updatePlot()
+        self.MicroMovement(1)
 
     def MoveRobotArm_YUp(self):
-        global laser_y
-        laser_y = Button_MoveRobotArm.MoveRobotArm_Up(laser_y)
-        self.updatePlot()
+        self.MicroMovement(3)
 
     def MoveRobotArm_ZUp(self):
-        global laser_z
-        laser_z = Button_MoveRobotArm.MoveRobotArm_Up(laser_z)
-        self.updatePlot()
+        self.MicroMovement(5)
 
     def MoveRobotArm_XDown(self):
-        global laser_x
-        laser_x = Button_MoveRobotArm.MoveRobotArm_Down(laser_x)
-        self.updatePlot()
+        self.MicroMovement(2)
 
     def MoveRobotArm_YDown(self):
-        global laser_y
-        laser_y = Button_MoveRobotArm.MoveRobotArm_Down(laser_y)
-        self.updatePlot()
+        self.MicroMovement(4)
 
     def MoveRobotArm_ZDown(self):
-        global laser_z
-        laser_z = Button_MoveRobotArm.MoveRobotArm_Down(laser_z)
+        self.MicroMovement(6)
+    
+    def moveLinearToPositionButton(self):
+        self.LinearActuator_thread.MoveLinearActuatorToPosition()
+
+    def moveLinearUpButton(self):
+        self.LinearActuator_thread.MoveLinearActuatorUp()
+    
+    def moveLinearDownButton(self):
+        self.LinearActuator_thread.MoveLinearActuatorDown()
+
+    def linearCalibrationButton(self):
+        self.LinearActuator_thread.setStepToZero()
+
+    def plotButton(self):       
+        freq, data_33, data_32, data_23, data_22 = loadMWMeasurement()
+        plotNetworkAnalyserDiagram(self.network_ax, self.canvasNetwork, self.ui.cbx_S33, self.ui.cbx_S32, self.ui.cbx_S23, self.ui.cbx_S22, freq, data_33, data_32, data_23, data_22)
+
+    #Function for disable all buttons affect robot arm expect stop button 
+    def disableButton(self, ONorOFF):
+        self.ui.btn_Scan.setDisabled(ONorOFF)
+        self.ui.btn_Save.setDisabled(ONorOFF)
+        self.ui.btn_Load.setDisabled(ONorOFF)
+        self.ui.btn_Calibration.setDisabled(ONorOFF)
+        self.ui.btn_input.setDisabled(ONorOFF)
+        self.ui.btn_clearTable.setDisabled(ONorOFF)
+        self.ui.btn_xUp.setDisabled(ONorOFF)
+        self.ui.btn_xDown.setDisabled(ONorOFF)
+        self.ui.btn_xUp.setDisabled(ONorOFF)
+        self.ui.btn_xDown.setDisabled(ONorOFF)
+        self.ui.btn_yUp.setDisabled(ONorOFF)
+        self.ui.btn_yDown.setDisabled(ONorOFF)
+        self.ui.btn_zUp.setDisabled(ONorOFF)
+        self.ui.btn_zDown.setDisabled(ONorOFF)
+        self.ui.btn_Plot.setDisabled(ONorOFF)
+        
+    # functions: move robot arm position
+    def MicroMovement(self, decision):
+        point = [float(self.ui.label_x_Surface.text()), float(self.ui.label_y_Surface.text()), float(self.ui.label_z_Surface.text())]
+        result = readDataFromTable(self.ui.tbw_result, self.ui.tbx_log)
+        mesh = recon3D(result)
+        antenna_points, antenna_q, robpos = microMoveForRobot(decision, mesh, point, self.ui.spb_laser_distance.value(), self.classdata.quaternion)
+        i = 0
+        for point, q in zip(antenna_points, antenna_q):
+                    freq, data_33, data_32, data_23, data_22 = networkMeasure(point, q, i, self.classdata.quaternion)
+                
+                    plotNetworkAnalyserDiagram(self.network_ax, self.canvasNetwork, self.ui.cbx_S33, self.ui.cbx_S32, self.ui.cbx_S23, self.ui.cbx_S22, freq, data_33, data_32, data_23, data_22)
+                    i += 1
+
+        changeLabels(antenna_points, [robpos], self.ui.spb_laser_distance.value(), 
+                     self.ui.label_x_RobPos, self.ui.label_y_RobPos,self.ui.label_z_RobPos, self.ui.label_dist_laser,
+                     self.ui.label_x_Surface, self.ui.label_y_Surface,self.ui.label_z_Surface)
+        
         self.updatePlot()
+ 
+    # function: laser position
+    def endEffectorPos(self, robpos, surfacepos):
+        #display robot value and laser distance
+        self.ui.label_x_RobPos.setText(str(robpos[0][0]))
+        self.ui.label_y_RobPos.setText(str(robpos[0][1]))
+        self.ui.label_z_RobPos.setText(str(robpos[0][2]))
+        self.ui.label_dist_laser.setText(str(self.ui.spb_laser_distance.value()))
 
-    # function: update the plot
+        #display surface point
+        self.ui.label_x_Surface.setText(str(surfacepos[0]))
+        self.ui.label_y_Surface.setText(str(surfacepos[1]))
+        self.ui.label_z_Surface.setText(str(surfacepos[2]))
+    
+    #function: update the plot
     def updatePlot(self):
-        global laser_x
-        global laser_y
-        global laser_z
-
         # Clean the axis
         self.ax.cla()
 
         # Set axis labels
-        # self.ax.set_xlabel("X")
-        # self.ax.set_ylabel("Y")
-        # self.ax.set_zlabel("Z")
+        self.ax.set_xlabel("X")
+        self.ax.set_ylabel("Y")
+        self.ax.set_zlabel("Z")
 
-        self.endEffectorPos(
-            self.ax, laser_x, laser_y, laser_z, None
-        )  # plot the end-effector position
+        #plot result
+        plotData(self.ui.tbw_result, self.ax, "b", self.ui.tbx_log)
 
-        try:
-            tableData = self.readTable()
-
-            data = pd.DataFrame(tableData, columns=["X_value", "Y_value", "Z_value"])
-
-            data_X = data["X_value"]  # Reorganize the data into rows
-            data_Y = data["Y_value"]
-            data_Z = data["Z_value"]
-
-            # Create a 3D scatter plot
-            self.ax.scatter(data_X, data_Y, data_Z, c="b", marker="o")
-
-        except:
-            print("fail to read data in the table")
+        #plot positions in manually inputs
+        plotData(self.ui.tbw_positionlist, self.ax, "g", self.ui.tbx_log)
 
         self.canvas.draw()
-
-    def insert_row(self):
-        # get number from text editor
-        insert_x = self.ui.ted_x.toPlainText()
-        insert_y = self.ui.ted_y.toPlainText()
-        insert_z = self.ui.ted_z.toPlainText()
-
-        if (
-            insert_x.replace(".", "").replace("-", "").isdigit()
-            and insert_y.replace(".", "").replace("-", "").isdigit()
-            and insert_z.replace(".", "").replace("-", "").isdigit()
-        ):
-            # Get the current number of rows in the tableWidget
-            current_row_count = self.ui.tbw_mylist.rowCount()
-
-            # Insert a new row at the end of the table
-            self.ui.tbw_mylist.insertRow(current_row_count)
-
-            # Create items for each cell in the new row
-            itemX = QTableWidgetItem(insert_x)
-            itemY = QTableWidgetItem(insert_y)
-            itemZ = QTableWidgetItem(insert_z)
-
-            # Set the items for each cell in the new row
-            self.ui.tbw_mylist.setItem(current_row_count, 0, itemX)
-            self.ui.tbw_mylist.setItem(current_row_count, 1, itemY)
-            self.ui.tbw_mylist.setItem(current_row_count, 2, itemZ)
-
-            # change tab in the tab table from default to my list
-            self.ui.twg_table.setCurrentIndex(1)
-        else:
-            self.printLog(
-                self.ui.tbx_log, "Error on input. Include alphabets or empty input"
-            )
-
-    def clear_table(self):
-        # read which tab is on now
-        tabIndex = self.ui.twg_table.currentIndex()
-
-        if tabIndex == 0:
-            table = self.ui.tbw_default
-        elif tabIndex == 1:
-            table = self.ui.tbw_mylist
-
-        table.setRowCount(0)  # Remove all rows from the table
-
-    def writeDefaultTable(self, data):
-        df = pd.DataFrame(data)
-
-        try:
-            self.ui.tbw_default.setRowCount(df.shape[0])
-            self.ui.tbw_default.setColumnCount(df.shape[1])
-
-            # Populate the table with DataFrame data
-            for i, row in df.iterrows():
-                for j, value in enumerate(row):
-                    item = QTableWidgetItem(str(value))
-                    self.ui.tbw_default.setItem(i, j, item)
-
-            # change tab in the tab table to default
-            self.ui.twg_table.setCurrentIndex(0)
-        except:
-            self.printLog(self.ui.tbx_log, "fail to write data to the table")
-            pass
-
-    def readTable(self):
-        tableData = []
-
-        # read which tab is on now
-        tabIndex = self.ui.twg_table.currentIndex()
-
-        if tabIndex == 0:
-            table = self.ui.tbw_default
-        elif tabIndex == 1:
-            table = self.ui.tbw_mylist
-
-        try:
-            # Extract data from the QTableWidget
-            if table.rowCount() != 0:
-                for row in range(table.rowCount()):
-                    row_data = []
-                    for column in range(table.columnCount()):
-                        item = table.item(row, column)
-
-                        if item is not None:
-                            if self.isNumber(item.text()):
-                                row_data.append(float(item.text()))
-                            else:
-                                message = f"The item [{row + 1},{column + 1}] include is non-numeric value. Scanning breaks."
-                                self.printLog(self.ui.tbx_log, message)
-                                NonNumericExist = 1
-                                break
-
-                    tableData.append(row_data)
-
-                return tableData
-        except:
-            self.printLog(self.ui.tbx_log, "fail to read data from the table")
-            pass
-
-    def scanModel(self):
-        global laser_x
-        global laser_y
-        global laser_z
-        global robot
-
-        NonNumericExist = 0
-        robotSpeed = [75, 25, 50, 25]
-        points = []
-        laser_data = []
-        visitedOrigin = False
-
-        self.ui.btn_Stop.setEnabled(True)
-
-        # connect Yumi
-        robot = self.connectYumi()
-
-        # connect Laser
-        if laserON == 1:
-            laser = self.connectLaser()
-
-        # read which tab is on now
-        tabIndex = self.ui.twg_table.currentIndex()
-
-        if tabIndex == 0:
-            table = self.ui.tbw_default
-        elif tabIndex == 1:
-            table = self.ui.tbw_mylist
-
-        # Generate points for laser scanning if no item in the table or read data from table
-        if table.rowCount() == 0:
-            points = self.autoGenPoints()
-        else:
-            self.printLog(self.ui.tbx_log, "Checking items in the table...")
-
-            for row in range(table.rowCount()):
-                row_data = []
-                for column in range(table.columnCount()):
-                    item = table.item(row, column)
-                    if item is not None:
-                        if self.isNumber(item.text()):
-                            row_data.append(float(item.text()))
-                        else:
-                            message = f"The item [{row + 1},{column + 1}] include is non-numeric value."
-                            self.printLog(self.ui.tbx_log, message)
-                            NonNumericExist = 1
-                            break
-
-            points.append(row_data)
-
-        self.writeDefaultTable(points)
-
-        # check status before start scanning
-        if (NonNumericExist == 0) and (not robot == None) and (not points == None):
-            # Robot setting
-            robot_control.set_Reference_Coordinate_System(robot, [0, 0, 758.01])
-
-            robot_control.set_Robot_Tool(robot, 1)
-
-            robot_control.set_Robot_Speed(robot, robotSpeed)
-
-            # move to default position (initial position)
-            robot_control.return_Robot_To_Start(robot)
-
-            # move robot to scanning points
-            for point in points:
-                if round(point[0][0], 4) != 0 or round(point[0][1], 4):
-                    print(point)
-                    robot_control.move_Robot_Linear(robot, point)
-                    sleep(0.5)
-                    print(
-                        "Robot Coordinate: ",
-                        robot_control.fetch_Robot_Coordinates(robot),
-                    )
-
-                elif not visitedOrigin:
-                    print(point)
-                    robot_control.move_Robot_Linear(robot, point)
-                    sleep(0.5)
-                    print(
-                        "Robot Coordinate: ",
-                        robot_control.fetch_Robot_Coordinates(robot),
-                    )
-                    visitedOrigin = True
-                else:
-                    print("Skipping origin...")
-
-                if laserON == 1:
-                    while not laser.laserOn():
-                        continue
-
-                    laser_point = laser.measure()
-                    if isinstance(laser_point, float):
-                        laser_data.append(
-                            generate_scan_points.transform_laser_distance(
-                                point, laser_point
-                            )
-                        )
-
-                    while not laser.laserOff():
-                        continue
-
-                    self.endEffectorPos(
-                        self.ax, laser_x, laser_y, laser_z, laser_point
-                    )  # plot the end-effector position
-                else:
-                    self.endEffectorPos(
-                        self.ax, laser_x, laser_y, laser_z, None
-                    )  # plot the end-effector position
-
-            robot_control.return_Robot_To_Start(robot)
-
-            # Write laser data to the default table
-            self.writeDefaultTable(laser_data)
-
-            # Plot the point cloud
-            self.updatePlot()
-
-            # 3D reconstruction
-            # self.reconstruction3D(laser_data)
-
-            self.printLog(self.ui.tbx_log, "Scanning complete")
-
-        else:
-            self.printLog(self.ui.tbx_log, "Scanning breaks.")
-
-    def isNumber(self, text):
-        try:
-            float(text)
-            return True
-        except ValueError:
-            return False
-
-    def connectYumi(self):
-        try:
-            robot = abb.Robot()
-            self.printLog(self.ui.tbx_log, "Connect to the yumi robot arm")
-            return robot
-        except:
-            self.printLog(self.ui.tbx_log, "unable to connect to the robot arm")
-            return None
-
-    def connectLaser(self):
-        try:
-            laser = optoNCDT1402.optoNCDT1402(
-                "/dev/ttyUSB0"
-            )  # Serial port of the Raspberry
-            transistor.init()
-            self.printLog(self.ui.tbx_log, "Connect to the laser")
-            return laser
-        except:
-            self.printLog(self.ui.tbx_log, "unable to connect to the laser")
-            return None
-
-    def reconstruction3D(self, data):
-        step_down = 0.005  # Step size for spline interpolation with x,y in Z direction. The smaller this value is, the more values will be added, duh.
-        totalTime = time.time()
-        t = time.time()
-
-        data_X = data["X_value"]  # Reorganize the data into rows
-        data_Y = data["Y_value"]
-        data_Z = data["Z_value"]
-
-        try:
-            ##Runs the spline in z direction
-            newData_X, newData_Y, newData_Z = spline.spline_xy(
-                data_X, data_Y, data_Z, step_down
-            )
-        except:
-            self.printLog(self.ui.tbx_log, "No newData")
-            return None
-
-        # newData_X,newData_Y,newData_Z = spline.cubic_spline(data_X,data_Y,data_Z,step_down) #Different spline
-
-        elapsed = time.time() - t
-        print("Time to do spline:", elapsed)
-
-        nPoints = 10  # n*nPoints = number of new points
-        n = data_X.shape[1]
-        t = time.time()
-
-        # Runs the spline in aximuth direction creates perfect circle slices
-        newData_X, newData_Y, newData_Z = spline.splinePerfectCircle(
-            newData_X, newData_Y, newData_Z, nPoints
-        )
-
-        print(newData_X)
-
-        # Runs the spline in aximuth direction Change the data less
-        """newData_X, newData_Y, newData_Z = spline.spline_circle(
-            newData_X, newData_Y, newData_Z, nPoints
-        )"""
-        elapsed = time.time() - t
-        print("Time to do horizontal spline:", elapsed)
-
-        # Reshapes the array into a points array
-        points = reshapeArr.fixPoints(newData_X, newData_Y, newData_Z)
-
-        #################################################################################
-        print("Number of datapoint :", len(points))
-
-        save = False  # Save file? #Takes pretty long time to save .obj file, about 5-10 minutes
-        saveImage = False  # Save plot image?
-
-        # surface_Reconstruction.delaunay_original(points, save)  ##tight cocone variant
-        # surface_Reconstruction.alpha_Shape(points,save)
-        # surface_Reconstruction.ball_Pivoting(points,save)
-        # surface_Reconstruction.poisson_surfRecon(points, save)
-
-        totalElapsed = time.time() - totalTime
-        print("Time to complete Sample + reconstruction : ", totalElapsed)
-
-    def autoGenPoints(self):
-        circle_radius = self.ui.spb_circle_radius.value()
-        z_stepsize = self.ui.spb_z_stepsize.value()
-        max_depth = self.ui.spb_max_depth.value()
-        azimuthPoints = self.ui.spb_azimuthPoints.value()
-        offset = self.ui.spb_offset.value()
-        elevationPoints = self.ui.spb_elevationPoints.value()
-        zMin = self.ui.spb_zMin.value()
-        laser_angle = self.ui.spb_laser_angle.value()
-
-        if not -90 < laser_angle < 90:
-            self.printLog(self.ui.tbx_log, "Laser_angle must be -90 < laser_angle < 90")
-            return None
-
-        """
-        circle_radius = 120
-        z_stepsize = 10
-        max_depth = -60
-        azimuthPoints = 16
-        offset = -60
-        elevationPoints = 5
-        zMin = -90
-        laser_angle = 60
-        """
-
-        if self.ui.twg_scanningMode.currentIndex() == 0:  # Cylinder
-            points = generate_scan_points.generate_scan_points_cylinder(
-                circle_radius, azimuthPoints, offset, z_stepsize, max_depth, laser_angle
-            )
-            return points
-        elif self.ui.twg_scanningMode.currentIndex() == 1:  # halve sphere
-            points = generate_scan_points.generate_scan_points_halfsphere(
-                circle_radius, azimuthPoints, offset, elevationPoints, zMin
-            )
-            return points
-
-    def MoveLinearActuator(self, choice):
-        if linearActuator == 1:
-            total_steps_changes = self.ui.spb_linearMoveTo.value() * 100
-
-            # For control the values between 0 < x < 10000
-            if total_steps_changes < 0:
-                total_steps_changes = 0
-            elif total_steps_changes > 10000:
-                total_steps_changes = 10000
-
-            if choice == "1":
-                total_steps_changes = linearController.move_to_desired_location_upwards(
-                    total_steps_changes
-                )
-
-            elif choice == "2":
-                linearController.move_to_zeroLocation(total_steps_changes)
-                total_steps_changes = 0
-
-            elif choice == "3":
-                linearController.move_up_1mm()
-                total_steps_changes = total_steps_changes + 100
-
-                # for every move_up function the total_steps_changes are added with 100 steps = 1mm
-            elif choice == "4":
-                linearController.move_down_1mm()
-                total_steps_changes = total_steps_changes - 100
-
-            self.ui.label_linear_pos.setText(f"position: {total_steps_changes/100} mm")
-            self.ui.spb_linearMoveTo.setValue(total_steps_changes / 100)
-
-    def stopScan(self):
-        global robot
-
-        if not robot == None:
-            robot.close()
-
 
 app = QApplication(sys.argv)
 w = AppWindow()

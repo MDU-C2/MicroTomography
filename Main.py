@@ -221,12 +221,12 @@ def mw_scan(mesh):
 if __name__ == "__main__":
     print("Hello, please pick a pattern for the scanning")
     choice = input(
-        "Enter 1 for cylindrical pattern and 2 for half-sphere pattern (or 3 or 4), 5 for testing MWI scann, 6 for testing the complete system from scanning to mwi scanning: "
+        "Enter 1 for cylindrical pattern and 2 for half-sphere pattern (or 3 or 4), 5 for testing MWI scan: "
     )
 
-    while choice not in ("1", "2", "3", "4", "5", "6"):
+    while choice not in ("1", "2", "3", "4", "5"):
         print("Try again.")
-        choice = input("Enter 1, 2, 3 4: ")
+        choice = input("Enter 1, 2, 3, 4, 5: ")
 
     if choice == "1":
         result = cylinder()
@@ -239,10 +239,6 @@ if __name__ == "__main__":
         print(result1, result2)
     elif choice == "4":
         result = find_lowest_pointt()
-    elif choice == "6":
-        result = cylinder()
-        mesh = poisson_surface_reconstruction(result, save=False)
-        mw_data = mw_scan(mesh)
 
     if choice != "5":
         file_name = input(
@@ -255,7 +251,7 @@ if __name__ == "__main__":
         result = read_csv("scanned_data/2023-11-29-09_01-brest_no_nipple.csv")
 
     result = interpolate_up(result, step_size=2)
-    mesh = poisson_surface_reconstruction(result, save=False)
+    mesh = poisson_surface_reconstruction(result, save=False, re_resolution=5)
 
     la = linear_actuator()
     la.move_actuator()
