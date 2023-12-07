@@ -28,7 +28,7 @@ def mw_init() -> VisaInstrument:
     # Create new VisaInstrument class and setup environment
     MyVisaInstrument = VisaInstrument(Instrument)
     MyVisaInstrument.comcheck()
-    MyVisaInstrument.meassetup(f_start=3.8e9, f_stop=4.2e9, points=401)
+    MyVisaInstrument.meassetup(f_start=3.8e9, f_stop=4.6e9, points=801)
 
     return MyVisaInstrument
 
@@ -78,7 +78,7 @@ def mw_micromovement(mesh, points: list, distance: (int | float), quaternions):
     robot_control.close_connection(robot)
     return antenna_points, antenna_q
 
-def networkMeasure(robot,point, q, i, quaternions):
+def networkMeasure(robot, point, q, i, quaternions):
     visa_instrument = mw_init()
     #robot = robot_control.robot_init(2, quaternions)
     #robot_control.set_zone_use(robot, True)
