@@ -251,7 +251,7 @@ if __name__ == "__main__":
         result = read_csv("scanned_data/2023-11-29-09_01-brest_no_nipple.csv")
 
     result = interpolate_up(result, step_size=2)
-    mesh = poisson_surface_reconstruction(result, save=False, re_resolution=15)
+    mesh = poisson_surface_reconstruction(result, save=False, re_resolution=5)
 
     la = linear_actuator()
     la.move_actuator()
