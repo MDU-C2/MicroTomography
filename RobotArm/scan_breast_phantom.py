@@ -334,7 +334,7 @@ def calibration():
     return quaternions_temp
 
 
-def microMoveForRobot(buttonNumber, mesh, surfacepoint, distance, quaternions):
+def microMoveForRobot(buttonNumber, mesh, surfacepoint, distance):
     # increase or decrease values
     if buttonNumber == 1:  # X_up
         surfacepoint[0] = surfacepoint[0] + 1.0

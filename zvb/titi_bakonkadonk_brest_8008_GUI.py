@@ -51,7 +51,7 @@ def mw_boob(mesh, points: list, distance: (int | float), quaternions):
 
     return antenna_points, antenna_q
 
-def mw_micromovement(mesh, points: list, distance: (int | float)):
+def mw_micromovement(antenna_points, antenna_q):
     """Scans the mesh with the points on the mesh closest to the input points with a distance from the mesh
 
     Parameters
@@ -67,13 +67,13 @@ def mw_micromovement(mesh, points: list, distance: (int | float)):
     """
     robot = robot_control.connect_to_robot()
 
-    antenna_points, antenna_q = choose_points_microwave.ray_cast_points(mesh, points, distance)
+    #antenna_points, antenna_q = choose_points_microwave.ray_cast_points(mesh, points, distance)
 
     MoveRobotLinear(robot, antenna_points, antenna_q)
 
-    robot_control.close_connection(robot)
+    robot.close()
     
-    return antenna_points, antenna_q
+    #return antenna_points, antenna_q
 
 def networkMeasure(visa_instrument, i = 0):
     """Read the data from network analyser"""
@@ -179,7 +179,7 @@ def connectRobot(quaternions):
     return robot
 
 def closeRobot(robot):
-    robot_control.close_connection(robot)
+    robot.close()
 
 
 

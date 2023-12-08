@@ -141,15 +141,14 @@ class Thread_Scanning(QThread):
                     MoveRobotLinear(robot, point, q)             
                     freq, data_33, data_32, data_23, data_22 = networkMeasure(Visa_instrument,  i)
                     plotNetworkAnalyserDiagram(self.network_ax, self.canvasNetwork, self.cbx_S33, self.cbx_S32, self.cbx_S23, self.cbx_S22, freq, data_33, data_32, data_23, data_22)
+                                 
+                    changeLabels(antenna_points, [positions[i]],self.spb_laser_distance.value(), 
+                        self.label_x_RobPos, self.label_y_RobPos, self.label_z_RobPos, self.label_dist_laser,
+                        self.label_x_Surface, self.label_y_Surface,self.label_z_Surface)
+
                     i += 1
 
                 closeRobot(robot)
-
-                positions = generate_scan_points.transform_laser_distance(point, self.spb_laser_distance.value())
-                
-                changeLabels(antenna_points, positions,self.spb_laser_distance.value(), 
-                    self.label_x_RobPos, self.label_y_RobPos, self.label_z_RobPos, self.label_dist_laser,
-                    self.label_x_Surface, self.label_y_Surface,self.label_z_Surface)
 
                 self.printText.emit("Moving Finished.")
                 self.displayPointClound.emit()
@@ -294,8 +293,9 @@ class AppWindow(QMainWindow):
         load_model(self.ui.tbw_result, self.ui.tbx_log)  # Load the data from .mat file
 
         if self.ui.tbw_result.rowCount() != 0:
-            readDataFromTable(self.ui.tbw_result, self.ui.tbx_log)
+            result = readDataFromTable(self.ui.tbw_result, self.ui.tbx_log)
             self.updatePlot()  # Plot the figure after spline
+            self.classdata.mesh = recon3D(result)
 
     #funciton: save file
     def saveButton(self):
@@ -425,15 +425,40 @@ class AppWindow(QMainWindow):
         self.ui.btn_Plot.setDisabled(ONorOFF)
         
     # functions: move robot arm position
-    def MicroMovement(self, decision):
-        point = [float(self.ui.label_x_Surface.text()), float(self.ui.label_y_Surface.text()), float(self.ui.label_z_Surface.text())]
+    def MicroMovement(self, buttonNumber):
+        surfacepoint = [float(self.ui.label_x_Surface.text()), float(self.ui.label_y_Surface.text()), float(self.ui.label_z_Surface.text())]
+        #antenna_points, antenna_q, surfacePos = microMoveForRobot(decision, self.classdata.mesh, point, self.ui.spb_laser_distance.value())
 
-        antenna_points, antenna_q, surfacePos = microMoveForRobot(decision, self.classdata.mesh, point, self.ui.spb_laser_distance.value())
-  
-        changeLabels(antenna_points, [surfacePos], self.ui.spb_laser_distance.value(), 
-                     self.ui.label_x_RobPos, self.ui.label_y_RobPos,self.ui.label_z_RobPos, self.ui.label_dist_laser,
-                     self.ui.label_x_Surface, self.ui.label_y_Surface,self.ui.label_z_Surface)
+        # increase or decrease values
+        if buttonNumber == 1:  # X_up
+            surfacepoint[0] = surfacepoint[0] + 1.0
+        elif buttonNumber == 2:  # X_down
+            surfacepoint[0] = surfacepoint[0] - 1.0
+        elif buttonNumber == 3:  # Y_up
+            surfacepoint[1] = surfacepoint[1] + 1.0
+        elif buttonNumber == 4:  # Y_down
+            surfacepoint[1] = surfacepoint[1] - 1.0
+        elif buttonNumber == 5:  # Z_up
+            surfacepoint[2] = surfacepoint[2] + 1.0
+        elif buttonNumber == 6:  # Z_down
+            surfacepoint[2] = surfacepoint[2] - 1.0
+
+        Newpoint = [surfacepoint]
+
+
+
+        antenna_points, antenna_q = mw_boob(self.classdata.mesh, Newpoint, self.ui.spb_laser_distance.value(), self.classdata.quaternion)
+
+        for point, q in zip(antenna_points, antenna_q):
+         #   mw_micromovement(point, q)
         
+        #MoveRobotLinear(robot, antenna_points, antenna_q)  
+  
+            changeLabels([point], Newpoint, self.ui.spb_laser_distance.value(), 
+                        self.ui.label_x_RobPos, self.ui.label_y_RobPos,self.ui.label_z_RobPos, self.ui.label_dist_laser,
+                        self.ui.label_x_Surface, self.ui.label_y_Surface,self.ui.label_z_Surface)
+        
+        #closeRobot(robot)
         # Clean the axis
         self.ax.cla()
 
@@ -448,7 +473,7 @@ class AppWindow(QMainWindow):
         #plot positions in manually inputs
         plotData(self.ui.tbw_positionlist, self.ax, "g", self.ui.tbx_log)
         
-        self.ax.scatter(self.ui.label_x_Surface, self.ui.label_y_Surface,self.ui.label_z_Surface, "r")
+        self.ax.scatter(point[0], point[1],point[2], "r")
 
         self.canvas.draw()
  
