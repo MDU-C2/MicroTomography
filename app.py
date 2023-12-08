@@ -22,7 +22,6 @@ class Thread_Scanning(QThread):
     printText = pyqtSignal(str)
     disableButtons = pyqtSignal(bool)
     displayPointClound = pyqtSignal()
-    printInLabel = pyqtSignal(list, list)
 
     def __init__(self,
                 ScanSetting,
@@ -119,7 +118,7 @@ class Thread_Scanning(QThread):
             writeResultToTable(result, self.tableResult)
             self.printText.emit("Scanning Finished.")
             self.displayPointClound.emit()
-            self.classdata.mesh = self.classdata.recon3D(result)
+            self.classdata.recon3D(result)
             self.printText.emit("3D mesh created.")
         else:
             
@@ -142,13 +141,10 @@ class Thread_Scanning(QThread):
                     freq, data_33, data_32, data_23, data_22 = networkMeasure(Visa_instrument,  i)
                     plotNetworkAnalyserDiagram(self.network_ax, self.canvasNetwork, self.cbx_S33, self.cbx_S32, self.cbx_S23, self.cbx_S22, freq, data_33, data_32, data_23, data_22)
 
-                    """ 
                     changeLabels(antenna_points, [positions[i]],self.spb_laser_distance.value(), 
                         self.label_x_RobPos, self.label_y_RobPos, self.label_z_RobPos, self.label_dist_laser,
                         self.label_x_Surface, self.label_y_Surface,self.label_z_Surface)
-                    """    
-
-                    self.printInLabel.emit(antenna_points, [positions[i]])
+                       
 
                     i += 1
 
@@ -299,7 +295,7 @@ class AppWindow(QMainWindow):
         if self.ui.tbw_result.rowCount() != 0:
             result = readDataFromTable(self.ui.tbw_result, self.ui.tbx_log)
             self.updatePlot()  # Plot the figure after spline
-            self.classdata.mesh = self.classdata.recon3D(result)
+            self.classdata.recon3D(result)
 
     #funciton: save file
     def saveButton(self):
@@ -354,7 +350,6 @@ class AppWindow(QMainWindow):
         self.worker_thread.printText.connect(self.printLog)
         self.worker_thread.displayPointClound.connect(self.updatePlot)
         self.worker_thread.disableButtons.connect(self.disableButton)
-        self.worker_thread.printInLabel.connect(self.endEffectorPos)
         
         #Delete the thread after work is done
         self.worker_thread.finished.connect(self.worker_thread.deleteLater)
@@ -458,44 +453,33 @@ class AppWindow(QMainWindow):
 
         robot = connectRobot(self.classdata.quaternion)
 
+        i = 0
+
         for point, q in zip(antenna_points, antenna_q):
             MoveRobotLinear(robot, point, q) 
-            self.endEffectorPos(point,  Newpoint)
+
+            changeLabels([point], Newpoint,self.ui.spb_laser_distance.value(), 
+                        self.ui.label_x_RobPos, self.ui.label_y_RobPos, self.ui.label_z_RobPos, self.ui.label_dist_laser,
+                        self.ui.label_x_Surface, self.ui.label_y_Surface,self.ui.label_z_Surface)
+            
+            # Clean the axis
+            self.ax.cla()
+
+            # Set axis labels
+            self.ax.set_xlabel("X")
+            self.ax.set_ylabel("Y")
+            self.ax.set_zlabel("Z")
+
+            #plot result
+            plotData(self.ui.tbw_result, self.ax, "b", self.ui.tbx_log)
+            
+            self.ax.scatter(point[0], point[1],point[2], c = "r", marker="o")
+
+            self.canvas.draw()
 
             i += 1
-            
+                
         closeRobot(robot)
-
-        # Clean the axis
-        self.ax.cla()
-
-        # Set axis labels
-        self.ax.set_xlabel("X")
-        self.ax.set_ylabel("Y")
-        self.ax.set_zlabel("Z")
-
-        #plot result
-        plotData(self.ui.tbw_result, self.ax, "b", self.ui.tbx_log)
-
-        #plot positions in manually inputs
-        plotData(self.ui.tbw_positionlist, self.ax, "g", self.ui.tbx_log)
-        
-        self.ax.scatter(point[0], point[1],point[2], c = "r", marker="o")
-
-        self.canvas.draw()
- 
-    # function: laser position
-    def endEffectorPos(self, robpos, surfacepos):
-        #display robot value and laser distance
-        self.ui.label_x_RobPos.setText(str(robpos[0][0]))
-        self.ui.label_y_RobPos.setText(str(robpos[0][1]))
-        self.ui.label_z_RobPos.setText(str(robpos[0][2]))
-        self.ui.label_dist_laser.setText(str(self.ui.spb_laser_distance.value()))
-
-        #display surface point
-        self.ui.label_x_Surface.setText(str(surfacepos[0][0]))
-        self.ui.label_y_Surface.setText(str(surfacepos[0][1]))
-        self.ui.label_z_Surface.setText(str(surfacepos[0][2]))
     
     #function: update the plot
     def updatePlot(self):
