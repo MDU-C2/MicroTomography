@@ -7,15 +7,16 @@ class class_GUI:
     If there is no csv file, then create a csv file with standard quaternion [0.999954527, 0.00941712207, 0.00150357889, 9.45543129e-06]
     """
     def __init__(self):
+        
+        self.mesh = []
+        self.robot = None
         try:
-            self.mesh = []
             data = pd.read_csv("GUI/quaternions.csv")
             self.quaternion = data["Quaternions"].to_list()
         except:
             print("No quaternion.csv in GUI Folder. We create a new one.")
+            self.quaternion = []
             self.changeQua([0.999954527, 0.00941712207, 0.00150357889, 9.45543129e-06])
-
-            self.mesh = []
             data = pd.read_csv("GUI/quaternions.csv")
             self.quaternion = data["Quaternions"].to_list()
 

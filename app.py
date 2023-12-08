@@ -12,7 +12,7 @@ from zvb.titi_bakonkadonk_brest_8008_GUI import *
 from GUI import ScanningSystem
 from GUI.GUIFunctions import *
 from GUI import ClassGUI
-from RobotArm.scan_breast_phantom import scan_points, calibration, microMoveForRobot
+from RobotArm.scan_breast_phantom import scan_points, calibration
 
 #linear actuator
 import LinearActuator.linearActuatorController as linearController
@@ -134,10 +134,10 @@ class Thread_Scanning(QThread):
                 #Generate moving data and move robot
                 antenna_points, antenna_q = mw_boob(self.classdata.mesh, positions, self.distance, self.classdata.quaternion)
 
-                robot = connectRobot(self.classdata.quaternion)
+                self.classdata.robot = connectRobot(self.classdata.quaternion)
 
                 for point, q in zip(antenna_points, antenna_q):
-                    MoveRobotLinear(robot, point, q)             
+                    MoveRobotLinear(self.classdata.robot, point, q)             
                     freq, data_33, data_32, data_23, data_22 = networkMeasure(Visa_instrument,  i)
                     plotNetworkAnalyserDiagram(self.network_ax, self.canvasNetwork, self.cbx_S33, self.cbx_S32, self.cbx_S23, self.cbx_S22, freq, data_33, data_32, data_23, data_22)
 
@@ -148,7 +148,7 @@ class Thread_Scanning(QThread):
 
                     i += 1
 
-                closeRobot(robot)
+                closeRobot(self.classdata.robot)
 
                 self.printText.emit("Moving Finished.")
                 self.displayPointClound.emit()
@@ -235,6 +235,107 @@ class Thread_LinearAcutator(QThread):
         self.sem_protection.acquire()
         changeLinearActuatorSteps(0, self.label_PosNow, self.spb_PosGoal)
         self.sem_protection.release()
+
+class Thread_Micromovement(QThread):
+    finished = pyqtSignal()
+    printText = pyqtSignal(str)
+    disableButtons = pyqtSignal(bool)
+    displayPointClound = pyqtSignal()
+
+    def __init__(self,
+                classdata,
+                resultTable,
+                log,
+                spb_laser_distance, 
+                label_x_RobPos, 
+                label_y_RobPos,
+                label_z_RobPos,
+                label_dist_laser,
+                label_x_Surface,
+                label_y_Surface,
+                label_z_Surface,
+                ax, 
+                canvas, 
+                ):
+        super().__init__()
+        self.logbox = log
+        self.spb_laser_distance = spb_laser_distance
+        self.label_x_RobPos = label_x_RobPos
+        self.label_y_RobPos = label_y_RobPos
+        self.label_z_RobPos = label_z_RobPos
+        self.label_dist_laser = label_dist_laser
+        self.label_x_Surface = label_x_Surface
+        self.label_y_Surface = label_y_Surface
+        self.label_z_Surface = label_z_Surface
+        self.ax = ax
+        self.canvas = canvas
+        self.tableResult = resultTable
+        self.classdata = classdata
+
+    def run(self, dicision):
+        self.MicroMovement(dicision)
+        self.finished.emit()
+    
+    def stopNow(self):
+        self.terminate()
+        self.wait()
+
+    """
+    functions: move robot arm position
+    Function for move 1 mm of robot. But because the robot initial code always run back to the start point.
+    Therefore, this function does not work as it should.
+    """
+    def MicroMovement(self, buttonNumber):
+
+        surfacepoint = [float(self.label_x_Surface.text()), float(self.label_y_Surface.text()), float(self.label_z_Surface.text())]
+
+        # increase or decrease values
+        if buttonNumber == 1:  # X_up
+            surfacepoint[0] = surfacepoint[0] + 1.0
+        elif buttonNumber == 2:  # X_down
+            surfacepoint[0] = surfacepoint[0] - 1.0
+        elif buttonNumber == 3:  # Y_up
+            surfacepoint[1] = surfacepoint[1] + 1.0
+        elif buttonNumber == 4:  # Y_down
+            surfacepoint[1] = surfacepoint[1] - 1.0
+        elif buttonNumber == 5:  # Z_up
+            surfacepoint[2] = surfacepoint[2] + 1.0
+        elif buttonNumber == 6:  # Z_down
+            surfacepoint[2] = surfacepoint[2] - 1.0
+
+        Newpoint = [surfacepoint]
+
+        antenna_points, antenna_q = mw_boob(self.classdata.mesh, Newpoint, self.spb_laser_distance.value(), self.classdata.quaternion)
+
+        self.classdata.robot = connectRobot(self.classdata.quaternion)
+
+        i = 0
+
+        for point, q in zip(antenna_points, antenna_q):
+            MoveRobotLinear(self.classdata.robot, point, q) 
+
+            changeLabels([point], Newpoint,self.spb_laser_distance.value(), 
+                        self.label_x_RobPos, self.label_y_RobPos, self.label_z_RobPos, self.label_dist_laser,
+                        self.label_x_Surface, self.label_y_Surface,self.label_z_Surface)
+            
+            # Clean the axis
+            self.ax.cla()
+
+            # Set axis labels
+            self.ax.set_xlabel("X")
+            self.ax.set_ylabel("Y")
+            self.ax.set_zlabel("Z")
+
+            #plot result
+            plotData(self.tbw_result, self.ax, "b", self.logbox)
+            
+            self.ax.scatter(point[0], point[1],point[2], c = "r", marker="o")
+
+            self.canvas.draw()
+
+            i += 1
+                
+        closeRobot(self.classdata.robot)
 
 class AppWindow(QMainWindow):
     def __init__(self):
@@ -360,6 +461,8 @@ class AppWindow(QMainWindow):
     def stopButton(self):
         self.worker_thread.stopNow()
         self.ui.tbx_log.append("Emergency Stop!")
+        closeRobot(self.classdata.robot)
+        self.disableButton(False)
 
     #function: calibration
     def calibrationButton(self):
@@ -373,22 +476,135 @@ class AppWindow(QMainWindow):
         self.worker_thread.start()
 
     def MoveRobotArm_XUp(self):
-        self.MicroMovement(1)
+        #Small move (new thread)
+        self.worker_thread = Thread_Micromovement(
+            self.classdata,
+            self.ui.tbw_result,
+            self.ui.tbx_log,
+            self.ui.spb_laser_distance, 
+            self.ui.label_x_RobPos, 
+            self.ui.label_y_RobPos,
+            self.ui.label_z_RobPos,
+            self.ui.label_dist_laser,
+            self.ui.label_x_Surface, 
+            self.ui.label_y_Surface,
+            self.ui.label_z_Surface,
+            self.ax, 
+            self.canvas)
+
+        self.worker_thread.finished.connect(self.worker_thread.deleteLater)
+
+        self.worker_thread.start(1)
 
     def MoveRobotArm_YUp(self):
-        self.MicroMovement(3)
+        #Small move (new thread)
+                #Small move (new thread)
+        self.worker_thread = Thread_Micromovement(
+            self.classdata,
+            self.ui.tbw_result,
+            self.ui.tbx_log,
+            self.ui.spb_laser_distance, 
+            self.ui.label_x_RobPos, 
+            self.ui.label_y_RobPos,
+            self.ui.label_z_RobPos,
+            self.ui.label_dist_laser,
+            self.ui.label_x_Surface, 
+            self.ui.label_y_Surface,
+            self.ui.label_z_Surface,
+            self.ax, 
+            self.canvas)
+
+        self.worker_thread.finished.connect(self.worker_thread.deleteLater)
+
+        self.worker_thread.start(3)
 
     def MoveRobotArm_ZUp(self):
-        self.MicroMovement(5)
+        #Small move (new thread)
+                #Small move (new thread)
+        self.worker_thread = Thread_Micromovement(
+            self.classdata,
+            self.ui.tbw_result,
+            self.ui.tbx_log,
+            self.ui.spb_laser_distance, 
+            self.ui.label_x_RobPos, 
+            self.ui.label_y_RobPos,
+            self.ui.label_z_RobPos,
+            self.ui.label_dist_laser,
+            self.ui.label_x_Surface, 
+            self.ui.label_y_Surface,
+            self.ui.label_z_Surface,
+            self.ax, 
+            self.canvas)
+
+        self.worker_thread.finished.connect(self.worker_thread.deleteLater)
+
+        self.worker_thread.start(5)
 
     def MoveRobotArm_XDown(self):
-        self.MicroMovement(2)
+        #Small move (new thread)
+                #Small move (new thread)
+        self.worker_thread = Thread_Micromovement(
+            self.classdata,
+            self.ui.tbw_result,
+            self.ui.tbx_log,
+            self.ui.spb_laser_distance, 
+            self.ui.label_x_RobPos, 
+            self.ui.label_y_RobPos,
+            self.ui.label_z_RobPos,
+            self.ui.label_dist_laser,
+            self.ui.label_x_Surface, 
+            self.ui.label_y_Surface,
+            self.ui.label_z_Surface,
+            self.ax, 
+            self.canvas)
+
+        self.worker_thread.finished.connect(self.worker_thread.deleteLater)
+
+        self.worker_thread.start(2)
 
     def MoveRobotArm_YDown(self):
-        self.MicroMovement(4)
+        #Small move (new thread)
+                #Small move (new thread)
+        self.worker_thread = Thread_Micromovement(
+            self.classdata,
+            self.ui.tbw_result,
+            self.ui.tbx_log,
+            self.ui.spb_laser_distance, 
+            self.ui.label_x_RobPos, 
+            self.ui.label_y_RobPos,
+            self.ui.label_z_RobPos,
+            self.ui.label_dist_laser,
+            self.ui.label_x_Surface, 
+            self.ui.label_y_Surface,
+            self.ui.label_z_Surface,
+            self.ax, 
+            self.canvas)
+
+        self.worker_thread.finished.connect(self.worker_thread.deleteLater)
+
+        self.worker_thread.start(4)
 
     def MoveRobotArm_ZDown(self):
-        self.MicroMovement(6)
+        #Small move (new thread)
+                #Small move (new thread)
+        self.worker_thread = Thread_Micromovement(
+            self.classdata,
+            self.ui.tbw_result,
+            self.ui.tbx_log,
+            self.ui.spb_laser_distance, 
+            self.ui.label_x_RobPos, 
+            self.ui.label_y_RobPos,
+            self.ui.label_z_RobPos,
+            self.ui.label_dist_laser,
+            self.ui.label_x_Surface, 
+            self.ui.label_y_Surface,
+            self.ui.label_z_Surface,
+            self.ax, 
+            self.canvas)
+
+        self.worker_thread.finished.connect(self.worker_thread.deleteLater)
+
+        self.worker_thread.start(6)
     
     def moveLinearToPositionButton(self):
         self.LinearActuator_thread.MoveLinearActuatorToPosition()
@@ -424,63 +640,6 @@ class AppWindow(QMainWindow):
         self.ui.btn_zDown.setDisabled(ONorOFF)
         self.ui.btn_Plot.setDisabled(ONorOFF)
 
-    """
-    functions: move robot arm position
-    Function for move 1 mm of robot. But because the robot initial code always run back to the start point.
-    Therefore, this function does not work as it should.
-    """
-    def MicroMovement(self, buttonNumber):
-
-        surfacepoint = [float(self.ui.label_x_Surface.text()), float(self.ui.label_y_Surface.text()), float(self.ui.label_z_Surface.text())]
-
-        # increase or decrease values
-        if buttonNumber == 1:  # X_up
-            surfacepoint[0] = surfacepoint[0] + 1.0
-        elif buttonNumber == 2:  # X_down
-            surfacepoint[0] = surfacepoint[0] - 1.0
-        elif buttonNumber == 3:  # Y_up
-            surfacepoint[1] = surfacepoint[1] + 1.0
-        elif buttonNumber == 4:  # Y_down
-            surfacepoint[1] = surfacepoint[1] - 1.0
-        elif buttonNumber == 5:  # Z_up
-            surfacepoint[2] = surfacepoint[2] + 1.0
-        elif buttonNumber == 6:  # Z_down
-            surfacepoint[2] = surfacepoint[2] - 1.0
-
-        Newpoint = [surfacepoint]
-
-        antenna_points, antenna_q = mw_boob(self.classdata.mesh, Newpoint, self.ui.spb_laser_distance.value(), self.classdata.quaternion)
-
-        robot = connectRobot(self.classdata.quaternion)
-
-        i = 0
-
-        for point, q in zip(antenna_points, antenna_q):
-            MoveRobotLinear(robot, point, q) 
-
-            changeLabels([point], Newpoint,self.ui.spb_laser_distance.value(), 
-                        self.ui.label_x_RobPos, self.ui.label_y_RobPos, self.ui.label_z_RobPos, self.ui.label_dist_laser,
-                        self.ui.label_x_Surface, self.ui.label_y_Surface,self.ui.label_z_Surface)
-            
-            # Clean the axis
-            self.ax.cla()
-
-            # Set axis labels
-            self.ax.set_xlabel("X")
-            self.ax.set_ylabel("Y")
-            self.ax.set_zlabel("Z")
-
-            #plot result
-            plotData(self.ui.tbw_result, self.ax, "b", self.ui.tbx_log)
-            
-            self.ax.scatter(point[0], point[1],point[2], c = "r", marker="o")
-
-            self.canvas.draw()
-
-            i += 1
-                
-        closeRobot(robot)
-    
     #function: update the plot
     def updatePlot(self):
         # Clean the axis
