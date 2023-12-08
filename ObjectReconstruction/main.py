@@ -9,7 +9,6 @@ import pandas as pd
 
 # from mayavi import mlab
 
-
 import time
 import sys
 import os
@@ -25,18 +24,26 @@ sys.path.append("~/Downloads/glfw-master")
 
 from spline_data import spline
 from reshape_list import fix_points
-from surface_reconstruction import poisson_surface_reconstruction, delaunay_original
+from surface_reconstruction import (
+    poisson_surface_reconstruction,
+    delaunay_original,
+    alpha_shape,
+    ball_pivoting,
+)
 from load_cad_file import load_stl_file
-#from plot_chosen_points import plot_choosen
 
-#from trace_error import line_trace
-from choose_points_microwave import ray_cast_points
+# from plot_chosen_points import plot_choosen
+
+from trace_error import line_trace
+from choose_points_microwave import ray_cast_points, get_points
 from read_save_csv import save_csv
 from interpolate_up import interpolate_up as int_up
 from move_pointcloud import move_pointcloud
+from plot_chosen_points import plot_choosen
+from RobotArm.generate_scan_points import generate_scan_points_cylinder
 
 
-filename = "Data/OurTest.csv"
+filename = "scanned_data/2023-11-16-1329-filip.csv"
 # f = sp.io.loadmat(fileName, squeeze_me=False)
 data = pd.read_csv(filename)  # Gets the surface points from the .mat file
 # data_2 = pd.read_csv(filename_2)
@@ -50,8 +57,8 @@ mesh, points = load_stl_file()
 # points_2 = fix_points(data)
 
 step_size = 2
-#data = int_up(data, step_size)
-#data = move_pointcloud(data)
+data = int_up(data, step_size)
+data = move_pointcloud(data)
 
 ### Plot pointcloud
 """mlab.figure()
@@ -72,13 +79,13 @@ mlab.show()"""
 #################################################################################
 # print("Number of datapoint :", len(points))
 
-save = False  # Save file? #Takes pretty long time to save .obj file, about 5-10 minutes
-saveImage = False  # Save plot image?
+save = False  # Save file? # IMPORTANT! High amount of data increases the save time significantly
+
 test = 1
 
 if test == 1:
     t = time.time()
-    re_resolution = 15
+    re_resolution = 5
     save = False
     recon_mesh = poisson_surface_reconstruction(data, save, re_resolution)
     totalElapsed = time.time() - t
@@ -86,8 +93,8 @@ if test == 1:
 
 if test == 2:
     t = time.time()
-    save = False
-    recon_mesh = delaunay_original(data, save)
+    save = True
+    recon_mesh = delaunay_original(data)
     totalElapsed = time.time() - t
     print("Time to complete reconstruction : ", totalElapsed)
 
@@ -101,18 +108,19 @@ totalElapsed = time.time() - t
 
 # Error metric function.
 
-#average_error_1 = line_trace(GT_mesh, recon_mesh, test, data)
+average_error_1 = line_trace(GT_mesh, recon_mesh, test, data)
 
 
 # ChosenPoints Functions gets the closest points on the mesh
-choosen_points = np.array(
-    [[-100, 0, -15], [-100, 0, -25]]
-)  # Needs atleast two points to be able to plot them.
+choosen_points = generate_scan_points_cylinder(60, 1, -100, 16, -100, 0)
+choosen_points = [point[0] for point in choosen_points]
 distance_from_mesh = 2  # in mm
-closestPoints, quats = ray_cast_points(
+# closestPoints, quats = ray_cast_points(recon_mesh, choosen_points, distance_from_mesh)
+closestPoints, quats, closestNormals = get_points(
     recon_mesh, choosen_points, distance_from_mesh
-)  # Recon mesh is reconstructed mesh, cP is the chosen points where to put the antenna. # closestPoints is the points on the mesh each correlating to their respective point in choosenPoints.
+)
+# Recon mesh is reconstructed mesh, cP is the chosen points where to put the antenna. # closestPoints is the points on the mesh each correlating to their respective point in choosenPoints.
 # closestNormals is the normals for each triangle which the points in closestPoints inhabit.
 print(closestPoints)
 print("Quaternions : ", quats)
-#plot_choosen(recon_mesh, choosen_points, distance_from_mesh)
+plot_choosen(closestPoints, closestNormals, choosen_points, recon_mesh)
