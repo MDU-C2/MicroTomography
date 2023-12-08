@@ -51,33 +51,8 @@ def mw_boob(mesh, points: list, distance: (int | float), quaternions):
 
     return antenna_points, antenna_q
 
-def mw_micromovement(antenna_points, antenna_q):
-    """Scans the mesh with the points on the mesh closest to the input points with a distance from the mesh
-
-    Parameters
-    ----------
-    mesh : TriangleMesh
-        The mesh of the scanned object
-    points : list, shape(, 3)
-        The points in the space you want to scan in the shape [X, Y, Z]
-    distance : Int or Float
-        The distance from the mesh you want to scan
-    quaternions : [q1, q2, q3, q4]
-        The quaternions of the robot arm
-    """
-    robot = robot_control.connect_to_robot()
-
-    #antenna_points, antenna_q = choose_points_microwave.ray_cast_points(mesh, points, distance)
-
-    MoveRobotLinear(robot, antenna_points, antenna_q)
-
-    robot.close()
-    
-    #return antenna_points, antenna_q
-
+"""Read the data from network analyser"""
 def networkMeasure(visa_instrument, i = 0):
-    """Read the data from network analyser"""
-
     freq, data_33 = visa_instrument.measure(meas_param="S33")
     _, data_32 = visa_instrument.measure(meas_param="S32")
     _, data_23 = visa_instrument.measure(meas_param="S23")
@@ -95,8 +70,8 @@ def networkMeasure(visa_instrument, i = 0):
     
     return freq, data_33, data_32, data_23, data_22
 
+"""Move robot"""
 def MoveRobotLinear(robot, point, q):
-    """Move robot"""
     robot_control.move_robot_linear(robot, [point, q])
 
 def save_csv(filename: str, points: dict):

@@ -7,9 +7,6 @@ import pandas as pd
 import numpy as np
 from PyQt5.QtWidgets import QFileDialog, QTableWidgetItem, QVBoxLayout
 
-from RobotArm.scan_breast_phantom import scan_points
-from ObjectReconstruction.surface_reconstruction import poisson_surface_reconstruction
-
 #function: save data in result table to csv
 def save_model(table, log):
     options = QFileDialog.Options()
@@ -255,7 +252,3 @@ def changeLabels(robpos, surfacepos, spb_laser_distance, label_x_RobPos, label_y
 def changeLinearActuatorSteps(stepValueNow, label_PosNow, spb_PosGoal):
     label_PosNow.setText(str(stepValueNow))
     spb_PosGoal.setValue(stepValueNow)
-
-def recon3D(result):
-    mesh = poisson_surface_reconstruction(result, save=False,  re_resolution=5)
-    return mesh

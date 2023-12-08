@@ -1,4 +1,5 @@
 import pandas as pd
+from ObjectReconstruction.surface_reconstruction import poisson_surface_reconstruction
 
 class class_GUI:
     """
@@ -23,3 +24,7 @@ class class_GUI:
         self.quaternion = quaternions
         df = pd.DataFrame(self.quaternion, columns=["Quaternions"])
         df.to_csv('GUI/quaternions.csv', index=False)  # Specify index=False to avoid writing row numbers as a column
+
+    def recon3D(result):
+        mesh = poisson_surface_reconstruction(result, save=False,  re_resolution=5)
+        return mesh
