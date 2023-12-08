@@ -19,8 +19,7 @@ from pytransform3d.rotations import plot_basis as pr
 from pytransform3d.rotations import quaternion_from_matrix as qmp
 from pytransform3d.rotations import concatenate_quaternions as cq
 
-from zvb.titi_bakonkadonk_brest_8008 import *
-
+from zvb.titi_bakonkadonk_brest_8008_GUI import *
 
 # Function for scanning points in either cylinder form or halfsphere form
 def scan_points(
@@ -338,21 +337,21 @@ def calibration():
 def microMoveForRobot(buttonNumber, mesh, surfacepoint, distance, quaternions):
     # increase or decrease values
     if buttonNumber == 1:  # X_up
-        surfacepoint[0] = surfacepoint[0] + 10.0
+        surfacepoint[0] = surfacepoint[0] + 1.0
     elif buttonNumber == 2:  # X_down
-        surfacepoint[0] = surfacepoint[0] - 10.0
+        surfacepoint[0] = surfacepoint[0] - 1.0
     elif buttonNumber == 3:  # Y_up
-        surfacepoint[1] = surfacepoint[1] + 10.0
+        surfacepoint[1] = surfacepoint[1] + 1.0
     elif buttonNumber == 4:  # Y_down
-        surfacepoint[1] = surfacepoint[1] - 10.0
+        surfacepoint[1] = surfacepoint[1] - 1.0
     elif buttonNumber == 5:  # Z_up
-        surfacepoint[2] = surfacepoint[2] + 10.0
+        surfacepoint[2] = surfacepoint[2] + 1.0
     elif buttonNumber == 6:  # Z_down
-        surfacepoint[2] = surfacepoint[2] - 0.0
+        surfacepoint[2] = surfacepoint[2] - 1.0
 
     Newpoint = [surfacepoint]
 
     # move robot using the move list funtion and get antenna position
-    antenna_points, antenna_q = mw_micromovement(mesh, Newpoint, distance, quaternions)
+    antenna_points, antenna_q = mw_micromovement(mesh, Newpoint, distance)
 
     return antenna_points, antenna_q, surfacepoint

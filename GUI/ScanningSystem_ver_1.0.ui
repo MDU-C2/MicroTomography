@@ -450,7 +450,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab_5">
      <attribute name="title">
@@ -809,11 +809,11 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <widget class="QWidget" name="tab_7">
      <attribute name="title">
-      <string>Auto Generate scanning points</string>
+      <string>Laser measurement</string>
      </attribute>
      <widget class="QLabel" name="label_nonvalue_azimuthpoints">
       <property name="geometry">
@@ -1083,7 +1083,7 @@
     </widget>
     <widget class="QWidget" name="tab_8">
      <attribute name="title">
-      <string>Manual input scanning points</string>
+      <string>Microwave Measurement</string>
      </attribute>
      <widget class="QPushButton" name="btn_clearTable">
       <property name="geometry">
@@ -1304,10 +1304,10 @@
      <double>0.000000000000000</double>
     </property>
     <property name="maximum">
-     <double>10.000000000000000</double>
+     <double>100.000000000000000</double>
     </property>
     <property name="singleStep">
-     <double>0.500000000000000</double>
+     <double>1.000000000000000</double>
     </property>
     <property name="value">
      <double>2.000000000000000</double>

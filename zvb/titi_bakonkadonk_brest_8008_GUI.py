@@ -47,16 +47,11 @@ def mw_boob(mesh, points: list, distance: (int | float), quaternions):
     quaternions : [q1, q2, q3, q4]
         The quaternions of the robot arm
     """
-    robot = robot_control.robot_init(2, quaternions)
-    robot_control.set_zone_use(robot, True)
-
-
     antenna_points, antenna_q = choose_points_microwave.ray_cast_points(mesh, points, distance)
 
-    robot_control.close_connection(robot)
     return antenna_points, antenna_q
 
-def mw_micromovement(mesh, points: list, distance: (int | float), quaternions):
+def mw_micromovement(mesh, points: list, distance: (int | float)):
     """Scans the mesh with the points on the mesh closest to the input points with a distance from the mesh
 
     Parameters
@@ -70,20 +65,19 @@ def mw_micromovement(mesh, points: list, distance: (int | float), quaternions):
     quaternions : [q1, q2, q3, q4]
         The quaternions of the robot arm
     """
-    robot = robot_control.robot_init(2, quaternions)
-    robot_control.set_zone_use(robot, True)
+    robot = robot_control.connect_to_robot()
 
     antenna_points, antenna_q = choose_points_microwave.ray_cast_points(mesh, points, distance)
 
+    MoveRobotLinear(robot, antenna_points, antenna_q)
+
     robot_control.close_connection(robot)
+    
     return antenna_points, antenna_q
 
-def networkMeasure(robot, point, q, i, quaternions):
-    visa_instrument = mw_init()
-    #robot = robot_control.robot_init(2, quaternions)
-    #robot_control.set_zone_use(robot, True)
+def networkMeasure(visa_instrument, i = 0):
+    """Read the data from network analyser"""
 
-    robot_control.move_robot_linear(robot, [point, q])
     freq, data_33 = visa_instrument.measure(meas_param="S33")
     _, data_32 = visa_instrument.measure(meas_param="S32")
     _, data_23 = visa_instrument.measure(meas_param="S23")
@@ -101,6 +95,9 @@ def networkMeasure(robot, point, q, i, quaternions):
     
     return freq, data_33, data_32, data_23, data_22
 
+def MoveRobotLinear(robot, point, q):
+    """Move robot"""
+    robot_control.move_robot_linear(robot, [point, q])
 
 def save_csv(filename: str, points: dict):
     """Save the microwave data to a csv file

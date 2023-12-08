@@ -13,6 +13,7 @@ from GUI import ScanningSystem
 from GUI.GUIFunctions import *
 from GUI import ClassGUI
 from RobotArm.scan_breast_phantom import scan_points, calibration, microMoveForRobot
+from RobotArm import generate_scan_points
 
 #linear actuator
 import LinearActuator.linearActuatorController as linearController
@@ -110,41 +111,41 @@ class Thread_Scanning(QThread):
    
                 result = scan_points(self.classdata.quaternion, self.radius, self.z_stepsize, self.z_min, self.azimuth_points, self.z_offset, self.laser_angle)
 
-                
- 
             elif self.scanModeIndex == 1:  # halve sphere
                 self.printText.emit(f"Halve sphere scan with quaternion: {self.classdata.quaternion}")
 
                 result = scan_points(self.classdata.quaternion, self.radius, self.azimuth_points, self.elevation_points, self.z_min, self.z_offset)
             
-            
-
             writeResultToTable(result, self.tableResult)
             self.printText.emit("Scanning Finished.")
             self.displayPointClound.emit()
+            self.classdata.mesh = recon3D(result)
+            self.printText.emit("3D mesh created.")
         else:
-            self.printText.emit("Reading position list...")
             
+            Visa_instrument= mw_init()  #initial visa instrument
+
             # Check if it is empty in the position list or not
             if not self.tablePosition.rowCount() == 0:
-                #read 3D mesh
-                result = readDataFromTable(self.tableResult, self.logbox)
-                mesh = recon3D(result)
+                self.printText.emit("Reading position list...")
 
                 #read items in the manual input position table
                 positions = readDataFromTable(self.tablePosition, self.logbox)
 
                 #Generate moving data and move robot
-                antenna_points, antenna_q = mw_boob(mesh, positions, self.distance, self.classdata.quaternion)
+                antenna_points, antenna_q = mw_boob(self.classdata.mesh, positions, self.distance, self.classdata.quaternion)
 
                 robot = connectRobot(self.classdata.quaternion)
 
-                for point, q in zip(antenna_points, antenna_q):                
-                    freq, data_33, data_32, data_23, data_22 = networkMeasure(robot, point, q, i, self.classdata.quaternion)
+                for point, q in zip(antenna_points, antenna_q):
+                    MoveRobotLinear(robot, point, q)             
+                    freq, data_33, data_32, data_23, data_22 = networkMeasure(Visa_instrument,  i)
                     plotNetworkAnalyserDiagram(self.network_ax, self.canvasNetwork, self.cbx_S33, self.cbx_S32, self.cbx_S23, self.cbx_S22, freq, data_33, data_32, data_23, data_22)
                     i += 1
 
                 closeRobot(robot)
+
+                positions = generate_scan_points.transform_laser_distance(point, self.spb_laser_distance.value())
                 
                 changeLabels(antenna_points, positions,self.spb_laser_distance.value(), 
                     self.label_x_RobPos, self.label_y_RobPos, self.label_z_RobPos, self.label_dist_laser,
@@ -153,7 +154,9 @@ class Thread_Scanning(QThread):
                 self.printText.emit("Moving Finished.")
                 self.displayPointClound.emit()
             else:
-                self.printText.emit("No item in the Position list")
+                self.printText.emit("Perform microwave measurement without moving.")
+                freq, data_33, data_32, data_23, data_22 = networkMeasure(Visa_instrument)
+                plotNetworkAnalyserDiagram(self.network_ax, self.canvasNetwork, self.cbx_S33, self.cbx_S32, self.cbx_S23, self.cbx_S22, freq, data_33, data_32, data_23, data_22)
 
         #Enable buttons
         self.disableButtons.emit(False)
@@ -175,7 +178,8 @@ class Thread_Calibration(QThread):
         #run calibration
         self.disableButtons.emit(True)
         self.printText.emit("Calibration runs.")
-        self.classdata.quaternion = calibration()
+        Newquaternion = calibration()
+        self.classdata.quaternion = self.classdata.changeQua(Newquaternion)
         self.printText.emit(f"New calibration: {self.classdata.quaternion}")
         self.printText.emit("Calibration finished!")
         self.disableButtons.emit(False)
@@ -263,10 +267,10 @@ class AppWindow(QMainWindow):
 
         self.ui.btn_Plot.pressed.connect(self.plotButton)
 
-        ##########################Scanning plot
+        # Add matplotlib in scanning viewer
         self.ax, self.canvas = add3DPlotInGUI(self.ui.viewer_scanning)
 
-        ########################## Network plot
+        # Add matplotlib in scanning viewer
         self.network_ax, self.canvasNetwork = add2DDiagramInGUI(self.ui.viewer_network)
 
         #Linear actuator
@@ -297,9 +301,10 @@ class AppWindow(QMainWindow):
     def saveButton(self):
         save_model(self.ui.tbw_result, self.ui.tbx_log)
 
-    #function: add item to table
+    #function: add item to table and display the positions
     def inputButton(self):
         insertDataToTable(self.ui.ted_x, self.ui.ted_y, self.ui.ted_z, self.ui.tbw_positionlist, self.ui.twg_table, self.ui.tbx_log)
+        self.updatePlot()
         
     #function: clear the positions list
     def clearButton(self):
@@ -422,21 +427,30 @@ class AppWindow(QMainWindow):
     # functions: move robot arm position
     def MicroMovement(self, decision):
         point = [float(self.ui.label_x_Surface.text()), float(self.ui.label_y_Surface.text()), float(self.ui.label_z_Surface.text())]
-        result = readDataFromTable(self.ui.tbw_result, self.ui.tbx_log)
-        mesh = recon3D(result)
-        antenna_points, antenna_q, robpos = microMoveForRobot(decision, mesh, point, self.ui.spb_laser_distance.value(), self.classdata.quaternion)
-        i = 0
-        for point, q in zip(antenna_points, antenna_q):
-                    freq, data_33, data_32, data_23, data_22 = networkMeasure(point, q, i, self.classdata.quaternion)
-                
-                    plotNetworkAnalyserDiagram(self.network_ax, self.canvasNetwork, self.ui.cbx_S33, self.ui.cbx_S32, self.ui.cbx_S23, self.ui.cbx_S22, freq, data_33, data_32, data_23, data_22)
-                    i += 1
 
-        changeLabels(antenna_points, [robpos], self.ui.spb_laser_distance.value(), 
+        antenna_points, antenna_q, surfacePos = microMoveForRobot(decision, self.classdata.mesh, point, self.ui.spb_laser_distance.value())
+  
+        changeLabels(antenna_points, [surfacePos], self.ui.spb_laser_distance.value(), 
                      self.ui.label_x_RobPos, self.ui.label_y_RobPos,self.ui.label_z_RobPos, self.ui.label_dist_laser,
                      self.ui.label_x_Surface, self.ui.label_y_Surface,self.ui.label_z_Surface)
         
-        self.updatePlot()
+        # Clean the axis
+        self.ax.cla()
+
+        # Set axis labels
+        self.ax.set_xlabel("X")
+        self.ax.set_ylabel("Y")
+        self.ax.set_zlabel("Z")
+
+        #plot result
+        plotData(self.ui.tbw_result, self.ax, "b", self.ui.tbx_log)
+
+        #plot positions in manually inputs
+        plotData(self.ui.tbw_positionlist, self.ax, "g", self.ui.tbx_log)
+        
+        self.ax.scatter(self.ui.label_x_Surface, self.ui.label_y_Surface,self.ui.label_z_Surface, "r")
+
+        self.canvas.draw()
  
     # function: laser position
     def endEffectorPos(self, robpos, surfacepos):
