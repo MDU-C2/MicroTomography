@@ -26,5 +26,6 @@ class class_GUI:
         df = pd.DataFrame(self.quaternion, columns=["Quaternions"])
         df.to_csv('GUI/quaternions.csv', index=False)  # Specify index=False to avoid writing row numbers as a column
 
+    #Update the mesh in both variable and csv file.
     def recon3D(self, result):
         self.mesh = poisson_surface_reconstruction(result, save=False,  re_resolution=5)

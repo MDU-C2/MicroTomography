@@ -18,6 +18,23 @@ from RobotArm.scan_breast_phantom import scan_points, calibration
 import LinearActuator.linearActuatorController as linearController
 
 class Thread_Scanning(QThread):
+    """Thread for scanning
+
+    Parameters
+    ----------
+    ScanSetting: int
+        The index of scan settning (decide laser or microwave scanning)
+    scanModeIndex: int
+        The index of scan mode in laser scanning (decide cylinder or halve sphere scan)
+    classdata:
+        The ClassGUI
+    radius, z_stepsize, azimuth_points, z_offset, elevation_points,
+    z_min,laser_angle,laser_distance,resultTable,positionTable,
+    spb_laser_distance, label_x_RobPos, label_y_RobPos,label_z_RobPos,
+    label_dist_laser,label_x_Surface,label_y_Surface,label_z_Surface,network_ax, 
+    canvasNetwork, cbx_S33, cbx_S32, cbx_S23, cbx_S22:
+        Elements in GUI
+    """
     finished = pyqtSignal()
     printText = pyqtSignal(str)
     disableButtons = pyqtSignal(bool)
@@ -37,7 +54,6 @@ class Thread_Scanning(QThread):
                 laser_distance,
                 resultTable,
                 positionTable,
-                log,
                 spb_laser_distance, 
                 label_x_RobPos, 
                 label_y_RobPos,
@@ -67,7 +83,6 @@ class Thread_Scanning(QThread):
         self.distance = laser_distance
         self.tableResult = resultTable
         self.tablePosition = positionTable
-        self.logbox = log
         self.spb_laser_distance = spb_laser_distance
         self.label_x_RobPos = label_x_RobPos
         self.label_y_RobPos = label_y_RobPos
@@ -84,14 +99,6 @@ class Thread_Scanning(QThread):
         self.cbx_S22 = cbx_S22
 
     def run(self):
-        self.scanMode()
-        self.finished.emit()
-    
-    def stopNow(self):
-        self.terminate()
-        self.wait()
-
-    def scanMode(self):
         i = 0
         
         # read which scanning mode tab is on now
@@ -129,7 +136,7 @@ class Thread_Scanning(QThread):
                 self.printText.emit("Reading position list...")
 
                 #read items in the manual input position table
-                positions = readDataFromTable(self.tablePosition, self.logbox)
+                positions = readDataFromTable(self.tablePosition)
 
                 #Generate moving data and move robot
                 antenna_points, antenna_q = mw_boob(self.classdata.mesh, positions, self.distance, self.classdata.quaternion)
@@ -159,19 +166,32 @@ class Thread_Scanning(QThread):
 
         #Enable buttons
         self.disableButtons.emit(False)
+        self.finished.emit()
+    
+    def stopNow(self):
+        self.terminate()
+        self.wait()
+
+ 
      
 #Thread for calibration    
 class Thread_Calibration(QThread):
+    """Thread for calibration
+
+    Parameters
+    ----------
+    classdata:
+        The ClassGUI
+    """
     #connect functions from main thread
     finished = pyqtSignal()
     printText = pyqtSignal(str)
     disableButtons = pyqtSignal(bool)
 
     #Get values from main thread
-    def __init__(self, classdata, log):
+    def __init__(self, classdata,):
         super().__init__()
         self.classdata = classdata
-        self.logbox = log
 
     def run(self):
         #run calibration
@@ -188,6 +208,13 @@ class Thread_Calibration(QThread):
         self.wait()
 
 class Thread_LinearAcutator(QThread):
+    """Thread for linear actuator movement
+
+    Parameters
+    ----------
+    label_linear_pos,spb_LinearMoveTo:
+        Elements in linear actuator tab in GUI
+    """
     sem_protection = Semaphore(1)
 
     def __init__(self, label_linear_pos,spb_LinearMoveTo):
@@ -237,15 +264,31 @@ class Thread_LinearAcutator(QThread):
         self.sem_protection.release()
 
 class Thread_Micromovement(QThread):
+    """Thread for robot micromovement
+
+    Parameters
+    ----------
+    buttonnumber:
+        Which button is pressed by user
+    classdata:
+        The ClassGUI
+    resultTable,spb_laser_distance, label_x_RobPos, label_y_RobPos,
+    label_z_RobPos,label_dist_laser,label_x_Surface,label_y_Surface,
+    label_z_Surface:
+        Elements in linear actuator tab in GUI
+    ax, canvas:
+        The scanning viewer
+    """
+
     finished = pyqtSignal()
     printText = pyqtSignal(str)
     disableButtons = pyqtSignal(bool)
     displayPointClound = pyqtSignal()
 
     def __init__(self,
+                buttonnumber,
                 classdata,
                 resultTable,
-                log,
                 spb_laser_distance, 
                 label_x_RobPos, 
                 label_y_RobPos,
@@ -258,7 +301,7 @@ class Thread_Micromovement(QThread):
                 canvas, 
                 ):
         super().__init__()
-        self.logbox = log
+        self.buttonNumber = buttonnumber
         self.spb_laser_distance = spb_laser_distance
         self.label_x_RobPos = label_x_RobPos
         self.label_y_RobPos = label_y_RobPos
@@ -271,36 +314,26 @@ class Thread_Micromovement(QThread):
         self.canvas = canvas
         self.tableResult = resultTable
         self.classdata = classdata
-
-    def run(self, dicision):
-        self.MicroMovement(dicision)
-        self.finished.emit()
-    
-    def stopNow(self):
-        self.terminate()
-        self.wait()
-
     """
     functions: move robot arm position
     Function for move 1 mm of robot. But because the robot initial code always run back to the start point.
     Therefore, this function does not work as it should.
     """
-    def MicroMovement(self, buttonNumber):
-
+    def run(self):
         surfacepoint = [float(self.label_x_Surface.text()), float(self.label_y_Surface.text()), float(self.label_z_Surface.text())]
 
         # increase or decrease values
-        if buttonNumber == 1:  # X_up
+        if self.buttonNumber == 1:  # X_up
             surfacepoint[0] = surfacepoint[0] + 1.0
-        elif buttonNumber == 2:  # X_down
+        elif self.buttonNumber == 2:  # X_down
             surfacepoint[0] = surfacepoint[0] - 1.0
-        elif buttonNumber == 3:  # Y_up
+        elif self.buttonNumber == 3:  # Y_up
             surfacepoint[1] = surfacepoint[1] + 1.0
-        elif buttonNumber == 4:  # Y_down
+        elif self.buttonNumber == 4:  # Y_down
             surfacepoint[1] = surfacepoint[1] - 1.0
-        elif buttonNumber == 5:  # Z_up
+        elif self.buttonNumber == 5:  # Z_up
             surfacepoint[2] = surfacepoint[2] + 1.0
-        elif buttonNumber == 6:  # Z_down
+        elif self.buttonNumber == 6:  # Z_down
             surfacepoint[2] = surfacepoint[2] - 1.0
 
         Newpoint = [surfacepoint]
@@ -327,7 +360,7 @@ class Thread_Micromovement(QThread):
             self.ax.set_zlabel("Z")
 
             #plot result
-            plotData(self.tbw_result, self.ax, "b", self.logbox)
+            plotData(self.tbw_result, self.ax, "b")
             
             self.ax.scatter(point[0], point[1],point[2], c = "r", marker="o")
 
@@ -336,6 +369,12 @@ class Thread_Micromovement(QThread):
             i += 1
                 
         closeRobot(self.classdata.robot)
+        self.finished.emit()
+    
+    def stopNow(self):
+        self.terminate()
+        self.wait()
+
 
 class AppWindow(QMainWindow):
     def __init__(self):
@@ -391,10 +430,11 @@ class AppWindow(QMainWindow):
     #######Button Functions###########
     #function load file
     def loadButton(self):
+
         load_model(self.ui.tbw_result, self.ui.tbx_log)  # Load the data from .mat file
 
         if self.ui.tbw_result.rowCount() != 0:
-            result = readDataFromTable(self.ui.tbw_result, self.ui.tbx_log)
+            result = readDataFromTable(self.ui.tbw_result)
             self.updatePlot()  # Plot the figure after spline
             self.classdata.recon3D(result)
 
@@ -404,7 +444,7 @@ class AppWindow(QMainWindow):
 
     #function: add item to table and display the positions
     def inputButton(self):
-        insertDataToTable(self.ui.ted_x, self.ui.ted_y, self.ui.ted_z, self.ui.tbw_positionlist, self.ui.twg_table, self.ui.tbx_log)
+        insertDataToTable(self.ui.ted_x, self.ui.ted_y, self.ui.ted_z, self.ui.tbw_positionlist, self.ui.twg_table)
         self.updatePlot()
         
     #function: clear the positions list
@@ -430,7 +470,6 @@ class AppWindow(QMainWindow):
             self.ui.spb_laser_distance.value(),
             self.ui.tbw_result,
             self.ui.tbw_positionlist,
-            self.ui.tbx_log,
             self.ui.spb_laser_distance, 
             self.ui.label_x_RobPos, 
             self.ui.label_y_RobPos,
@@ -467,7 +506,7 @@ class AppWindow(QMainWindow):
     #function: calibration
     def calibrationButton(self):
         #start calibration (new thread)
-        self.worker_thread = Thread_Calibration(self.classdata, self.ui.tbx_log)
+        self.worker_thread = Thread_Calibration(self.classdata)
 
         self.worker_thread.disableButtons.connect(self.disableButton)
         self.worker_thread.printText.connect(self.printLog)
@@ -478,9 +517,9 @@ class AppWindow(QMainWindow):
     def MoveRobotArm_XUp(self):
         #Small move (new thread)
         self.worker_thread = Thread_Micromovement(
+            1,
             self.classdata,
             self.ui.tbw_result,
-            self.ui.tbx_log,
             self.ui.spb_laser_distance, 
             self.ui.label_x_RobPos, 
             self.ui.label_y_RobPos,
@@ -494,15 +533,14 @@ class AppWindow(QMainWindow):
 
         self.worker_thread.finished.connect(self.worker_thread.deleteLater)
 
-        self.worker_thread.start(1)
+        self.worker_thread.start()
 
     def MoveRobotArm_YUp(self):
         #Small move (new thread)
-                #Small move (new thread)
         self.worker_thread = Thread_Micromovement(
+            3,
             self.classdata,
             self.ui.tbw_result,
-            self.ui.tbx_log,
             self.ui.spb_laser_distance, 
             self.ui.label_x_RobPos, 
             self.ui.label_y_RobPos,
@@ -516,15 +554,14 @@ class AppWindow(QMainWindow):
 
         self.worker_thread.finished.connect(self.worker_thread.deleteLater)
 
-        self.worker_thread.start(3)
+        self.worker_thread.start()
 
     def MoveRobotArm_ZUp(self):
         #Small move (new thread)
-                #Small move (new thread)
         self.worker_thread = Thread_Micromovement(
+            5,
             self.classdata,
             self.ui.tbw_result,
-            self.ui.tbx_log,
             self.ui.spb_laser_distance, 
             self.ui.label_x_RobPos, 
             self.ui.label_y_RobPos,
@@ -538,15 +575,14 @@ class AppWindow(QMainWindow):
 
         self.worker_thread.finished.connect(self.worker_thread.deleteLater)
 
-        self.worker_thread.start(5)
+        self.worker_thread.start()
 
     def MoveRobotArm_XDown(self):
         #Small move (new thread)
-                #Small move (new thread)
         self.worker_thread = Thread_Micromovement(
+            2,
             self.classdata,
             self.ui.tbw_result,
-            self.ui.tbx_log,
             self.ui.spb_laser_distance, 
             self.ui.label_x_RobPos, 
             self.ui.label_y_RobPos,
@@ -560,15 +596,14 @@ class AppWindow(QMainWindow):
 
         self.worker_thread.finished.connect(self.worker_thread.deleteLater)
 
-        self.worker_thread.start(2)
+        self.worker_thread.start()
 
     def MoveRobotArm_YDown(self):
         #Small move (new thread)
-                #Small move (new thread)
         self.worker_thread = Thread_Micromovement(
+            4,
             self.classdata,
             self.ui.tbw_result,
-            self.ui.tbx_log,
             self.ui.spb_laser_distance, 
             self.ui.label_x_RobPos, 
             self.ui.label_y_RobPos,
@@ -582,15 +617,14 @@ class AppWindow(QMainWindow):
 
         self.worker_thread.finished.connect(self.worker_thread.deleteLater)
 
-        self.worker_thread.start(4)
+        self.worker_thread.start()
 
     def MoveRobotArm_ZDown(self):
         #Small move (new thread)
-                #Small move (new thread)
         self.worker_thread = Thread_Micromovement(
+            6,
             self.classdata,
             self.ui.tbw_result,
-            self.ui.tbx_log,
             self.ui.spb_laser_distance, 
             self.ui.label_x_RobPos, 
             self.ui.label_y_RobPos,
@@ -604,7 +638,7 @@ class AppWindow(QMainWindow):
 
         self.worker_thread.finished.connect(self.worker_thread.deleteLater)
 
-        self.worker_thread.start(6)
+        self.worker_thread.start()
     
     def moveLinearToPositionButton(self):
         self.LinearActuator_thread.MoveLinearActuatorToPosition()
@@ -651,10 +685,10 @@ class AppWindow(QMainWindow):
         self.ax.set_zlabel("Z")
 
         #plot result
-        plotData(self.ui.tbw_result, self.ax, "b", self.ui.tbx_log)
+        plotData(self.ui.tbw_result, self.ax, "b")
 
         #plot positions in manually inputs
-        plotData(self.ui.tbw_positionlist, self.ax, "g", self.ui.tbx_log)
+        plotData(self.ui.tbw_positionlist, self.ax, "g")
 
         self.canvas.draw()
 

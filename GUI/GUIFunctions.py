@@ -6,13 +6,23 @@ from matplotlib.figure import Figure
 import pandas as pd
 import numpy as np
 from PyQt5.QtWidgets import QFileDialog, QTableWidgetItem, QVBoxLayout
+from ObjectReconstruction.choose_points_microwave import get_points
 
 #function: save data in result table to csv
 def save_model(table, log):
+    """Save the data from table to a .csv file
+
+    Parameters
+    ----------
+    table : 
+        which table in GUI is going to save
+    log   :
+        The textbox in GUI for printing messange
+    """
     options = QFileDialog.Options()
     options |= QFileDialog.DontUseNativeDialog
 
-    data = readDataFromTable(table, log)
+    data = readDataFromTable(table)
 
     try:
         file_path, _ = QFileDialog.getSaveFileName(None, "Save CSV File", "", "CSV Files (*.csv);;All Files (*)", options=options)
@@ -32,6 +42,16 @@ def save_model(table, log):
 
 #function: read csv and add items to result table
 def load_model(table, log):
+    """load the data from a .csv file to table
+
+    Parameters
+    ----------
+    table : 
+        which table in GUI is going to save
+    log   :
+        The textbox in GUI for printing messange
+    """
+        
     # Open a file dialog window for selecting a file
     options = QFileDialog.Options()
     options |= QFileDialog.DontUseNativeDialog
@@ -50,7 +70,15 @@ def load_model(table, log):
         log.append("None file selected")
 
 #function: read data from a table
-def readDataFromTable(table, log):
+def readDataFromTable(table):
+    """read data from a table
+
+    Parameters
+    ----------
+    table : 
+        which table in GUI is going to read 
+    """
+
     tableData = []
     
     # Extract data from the QTableWidget
@@ -65,13 +93,20 @@ def readDataFromTable(table, log):
                     break
 
             tableData.append(row_data)
-    #else:
-        #log.append("No iteam in the table")
 
     return tableData
 
 #function: write result to table
 def writeResultToTable(data, table):
+    """write scanning result to a table
+
+    Parameters
+    ----------
+    data  : list
+        The scanning data
+    table : 
+        which table in GUI is going to write
+    """
 
     # Remove all data in the result table before input new data
     table.setRowCount(0)
@@ -88,10 +123,20 @@ def writeResultToTable(data, table):
             table.setItem(i, j, item)
 
 #function: plot data by reading values from table
-def plotData(table, figure, color, log):
-    #Plot maunal positions
+def plotData(table, figure, color):
+    """plot data from result in the scanning viewer
+
+    Parameters
+    ----------
+    table : 
+        which table in GUI is going to read
+    figure: 
+        The scanning viwer in GUI
+    color :
+        The color for the point (blue for result, green for manual input)
+    """
     
-    tableData = readDataFromTable(table, log)
+    tableData = readDataFromTable(table)
 
     data = pd.DataFrame(tableData, columns=["X", "Y", "Z"])
 
@@ -103,11 +148,27 @@ def plotData(table, figure, color, log):
     figure.scatter(data_X, data_Y, data_Z, c = color, marker="o")
 
 #function: add item to table
-def insertDataToTable(value_x, value_y, value_z, table, tab, log):
+def insertDataToTable(value_x, value_y, value_z, table, tab, mesh, distance):
+    """Insert data to the inputs table
+
+    Parameters
+    ----------
+    value_x,  value_y, value_z: 
+        The spin boxes of input in GUI
+    table : 
+        The table in GUI for inputs
+    color :
+        The color for the point (blue for result, green for manual input)
+    tab   :
+        Tab of scanning settning in GUI 
+    """
+
     # get number from text editor
     insert_x = value_x.value()
     insert_y = value_y.value()
     insert_z = value_z.value()
+
+    closestPoints, quaternion, closestNormals = get_points(mesh, [insert_x, insert_y, insert_z], distance)
 
     # Get the current number of rows in the tableWidget
     current_row_count = table.rowCount()
@@ -116,9 +177,9 @@ def insertDataToTable(value_x, value_y, value_z, table, tab, log):
     table.insertRow(current_row_count)
 
     # Create items for each cell in the new row
-    itemX = QTableWidgetItem(str(insert_x))
-    itemY = QTableWidgetItem(str(insert_y))
-    itemZ = QTableWidgetItem(str(insert_z))
+    itemX = QTableWidgetItem(str(closestPoints[0][0]))
+    itemY = QTableWidgetItem(str(closestPoints[0][1]))
+    itemZ = QTableWidgetItem(str(closestPoints[0][2]))
     
     # Set the items for each cell in the new row
     table.setItem(current_row_count, 0, itemX)
@@ -130,6 +191,14 @@ def insertDataToTable(value_x, value_y, value_z, table, tab, log):
 
 #function:connect matplotlib plot with scanning viewer
 def add3DPlotInGUI(viewer):
+    """add matplotlib in canvas in GUI for 3D.
+
+    Parameters
+    ----------
+    viewer:
+        The canvas in GUI
+    """
+
     # Create a layout for the plot viwer
     layout = QVBoxLayout(viewer)
     figure = Figure()
@@ -152,6 +221,14 @@ def add3DPlotInGUI(viewer):
 
 #function:connect matplotlib plot with network viewer
 def add2DDiagramInGUI(viewer):
+    """add matplotlib in canvas in GUI for 2D.
+
+    Parameters
+    ----------
+    viewer:
+        The canvas in GUI
+    """
+        
     # Create a layout for the plot viwer
     layoutNetwork = QVBoxLayout(viewer)
     figureNetwork = Figure()
@@ -169,6 +246,18 @@ def add2DDiagramInGUI(viewer):
     
 #functions: plot network analyser diagram
 def plotNetworkAnalyserDiagram(network_ax, canvasNetwork, cbx_S33, cbx_S32, cbx_S23, cbx_S22, freq, data_33, data_32, data_23, data_22):   
+    """plot data from network analser in network viewer
+
+    Parameters
+    ----------
+    network_ax, canvasNetwork:
+        The canvas in GUI for network analyser
+    cbx_S33, cbx_S32, cbx_S23, cbx_S22:
+        The check boxes in GUI for network
+    freq, data_33, data_32, data_23, data_22:
+        Data from Network analyser
+    """
+        
     # Clean the axis
     network_ax.cla()
 
@@ -205,6 +294,10 @@ def plotNetworkAnalyserDiagram(network_ax, canvasNetwork, cbx_S33, cbx_S32, cbx_
 
 #function: load network analyser data from csv file 
 def loadMWMeasurement():
+    """
+    load a csv file and plot it in network viewer
+    """
+        
     # Open a file dialog window for selecting a file
     options = QFileDialog.Options()
     options |= QFileDialog.DontUseNativeDialog
@@ -237,6 +330,13 @@ def loadMWMeasurement():
 
 # function: change value in label antenn position and surface postion
 def changeLabels(robpos, surfacepos, spb_laser_distance, label_x_RobPos, label_y_RobPos,label_z_RobPos, label_dist_laser, label_x_Surface, label_y_Surface, label_z_Surface):
+    """Changes values on the labels under the scanning viewer in GUI 
+
+    Parameters
+    ----------
+    robpos, surfacepos, spb_laser_distance, label_x_RobPos, label_y_RobPos,label_z_RobPos, label_dist_laser, label_x_Surface, label_y_Surface, label_z_Surface:
+        Labels in GUI
+    """
     #display antenn and laser distance
     label_x_RobPos.setText(str(robpos[0][0]))
     label_y_RobPos.setText(str(robpos[0][1]))
@@ -250,5 +350,15 @@ def changeLabels(robpos, surfacepos, spb_laser_distance, label_x_RobPos, label_y
 
 #function: change value label and spinbox 
 def changeLinearActuatorSteps(stepValueNow, label_PosNow, spb_PosGoal):
+    """change value on the label and spinbox in Linear Acutuator tab in GUI 
+
+    Parameters
+    ----------
+    stepValueNow: int
+        A int value for the height of linear actuator
+    label_PosNow, spb_PosGoal:
+        Label and spin box in GUI
+    """
+
     label_PosNow.setText(str(stepValueNow))
     spb_PosGoal.setValue(stepValueNow)
