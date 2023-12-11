@@ -168,7 +168,9 @@ def insertDataToTable(value_x, value_y, value_z, table, tab, mesh, distance):
     insert_y = value_y.value()
     insert_z = value_z.value()
 
-    closestPoints, quaternion, closestNormals = get_points(mesh, [insert_x, insert_y, insert_z], distance)
+    point = np.array([[insert_x, insert_y, insert_z]])
+
+    closestPoints, quaternion, closestNormals = get_points(mesh, point, distance)
 
     # Get the current number of rows in the tableWidget
     current_row_count = table.rowCount()

@@ -67,7 +67,9 @@ class Thread_Scanning(QThread):
                 cbx_S33, 
                 cbx_S32, 
                 cbx_S23, 
-                cbx_S22
+                cbx_S22,
+                ax, 
+                canvas, 
                 ):
         super().__init__()
         self.ScanSetting = ScanSetting
@@ -97,6 +99,8 @@ class Thread_Scanning(QThread):
         self.cbx_S32 = cbx_S32
         self.cbx_S23 = cbx_S23
         self.cbx_S22 = cbx_S22
+        self.ax = ax
+        self.canvas = canvas
 
     def run(self):
         i = 0
@@ -144,15 +148,23 @@ class Thread_Scanning(QThread):
                 self.classdata.robot = connectRobot(self.classdata.quaternion)
 
                 for point, q in zip(antenna_points, antenna_q):
-                    MoveRobotLinear(self.classdata.robot, point, q)             
+                    MoveRobotLinear(self.classdata.robot, point, q)  
+
+
                     freq, data_33, data_32, data_23, data_22 = networkMeasure(Visa_instrument,  i)
                     plotNetworkAnalyserDiagram(self.network_ax, self.canvasNetwork, self.cbx_S33, self.cbx_S32, self.cbx_S23, self.cbx_S22, freq, data_33, data_32, data_23, data_22)
 
                     changeLabels(antenna_points, [positions[i]],self.spb_laser_distance.value(), 
                         self.label_x_RobPos, self.label_y_RobPos, self.label_z_RobPos, self.label_dist_laser,
                         self.label_x_Surface, self.label_y_Surface,self.label_z_Surface)
-                       
+                    
+                    #plot result
+                    plotData(self.tableResult, self.ax, "b")
+                    
+                    self.ax.scatter(point[0], point[1],point[2], c = "r", marker="o")
 
+                    self.canvas.draw()
+                       
                     i += 1
 
                 closeRobot(self.classdata.robot)
@@ -360,7 +372,7 @@ class Thread_Micromovement(QThread):
             self.ax.set_zlabel("Z")
 
             #plot result
-            plotData(self.tbw_result, self.ax, "b")
+            plotData(self.tableResult, self.ax, "b")
             
             self.ax.scatter(point[0], point[1],point[2], c = "r", marker="o")
 
@@ -444,7 +456,7 @@ class AppWindow(QMainWindow):
 
     #function: add item to table and display the positions
     def inputButton(self):
-        insertDataToTable(self.ui.ted_x, self.ui.ted_y, self.ui.ted_z, self.ui.tbw_positionlist, self.ui.twg_table)
+        insertDataToTable(self.ui.ted_x, self.ui.ted_y, self.ui.ted_z, self.ui.tbw_positionlist, self.ui.twg_table, self.classdata.mesh, self.ui.spb_laser_distance.value())
         self.updatePlot()
         
     #function: clear the positions list
@@ -483,7 +495,9 @@ class AppWindow(QMainWindow):
             self.ui.cbx_S33, 
             self.ui.cbx_S32, 
             self.ui.cbx_S23, 
-            self.ui.cbx_S22
+            self.ui.cbx_S22,
+            self.ax, 
+            self.canvas
         )
 
         #Connect signals and slots
@@ -500,7 +514,7 @@ class AppWindow(QMainWindow):
     def stopButton(self):
         self.worker_thread.stopNow()
         self.ui.tbx_log.append("Emergency Stop!")
-        closeRobot(self.classdata.robot)
+        #closeRobot(self.classdata.robot)
         self.disableButton(False)
 
     #function: calibration
