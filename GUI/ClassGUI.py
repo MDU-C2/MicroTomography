@@ -1,6 +1,12 @@
 import pandas as pd
 from ObjectReconstruction.surface_reconstruction import poisson_surface_reconstruction
 
+class emptyClass:
+    """
+    A empty class for robot connection in init. It do nothing.
+    """
+    pass
+
 class class_GUI:
     """
     Create a mesh variable and read quaternion in the csv file. 
@@ -9,7 +15,7 @@ class class_GUI:
     def __init__(self):
         
         self.mesh = []
-        self.robot = None
+        self.robot = emptyClass
         try:
             data = pd.read_csv("GUI/quaternions.csv")
             self.quaternion = data["Quaternions"].to_list()
