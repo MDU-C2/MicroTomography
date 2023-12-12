@@ -21,11 +21,12 @@ from ObjectReconstruction.read_save_csv import read_csv
 
 result = read_csv("scanned_data/2023-11-29-09_01-brest_no_nipple.csv")
 result = interpolate_up(result, step_size=2)
-mesh = poisson_surface_reconstruction(result, save=False, re_resolution=15)
+print("making mesh")
+mesh = poisson_surface_reconstruction(result, save=False, re_resolution=5)
 
 la = linear_actuator()
 
-points = [
+points = np.array([
     [60, 0, -30],
     [60, 60, -30],
     [0, 60, -30],
@@ -34,7 +35,7 @@ points = [
     [-60, -60, -30],
     [0, -60, -30],
     [60, -60, -30],
-]
+])
 distance = 10
 
 antenna_points, antenna_q, _ = choose_points_microwave.get_points(
@@ -42,14 +43,14 @@ antenna_points, antenna_q, _ = choose_points_microwave.get_points(
 )
 
 while True:
-    _ = scan_points(
+    '''_ = scan_points(
         120,
         5,
         -50,
-        32,
+        16,
         -15,
         0,
-    )
+    )'''
 
     visa_instrument = mw_init()
 
@@ -70,7 +71,29 @@ while True:
     ax2.tick_params(axis="y", labelcolor=color2)
 
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
-    plt.show()
+    plt.ion()
+    #plt.show()
+
+    freq, data_33 = visa_instrument.measure(meas_param="S33")
+    _, data_32 = visa_instrument.measure(meas_param="S32")
+    _, data_23 = visa_instrument.measure(meas_param="S23")
+    _, data_22 = visa_instrument.measure(meas_param="S22")
+
+    (line1,) = ax1.plot(
+            np.abs(freq),
+            20 * np.log10(np.abs(data_22)),
+            color=color1,
+            label="S22",
+        )
+
+    (line2,) = ax2.plot(
+        np.abs(freq),
+        20 * np.log10(np.abs(data_23)),
+        color=color2,
+        label="S23",
+    )
+
+    ax1.legend(handles=[line1, line2])
 
     for point, q in zip(antenna_points, antenna_q):
         print(f"Going to Coordinate: {point}, Quats: {q}")
@@ -88,21 +111,29 @@ while True:
             "S22": data_22,
         }
 
-        (line1,) = ax1.plot(
+        '''(line1,) = ax1.plot(
             np.abs(data["Frequency"]),
             20 * np.log10(np.abs(data["S22"])),
             color=color1,
             label="S22",
-        )
+        )'''
+        line1.set_ydata(20 * np.log10(np.abs(data["S22"])))
+        line2.set_ydata(20 * np.log10(np.abs(data["S23"])))
+        #ax1.ylim(max(20 * np.log10(np.abs(data["S22"]))), min(20 * np.log10(np.abs(data["S22"]))))
+        #ax2.ylim(max(20 * np.log10(np.abs(data["S23"]))), min(20 * np.log10(np.abs(data["S23"]))))
 
-        (line2,) = ax2.plot(
+        ax1.relim()
+        ax2.relim()
+        '''(line2,) = ax2.plot(
             np.abs(data["Frequency"]),
             20 * np.log10(np.abs(data["S23"])),
             color=color2,
             label="S23",
-        )
+        )'''
 
-        ax1.legend(handles=[line1, line2])
+        #ax1.legend(handles=[line1, line2])
+        fig.canvas.draw()
+        fig.canvas.flush_events()
 
         plt.pause(1)
 
