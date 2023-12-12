@@ -58,7 +58,7 @@ Simply closes the connection to the instrument.
 
 ## Examples of using InstrumentClass.py
 ### Setting up the class to measure
-In this example the class is initialised with an instrument with ip *192.168.0.70* and sets it up for measurments with frequencies between 38GHz and 49Ghz and 801 measurement points.
+In this example the class is initialised with an instrument with ip *192.168.0.70* and sets it up for measurments with frequencies between 3.8GHz and 4.9Ghz and 801 measurement points.
 ``` python
 from zvb.InstrumentClass import VisaInstrument
 from InstrumentClass import VisaInstrument

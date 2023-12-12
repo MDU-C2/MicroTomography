@@ -8,6 +8,7 @@ sys.path.append(path)
 from Laser.optoNCDT1402 import optoNCDT1402
 from RobotArm import generate_scan_points
 from RobotArm import robot_control
+
 from RaspberryPi import transistor
 from time import sleep
 
@@ -21,15 +22,16 @@ from pytransform3d.rotations import concatenate_quaternions as cq
 
 from zvb.titi_bakonkadonk_brest_8008_GUI import *
 
+
 # Function for scanning points in either cylinder form or halfsphere form
 def scan_points(
+    *args,
     quaternion=[
         0.9999431292112558,
         0.010580670532612012,
         0.0013370534780490603,
         0.000006502210241618077,
     ],
-    *args,
 ):
     """
     Parameters

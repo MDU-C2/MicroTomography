@@ -59,18 +59,22 @@ def mw_boob(mesh, points: list, distance: (int | float)) -> None:
     )
 
     i = 0
+    fig, ax1 = plt.subplots()
+
+    color1 = "tab:red"
+    ax1.set_xlabel("Frequency (Hz)")
+    ax1.set_ylabel("dB", color=color1)
+    ax1.tick_params(axis="y", labelcolor=color1)
+
+    ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
+
+    color2 = "tab:blue"
+    ax2.set_ylabel("dB", color=color2)
+    ax2.tick_params(axis="y", labelcolor=color2)
+
+    fig.tight_layout()  # otherwise the right y-label is slightly clipped
+    plt.show()
     for point, q in zip(antenna_points, antenna_q):
-        fig, ax1 = plt.subplots()
-
-        color1 = "tab:red"
-        ax1.set_xlabel("Frequency (Hz)")
-        ax1.set_ylabel("dB", color=color1)
-
-        ax2 = ax1.twinx()  # instantiate a second axes that shares the same x-axis
-
-        color2 = "tab:blue"
-        ax2.set_ylabel("dB", color=color2)
-        
         print(f"Going to Coordinate: {point}, Quats: {q}")
         robot_control.move_robot_linear(robot, [point, q])
         freq, data_33 = visa_instrument.measure(meas_param="S33")
@@ -93,7 +97,7 @@ def mw_boob(mesh, points: list, distance: (int | float)) -> None:
             if key != "Frequency":
                 plt.plot(np.abs(data["Frequency"]), np.abs(value), label=key)"""
 
-        save_s2p("MW_measurement_" + str(i), frequency=freq, S22 = data_22, S23=data_23, S32 = data_32, S33=data_33)
+        save_s2p("MW_measurement_" + str(i), frequency=freq, **data)
 
         (line1,) = ax1.plot(
             np.abs(data["Frequency"]),
@@ -101,7 +105,7 @@ def mw_boob(mesh, points: list, distance: (int | float)) -> None:
             color=color1,
             label="S22",
         )
-        ax1.tick_params(axis="y", labelcolor=color1)
+        # ax1.tick_params(axis="y", labelcolor=color1)
 
         (line2,) = ax2.plot(
             np.abs(data["Frequency"]),
@@ -109,16 +113,17 @@ def mw_boob(mesh, points: list, distance: (int | float)) -> None:
             color=color2,
             label="S23",
         )
-        ax2.tick_params(axis="y", labelcolor=color2)
+        # ax2.tick_params(axis="y", labelcolor=color2)
 
         ax1.legend(handles=[line1, line2])
-        fig.tight_layout()  # otherwise the right y-label is slightly clipped
-        plt.show()
+        # fig.tight_layout()  # otherwise the right y-label is slightly clipped
+        # plt.show()
+        plt.pause(1)
         i += 1
     robot_control.close_connection(robot)
 
 
-def save_csv(filename: str, points: dict):
+def save_csv(filename: str, points: dict) -> None:
     """Save the microwave data to a csv file
 
     Parameters
@@ -141,7 +146,7 @@ def save_csv(filename: str, points: dict):
     )  # Specify index=False to avoid writing row numbers as a column
 
 
-def save_s2p(filename: str, frequency: list, **kwargs):
+def save_s2p(filename: str, **kwargs) -> None:
     """Saves the data from the Network analyzer in a s2p file
 
     Parameters
@@ -151,7 +156,11 @@ def save_s2p(filename: str, frequency: list, **kwargs):
     frequency : list
         A list containing all the frequencies of the data
     """
-    s = np.zeros((len(frequency), 2, 2), dtype=complex)
+    try:
+        s = np.zeros((len(kwargs["frequency"]), 2, 2), dtype=complex)
+    except:
+        print("frequency not found")
+        return
     for key, value in kwargs.items():
         if key == "S22":
             s[:, 0, 0] = value
@@ -168,7 +177,7 @@ def save_s2p(filename: str, frequency: list, **kwargs):
     saveDirectory = os.path.join(os.getcwd(), "mw_data")
     filename = time.strftime("%Y-%m-%d-%H_%M-") + filename
 
-    net = Network(frequency=Frequency.from_f(frequency), s=s)
+    net = Network(frequency=Frequency.from_f(kwargs["frequency"]), s=s)
     net.write_touchstone(filename=filename, dir=saveDirectory)
 
 
