@@ -15,13 +15,11 @@ from GUI.GUIFunctions import *
 from GUI import ClassGUI
 
 #Scanning
-from RobotArm.scan_breast_phantom import scan_points
+from RobotArm.scan_breast_phantom import scan_points, calibration
 
 #linear actuator
 import LinearActuator.linearActuatorController as linearController
 
-#calibration
-from RobotArm.calibrate import calibration
 
 class Thread_Scanning(QThread):
     """Thread for scanning
@@ -215,7 +213,7 @@ class Thread_Calibration(QThread):
         #run calibration
         self.disableButtons.emit(True)
         self.printText.emit("Calibration runs.")
-        Newquaternion = calibration([-5.27669, -4.89651, 764.097], self.classdata.quaternion)
+        Newquaternion = calibration()
         self.classdata.quaternion = self.classdata.changeQua(Newquaternion)
         self.printText.emit(f"New calibration: {self.classdata.quaternion}")
         self.printText.emit("Calibration finished!")
