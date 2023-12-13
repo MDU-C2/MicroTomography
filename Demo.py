@@ -21,21 +21,29 @@ from ObjectReconstruction.read_save_csv import read_csv
 
 result = read_csv("scanned_data/2023-11-29-09_01-brest_no_nipple.csv")
 result = interpolate_up(result, step_size=2)
+
+print("Getting lowest point in mesh")
+lowest_point = np.min(result[:, 2])
+la_point = lowest_point - 10
+print("The linear actuator will be placed at : ", la_point)
+
 print("making mesh")
 mesh = poisson_surface_reconstruction(result, save=False, re_resolution=5)
 
 la = linear_actuator()
 
-points = np.array([
-    [60, 0, -30],
-    [60, 60, -30],
-    [0, 60, -30],
-    [-60, 60, -30],
-    [-60, 0, -30],
-    [-60, -60, -30],
-    [0, -60, -30],
-    [60, -60, -30],
-])
+points = np.array(
+    [
+        [60, 0, -30],
+        [60, 60, -30],
+        [0, 60, -30],
+        [-60, 60, -30],
+        [-60, 0, -30],
+        [-60, -60, -30],
+        [0, -60, -30],
+        [60, -60, -30],
+    ]
+)
 distance = 10
 
 antenna_points, antenna_q, _ = choose_points_microwave.get_points(
@@ -43,15 +51,15 @@ antenna_points, antenna_q, _ = choose_points_microwave.get_points(
 )
 
 while True:
-    '''_ = scan_points(
+    """_ = scan_points(
         120,
         5,
         -50,
         16,
         -15,
         0,
-    )'''
-
+    )"""
+    la.move_to_desired_location_upwards(la_point)
     visa_instrument = mw_init()
 
     robot = robot_control.robot_init(2)
@@ -72,7 +80,7 @@ while True:
 
     fig.tight_layout()  # otherwise the right y-label is slightly clipped
     plt.ion()
-    #plt.show()
+    # plt.show()
 
     freq, data_33 = visa_instrument.measure(meas_param="S33")
     _, data_32 = visa_instrument.measure(meas_param="S32")
@@ -80,11 +88,11 @@ while True:
     _, data_22 = visa_instrument.measure(meas_param="S22")
 
     (line1,) = ax1.plot(
-            np.abs(freq),
-            20 * np.log10(np.abs(data_22)),
-            color=color1,
-            label="S22",
-        )
+        np.abs(freq),
+        20 * np.log10(np.abs(data_22)),
+        color=color1,
+        label="S22",
+    )
 
     (line2,) = ax2.plot(
         np.abs(freq),
@@ -111,30 +119,31 @@ while True:
             "S22": data_22,
         }
 
-        '''(line1,) = ax1.plot(
+        """(line1,) = ax1.plot(
             np.abs(data["Frequency"]),
             20 * np.log10(np.abs(data["S22"])),
             color=color1,
             label="S22",
-        )'''
+        )"""
         line1.set_ydata(20 * np.log10(np.abs(data["S22"])))
         line2.set_ydata(20 * np.log10(np.abs(data["S23"])))
-        #ax1.ylim(max(20 * np.log10(np.abs(data["S22"]))), min(20 * np.log10(np.abs(data["S22"]))))
-        #ax2.ylim(max(20 * np.log10(np.abs(data["S23"]))), min(20 * np.log10(np.abs(data["S23"]))))
+        # ax1.ylim(max(20 * np.log10(np.abs(data["S22"]))), min(20 * np.log10(np.abs(data["S22"]))))
+        # ax2.ylim(max(20 * np.log10(np.abs(data["S23"]))), min(20 * np.log10(np.abs(data["S23"]))))
 
         ax1.relim()
         ax2.relim()
-        '''(line2,) = ax2.plot(
+        """(line2,) = ax2.plot(
             np.abs(data["Frequency"]),
             20 * np.log10(np.abs(data["S23"])),
             color=color2,
             label="S23",
-        )'''
+        )"""
 
-        #ax1.legend(handles=[line1, line2])
+        # ax1.legend(handles=[line1, line2])
         fig.canvas.draw()
         fig.canvas.flush_events()
 
         plt.pause(1)
+        la.move_to_zeroLocation()
 
     robot_control.close_connection(robot)
