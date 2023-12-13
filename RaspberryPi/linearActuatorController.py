@@ -64,7 +64,7 @@ class linear_actuator:
             GPIO.output(PUL_PIN, GPIO.LOW)
             time.sleep(delay)
 
-        #GPIO.cleanup()
+        # GPIO.cleanup()
 
     def move_up_1mm(self):
         GPIO.output(DIR_PIN, GPIO.HIGH)
@@ -76,7 +76,7 @@ class linear_actuator:
             GPIO.output(PUL_PIN, GPIO.LOW)
             time.sleep(delay)
 
-        #GPIO.cleanup()
+        # GPIO.cleanup()
 
     def move_down_1mm(self):
         GPIO.output(DIR_PIN, GPIO.LOW)
@@ -134,6 +134,6 @@ class linear_actuator:
     # it should be within a loop so that the total steps
 
 
-"""lin = linear_actuator()
-lin.move_actuator()
-"""
+if __name__ == "__main__":
+    lin = linear_actuator()
+    lin.move_actuator()
