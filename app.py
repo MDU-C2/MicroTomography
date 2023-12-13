@@ -466,6 +466,7 @@ class AppWindow(QMainWindow):
     def clearButton(self):
         # Remove all positions from the positions list table
         self.ui.tbw_positionlist.setRowCount(0)
+        self.updatePlot()
 
     #function: start scanning
     def scanButton(self):
