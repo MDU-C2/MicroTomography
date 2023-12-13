@@ -6,16 +6,22 @@ from PyQt5.QtWidgets import QApplication,QMainWindow
 from PyQt5.QtCore import QThread, pyqtSignal
 from threading import Semaphore
 
-#Object reconstruction
+#Micromeasurement
 from zvb.titi_bakonkadonk_brest_8008_GUI import *
 
+#GUI
 from GUI import ScanningSystem
 from GUI.GUIFunctions import *
 from GUI import ClassGUI
-from RobotArm.scan_breast_phantom import scan_points, calibration
+
+#Scanning
+from RobotArm.scan_breast_phantom import scan_points
 
 #linear actuator
 import LinearActuator.linearActuatorController as linearController
+
+#calibration
+from RobotArm.calibrate import calibration
 
 class Thread_Scanning(QThread):
     """Thread for scanning
@@ -201,7 +207,7 @@ class Thread_Calibration(QThread):
     disableButtons = pyqtSignal(bool)
 
     #Get values from main thread
-    def __init__(self, classdata,):
+    def __init__(self, classdata):
         super().__init__()
         self.classdata = classdata
 
@@ -209,7 +215,7 @@ class Thread_Calibration(QThread):
         #run calibration
         self.disableButtons.emit(True)
         self.printText.emit("Calibration runs.")
-        Newquaternion = calibration()
+        Newquaternion = calibration([-5.27669, -4.89651, 764.097], self.classdata.quaternion)
         self.classdata.quaternion = self.classdata.changeQua(Newquaternion)
         self.printText.emit(f"New calibration: {self.classdata.quaternion}")
         self.printText.emit("Calibration finished!")
