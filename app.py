@@ -119,12 +119,12 @@ class Thread_Scanning(QThread):
             if self.scanModeIndex == 0:  # Cylinder   
                 self.printText.emit(f"Cylinder scan with quaternion: {self.classdata.quaternion}")
    
-                result = scan_points(self.classdata.quaternion, self.radius, self.z_stepsize, self.z_min, self.azimuth_points, self.z_offset, self.laser_angle)
+                result = scan_points(self.radius, self.z_stepsize, self.z_min, self.azimuth_points, self.z_offset, self.laser_angle, quaternion = self.classdata.quaternion)
 
             elif self.scanModeIndex == 1:  # halve sphere
                 self.printText.emit(f"Halve sphere scan with quaternion: {self.classdata.quaternion}")
 
-                result = scan_points(self.classdata.quaternion, self.radius, self.azimuth_points, self.elevation_points, self.z_min, self.z_offset)
+                result = scan_points(self.radius, self.azimuth_points, self.elevation_points, self.z_min, self.z_offset, quaternion = self.classdata.quaternion)
             
             writeResultToTable(result, self.tableResult)
             self.printText.emit("Scanning Finished.")
@@ -456,7 +456,10 @@ class AppWindow(QMainWindow):
 
     #function: add item to table and display the positions
     def inputButton(self):
-        insertDataToTable(self.ui.ted_x, self.ui.ted_y, self.ui.ted_z, self.ui.tbw_positionlist, self.ui.twg_table, self.classdata.mesh, self.ui.spb_laser_distance.value())
+        try:
+            insertDataToTable(self.ui.ted_x, self.ui.ted_y, self.ui.ted_z, self.ui.tbw_positionlist, self.ui.twg_table, self.classdata.mesh, self.ui.spb_laser_distance.value())
+        except:
+            self.printLog("There is no mesh data. Please use the load button or scan button to create mesh.")
         self.updatePlot()
         
     #function: clear the positions list
