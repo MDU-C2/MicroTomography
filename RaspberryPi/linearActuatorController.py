@@ -38,11 +38,11 @@ class linear_actuator:
         # return total_steps_changes
 
     def move_to_desired_location_upwards(
-        self, desired_distance_mm
+        self,desired_distance_mm
     ):  # Get distance from app.py
         GPIO.output(DIR_PIN, GPIO.HIGH)  # set the direction UP
 
-        # desired_distance_mm = float(input("Enter the desired distance (mm)")) # choosing the desired distance in mm
+        #desired_distance_mm = float(input("Enter the desired distance (mm)")) # choosing the desired distance in mm
 
         steps_to_move = self.calculate_steps(
             desired_distance_mm
@@ -50,7 +50,7 @@ class linear_actuator:
 
         self.move(steps_to_move)  # call the move function
 
-        GPIO.cleanup()
+        #GPIO.cleanup()
         # return total_steps_changes
 
     def move_to_zeroLocation(self):  # This function move the motor to zero location
@@ -107,6 +107,7 @@ class linear_actuator:
             )
 
             if choice == "1":
+
                 self.move_to_desired_location_upwards()
 
             elif choice == "2":

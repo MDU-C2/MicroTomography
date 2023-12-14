@@ -28,4 +28,4 @@ def init():
 
 def close():
     laserOff()
-    GPIO.cleanup()
+    #GPIO.cleanup()
