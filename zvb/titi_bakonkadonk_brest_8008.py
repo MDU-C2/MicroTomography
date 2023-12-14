@@ -1,7 +1,7 @@
 import sys
 import os
 
-sys.path.append("C:/Users/jjn17015/Documents/MicroTomography")
+sys.path.append("C:/Users/te11c/Repos/MicroTomography")
 
 from RobotArm import robot_control
 from ObjectReconstruction import choose_points_microwave
@@ -97,7 +97,7 @@ def mw_boob(mesh, points: list, distance: (int | float)) -> None:
             if key != "Frequency":
                 plt.plot(np.abs(data["Frequency"]), np.abs(value), label=key)"""
 
-        save_s2p("MW_measurement_" + str(i), frequency=freq, **data)
+        save_s2p("MW_measurement_" + str(i), **data)
 
         (line1,) = ax1.plot(
             np.abs(data["Frequency"]),
@@ -205,6 +205,8 @@ if __name__ == "__main__":
     data = read_complex_csv(r"mw_data\2023-11-28-14_59-MW_measurement_0.csv")
 
     data = {name: data[name] for name in data.columns}
+
+    save_s2p("save", **data)
 
     plt.plot(data["Frequency"], 20 * np.log10(np.abs(data["Complex S22"])))
     plt.plot(data["Frequency"], 20 * np.log10(np.abs(data["Complex S23"])))
