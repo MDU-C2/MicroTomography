@@ -49,7 +49,7 @@ There are two program to run. One is a terminal program and the other is a GUI, 
 To start the terminal program follow these simple steps.
 1. Follow the setup described above.
 2. Locate the repositories/MicroTomography folder in the raspberry pi 4. This can be done by opening a new terminal window and typing `cd repositories/MicroTomography`.
-3. Start the program main.py by typing `python3.10 main.py` in the terminal window.
+3. Start the program main.py by typing `python3.10 Main.py` in the terminal window.
 
 ## Starting the GUI
 To start the GUI follow these simple steps.
