@@ -13,7 +13,6 @@ import socket
 import json
 import time
 import inspect
-from threading import Thread
 from collections import deque
 import logging
 
@@ -34,7 +33,6 @@ class Robot:
         self.set_tool()
         self.set_workobject()
         self.set_speed()
-        self.set_zone()
 
     def connect_motion(self, remote):
         log.info("Attempting to connect to robot motion server at %s", str(remote))
@@ -103,26 +101,12 @@ class Robot:
         data = self.send(msg).split()
         return [float(s) / self.scale_angle for s in data[2:9]]
 
-    def get_external_axis(self):
+    def return_to_start(self):
         """
-        If you have an external axis connected to your robot controller
-        (such as a FlexLifter 600, google it), this returns the joint angles
+        Returns the robot to its start position
         """
         msg = "05 #"
-        data = self.send(msg).split()
-        return [float(s) for s in data[2:8]]
-
-    def get_robotinfo(self):
-        """
-        Returns a robot- unique string, with things such as the
-        robot's model number.
-        Example output from and IRB 2400:
-        ['24-53243', 'ROBOTWARE_5.12.1021.01', '2400/16 Type B']
-        """
-        msg = "98 #"
-        data = str(self.send(msg))[5:].split("*")
-        log.debug("get_robotinfo result: %s", str(data))
-        return data
+        self.send(msg).split()
 
     def set_tool(self, tool=[[0, 0, 0], [1, 0, 0, 0]]):
         """
@@ -136,16 +120,6 @@ class Robot:
         msg = "06 " + self.format_pose(tool)
         self.send(msg)
         self.tool = tool
-
-    def load_json_tool(self, file_obj):
-        if file_obj.__class__.__name__ == "str":
-            file_obj = open(file_obj, "rb")
-        tool = check_coordinates(json.load(file_obj))
-        self.set_tool(tool)
-
-    def get_tool(self):
-        log.debug("get_tool returning: %s", str(self.tool))
-        return self.tool
 
     def set_workobject(self, work_obj=[[0, 0, 0], [1, 0, 0, 0]]):
         """
@@ -170,62 +144,6 @@ class Robot:
         msg += format(speed[3], "+08.2f") + " #"
         self.send(msg)
 
-    def set_zone(self, zone_key="z1", point_motion=False, manual_zone=[]):
-        zone_dict = {
-            "z0": [0.3, 0.3, 0.03],
-            "z1": [1, 1, 0.1],
-            "z5": [5, 8, 0.8],
-            "z10": [10, 15, 1.5],
-            "z15": [15, 23, 2.3],
-            "z20": [20, 30, 3],
-            "z30": [30, 45, 4.5],
-            "z50": [50, 75, 7.5],
-            "z100": [100, 150, 15],
-            "z200": [200, 300, 30],
-        }
-        """
-        Sets the motion zone of the robot. This can also be thought of as
-        the flyby zone, AKA if the robot is going from point A -> B -> C,
-        how close do we have to pass by B to get to C
-        
-        zone_key: uses values from RAPID handbook (stored here in zone_dict)
-        with keys 'z*', you should probably use these
-
-        point_motion: go to point exactly, and stop briefly before moving on
-
-        manual_zone = [pzone_tcp, pzone_ori, zone_ori]
-        pzone_tcp: mm, radius from goal where robot tool centerpoint 
-                   is not rigidly constrained
-        pzone_ori: mm, radius from goal where robot tool orientation 
-                   is not rigidly constrained
-        zone_ori: degrees, zone size for the tool reorientation
-        """
-
-        if point_motion:
-            zone = [0, 0, 0]
-        elif len(manual_zone) == 3:
-            zone = manual_zone
-        elif zone_key in zone_dict.keys():
-            zone = zone_dict[zone_key]
-        else:
-            return False
-
-        msg = "09 "
-        msg += str(int(point_motion)) + " "
-        msg += format(zone[0], "+08.4f") + " "
-        msg += format(zone[1], "+08.4f") + " "
-        msg += format(zone[2], "+08.4f") + " #"
-        self.send(msg)
-
-    def set_calibration(self):
-        """
-        UNDER DEVELOPMENT
-
-        Calibrates the robot according to the position of the calibration TCP
-        """
-        msg = "11 #"
-        self.send(msg)
-
     def change_current_tool(self, tool):
         """
         Changes the current TCP in use
@@ -245,86 +163,6 @@ class Robot:
         msg = "13 "
         msg += format(zone_traverse, "+08.2f") + " #"
         self.send(msg)
-
-    def buffer_add(self, pose):
-        """
-        Appends single pose to the remote buffer
-        Move will execute at current speed (which you can change between buffer_add calls)
-        """
-        msg = "30 " + self.format_pose(pose)
-        self.send(msg)
-
-    def buffer_set(self, pose_list):
-        """
-        Adds every pose in pose_list to the remote buffer
-        """
-        self.clear_buffer()
-        for pose in pose_list:
-            self.buffer_add(pose)
-        if self.buffer_len() == len(pose_list):
-            log.debug("Successfully added %i poses to remote buffer", len(pose_list))
-            return True
-        else:
-            log.warn("Failed to add poses to remote buffer!")
-            self.clear_buffer()
-            return False
-
-    def clear_buffer(self):
-        msg = "31 #"
-        data = self.send(msg)
-        if self.buffer_len() != 0:
-            log.warn("clear_buffer failed! buffer_len: %i", self.buffer_len())
-            raise NameError("clear_buffer failed!")
-        return data
-
-    def buffer_len(self):
-        """
-        Returns the length (number of poses stored) of the remote buffer
-        """
-        msg = "32 #"
-        data = self.send(msg).split()
-        return int(float(data[2]))
-
-    def buffer_execute(self):
-        """
-        Immediately execute linear moves to every pose in the remote buffer.
-        """
-        msg = "33 #"
-        return self.send(msg)
-
-    def set_external_axis(self, axis_input):
-        # if len(axis_input) != 1:
-        #    return False
-        axis_unscaled = [axis_input, 0, 0, 0, 0, 0]
-        msg = "34 "
-        for axis in axis_unscaled:
-            msg += format(axis, "+08.2f") + " "
-        msg += "#"
-        return self.send(msg)
-
-    def move_circular(self, pose_onarc, pose_end):
-        """
-        Executes a movement in a circular path from current position,
-        through pose_onarc, to pose_end
-        """
-        msg_0 = "35 " + self.format_pose(pose_onarc)
-        msg_1 = "36 " + self.format_pose(pose_end)
-
-        data = self.send(msg_0).split()
-        if data[1] != "1":
-            log.warn("move_circular incorrect response, bailing!")
-            return False
-        return self.send(msg_1)
-
-    def set_dio(self, value, id=0):
-        """
-        A function to set a physical DIO line on the robot.
-        For this to work you're going to need to edit the RAPID function
-        and fill in the DIO you want this to switch.
-        """
-        msg = "97 " + str(int(bool(value))) + " #"
-        return
-        # return self.send(msg)
 
     def send(self, message, wait_for_response=True):
         """

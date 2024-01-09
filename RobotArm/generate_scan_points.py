@@ -151,7 +151,7 @@ def generate_points_in_square_plane(z_offset=-130, dist=1, side_len=2.5):
     points : list shape(3,)
         The coordinates of the points in the plane
     """
-    val = np.arange(-side_len, side_len + 1e-10, dist)
+    val = np.arange(-side_len/2, side_len/2 + 1e-10, dist)
 
     return [np.array([x, y, z_offset]) for x in val for y in val]
 
