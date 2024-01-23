@@ -25,7 +25,7 @@ VAR num instructionCode;
 VAR num params{10};
 VAR num nParams;
 
-PERS string ipController:= "192.168.0.50"; !robot default IP
+PERS string ipController:= "192.168.0.50"; !static robot IP from DHCP router
 !PERS string ipController:= "127.0.0.1"; !local IP for testing in simulation
 PERS num serverPort:= 5000;
 
@@ -35,18 +35,8 @@ VAR robtarget currentCartesianPose;
 VAR jointtarget jointsTarget;
 VAR bool moveCompleted; !Set to true after finishing a Move instruction.
 
-
-!//Buffered move variables
-CONST num MAX_BUFFER := 512;
-VAR num BUFFER_POS := 0;
-VAR robtarget bufferTargets{MAX_BUFFER};
-VAR speeddata bufferSpeeds{MAX_BUFFER};
-
 !//External axis position variables
 VAR extjoint externalAxis;
-
-!//Circular move buffer
-VAR robtarget circPoint;
 
 !//Correct Instruction Execution and possible return values
 VAR num ok;
@@ -55,9 +45,8 @@ CONST num SERVER_OK := 1;
 
 !//TCP data in relation to the end effector
 PERS tooldata laser_TCP := [TRUE,[[-52,6.502,80.05],[1,0,0,0]],[0.1,[-29.004,-0.354,42.84],[1,0,0,0],0,0,0]];
-PERS tooldata antenna_TCP := [TRUE,[[-54.5,36.262,94],[1,0,0,0]],[0.1,[-29.004,-0.354,42.84],[1,0,0,0],0,0,0]];
-PERS tooldata calibration_laser_TCP := [TRUE,[[-62,-10.987,55.727],[0.707106781,0,-0.707106781,0]],[0.1,[-29.004,-0.354,42.84],[1,0,0,0],0,0,0]];
-PERS tooldata calibration_antenna_TCP := [TRUE,[[-53.947,37.22,128],[1,0,0,0]],[0.1,[-29.004,-0.354,42.84],[1,0,0,0],0,0,0]];
+PERS tooldata antenna_TCP := [TRUE,[[-54.5,36.262,136],[1,0,0,0]],[0.1,[-29.004,-0.354,42.84],[1,0,0,0],0,0,0]];
+
 
 !//Used to determine the x and y coordinates when determining the current zone of the TCP
 VAR num x;
@@ -67,19 +56,14 @@ VAR num y;
 VAR robtarget cartesianTargetZone1 := [[141.4213562373095, 141.4213562373095, -150], [0.27059805, 0.65328148, 0.27059805, -0.65328148], [-1,0,0,4], [0.000004418,9E+09,9E+09,9E+09,9E+09,9E+09]];
 VAR jointtarget targetZone1 := [[-90, -90, 15, -30, 110, 45], [45, 0, 0, 0 ,0 ,0]];
 
-VAR robtarget cartesianTargetZone2 := [[-141.42135623730948, 141.4213562373095, -150], [0.65328148, 0.27059805, 0.65328148, -0.27059805], [0,0,0,4], [61.00,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR robtarget cartesianTargetZone2 := [[-141.42135623730948, 141.4213562373095, -150], [0.65328148, 0.27059805, 0.65328148, -0.27059805], [0,0,1,4], [61.00,9E+09,9E+09,9E+09,9E+09,9E+09]];
 VAR jointtarget targetZone2 := [[-43, -114, 20, 0, 95, 0], [0, 0, 0, 0 ,0 ,0]];
 
-VAR robtarget cartesianTargetZone3 := [[-141.42135623730954, -141.42135623730948, -150], [0.65328148, -0.27059805, 0.65328148, 0.27059805], [1,0,0,4], [118.81,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR robtarget cartesianTargetZone3 := [[-141.42135623730954, -141.42135623730948, -150], [0.65328148, -0.27059805, 0.65328148, 0.27059805], [0,0,0,4], [118.81,9E+09,9E+09,9E+09,9E+09,9E+09]];
 VAR jointtarget targetZone3 := [[45, -115, 20, 0, 95, 0], [0, 0, 0, 0 ,0 ,0]];
 
-VAR robtarget cartesianTargetZone4 := [[141.42135623730948, -141.42135623730954, -150], [-0.27059805, 0.65328148, -0.27059805, -0.65328148], [2,1,1,4], [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
+VAR robtarget cartesianTargetZone4 := [[141.42135623730948, -141.42135623730954, -150], [-0.27059805, 0.65328148, -0.27059805, -0.65328148], [2,0,0,4], [-150,9E+09,9E+09,9E+09,9E+09,9E+09]];
 VAR jointtarget targetZone4 := [[80, -80, 10, 40, 120, -60], [-60, 0, 0, 0 ,0 ,0]];
-
-!//Coordinate of the point the user wants to calibrate from
-VAR robtarget calibrationCoordinate;
-
-VAR robtarget resetPosition := [[-38.859585784,0.000707752,416.889532938],[0.53729967,-0.00000001,0.843391406,-0.000000007],[0,0,0,4],[90,9E+09,9E+09,9E+09,9E+09,9E+09]];
 
 VAR robtarget currentZonePos;
 VAR jointtarget newJointPos;
@@ -217,6 +201,53 @@ FUNC num zonePlacement()
 ENDFUNC
 
 
+PROC zoneTraversement()
+    !Move up through the zones
+    IF newZonePosID > zonePlacement() THEN
+        MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
+        WHILE newZonePosID > zonePlacement() DO                           
+                                
+            IF zonePlacement() = 1 THEN
+                newZonePos := cartesianTargetZone2;
+                newJointPos := targetZone2;
+                                
+            ELSEIF zonePlacement() = 2 THEN
+                newZonePos := cartesianTargetZone3;
+                newJointPos := targetZone3;
+            ELSE
+                newZonePos := cartesianTargetZone4;
+                newJointPos := targetZone4;
+            ENDIF
+                                
+            MoveAbsJ newJointPos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
+            !MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
+        ENDWHILE
+                        
+        !Move down through the zones
+    ELSEIF newZonePosID < zonePlacement() THEN
+        MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
+                            
+        WHILE newZonePosID < zonePlacement() DO  
+                                
+            IF zonePlacement() = 4 THEN
+                newZonePos := cartesianTargetZone3;
+                newJointPos := targetZone3;
+                                    
+            ELSEIF zonePlacement() = 3 THEN
+                newZonePos := cartesianTargetZone2;
+                newJointPos := targetZone2;
+            ELSE
+                newZonePos := cartesianTargetZone1;
+                newJointPos := targetZone1;
+            ENDIF
+            MoveAbsJ newJointPos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
+            !MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
+        ENDWHILE
+    ELSE
+        MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
+    ENDIF
+ENDPROC
+
 !////////////////////////
 !//SERVER: Main procedure
 !////////////////////////
@@ -294,8 +325,8 @@ PROC main()
                         newZonePosID := 4;
                         cartesianTarget:=[[params{1},params{2},params{3}],
                                            [params{4},params{5},params{6},params{7}],
-                                           [2,1,1,4],
-                                           [156.144578313,9E+09,9E+09,9E+09,9E+09,9E+09]];
+                                           [2,0,0,4],
+                                           [-150,9E+09,9E+09,9E+09,9E+09,9E+09]];
                     ENDIF
                     
 
@@ -306,51 +337,7 @@ PROC main()
                     !Move through zones before move to target coordinate
                     
                     IF use_zones = 1 THEN
-
-                        !Move up through the zones
-                        IF newZonePosID > zonePlacement() THEN
-                            MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
-                            WHILE newZonePosID > zonePlacement() DO                           
-                                
-                                IF zonePlacement() = 1 THEN
-                                    newZonePos := cartesianTargetZone2;
-                                    newJointPos := targetZone2;
-                                
-                                ELSEIF zonePlacement() = 2 THEN
-                                    newZonePos := cartesianTargetZone3;
-                                    newJointPos := targetZone3;
-                                ELSE
-                                    newZonePos := cartesianTargetZone4;
-                                    newJointPos := targetZone4;
-                                ENDIF
-                                
-                                MoveAbsJ newJointPos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
-                                !MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
-                            ENDWHILE
-                        
-                        !Move down through the zones
-                        ELSEIF newZonePosID < zonePlacement() THEN
-                            MoveL currentZonePos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
-                            
-                            WHILE newZonePosID < zonePlacement() DO
-                                
-                                
-                                IF zonePlacement() = 4 THEN
-                                    newZonePos := cartesianTargetZone3;
-                                    newJointPos := targetZone3;
-                                    
-                                ELSEIF zonePlacement() = 3 THEN
-                                    newZonePos := cartesianTargetZone2;
-                                    newJointPos := targetZone2;
-                                ELSE
-                                    newZonePos := cartesianTargetZone1;
-                                    newJointPos := targetZone1;
-                                ENDIF
-                                MoveAbsJ newJointPos, [100, 50, 50, 50], currentZone, currentTool \Wobj:=currentWobj;
-                                !MoveL newZonePos, [100, 50, 50, 50], currentZone, currentTool \WObj:=currentWobj;
-                            ENDWHILE
-                            
-                        ENDIF
+                        zoneTraversement;
                     ENDIF
 
 
@@ -400,17 +387,23 @@ PROC main()
                     ok := SERVER_OK;
                 ELSE
                     ok:=SERVER_BAD_MSG;
-                ENDIF
-			CASE 5: !Get external axis positions
+                ENDIF	
+
+            CASE 5: !Return to start position
                 IF nParams = 0 THEN
-                    jointsPose := CJointT();
-                    addString := NumToStr(jointsTarget.extax.eax_a, 2) + " ";
-                    !addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_b,2),1,8) + " ";
-                    !addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_c,2),1,8) + " ";
-                    !addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_d,2),1,8) + " ";
-                    !addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_e,2),1,8) + " ";
-                    !addString := addString + StrPart(NumToStr(jointsTarget.extax.eax_f,2),1,8); !End of string
-                    ok := SERVER_OK;
+                    IF zonePlacement() = 1 THEN
+                        newZonePosID := 2;
+                        zoneTraversement;
+
+                    ELSEIF zonePlacement() = 4 THEN
+                        newZonePosID := 3;
+                        zoneTraversement;
+                    ENDIF
+
+                    externalAxis := [0,0,0,0,0,0];
+                    jointsTarget:=[[0, -135, 55, 0, 105, 0], externalAxis];
+                    MoveAbsJ jointsTarget, currentSpeed, currentZone, currentTool \Wobj:=currentWobj;
+
                 ELSE
                     ok:=SERVER_BAD_MSG;
                 ENDIF	
@@ -462,53 +455,13 @@ PROC main()
 				ELSE
                     ok:=SERVER_BAD_MSG;
                 ENDIF
-
-            CASE 9: !Set zone data
-                IF nParams = 4 THEN
-                    IF params{1}=1 THEN
-                        currentZone.finep := TRUE;
-                        currentZone.pzone_tcp := 0.0;
-                        currentZone.pzone_ori := 0.0;
-                        currentZone.zone_ori := 0.0;
-                    ELSE
-                        currentZone.finep := FALSE;
-                        currentZone.pzone_tcp := params{2};
-                        currentZone.pzone_ori := params{3};
-                        currentZone.zone_ori := params{4};
-                    ENDIF
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
-                ENDIF
-
-            CASE 10: !Unlock joint, NOT currently implemented
-        
-                ok := SERVER_OK;
-                moveCompleted := FALSE;
-                MoveL resetPosition, currentSpeed, currentZone, Laser_TCP \WObj:=currentWobj;
-                moveCompleted := TRUE;
-
-            CASE 11: !Set current coordinates as new workspace
-                IF nParams = 0 THEN
-                    calibrationCoordinate := CRobT(\Tool:=calibration_antenna_TCP \WObj:=currentWObj);
-                    currentWobj.oframe.trans.x := calibrationCoordinate.trans.x;
-                    currentWobj.oframe.trans.y := calibrationCoordinate.trans.y;
-                    currentWobj.oframe.trans.z := calibrationCoordinate.trans.z;
-                    currentWobj.oframe.rot.q1 := 1;
-                    currentWobj.oframe.rot.q2 := 0;
-                    currentWobj.oframe.rot.q3 := 0;
-                    currentWobj.oframe.rot.q4 := 0;
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
-                ENDIF
-
+ 
             CASE 12: !Change the current TCP tool
                 IF nParams = 1 THEN
                     IF params{1} = 1 THEN
-                        currentTool := Laser_TCP;
+                        currentTool := laser_TCP;
                     ELSE
-                        currentTool := Antenna_TCP;
+                        currentTool := antenna_TCP;
                     ENDIF
                 ELSE
                     ok:=SERVER_BAD_MSG;
@@ -524,95 +477,6 @@ PROC main()
                     ENDIF
                 ELSE
                     ok:=SERVER_BAD_MSG;
-                ENDIF
-            
-
-            CASE 30: !Add Cartesian Coordinates to buffer
-                IF nParams = 7 THEN
-                    cartesianTarget :=[[params{1},params{2},params{3}],
-                                        [params{4},params{5},params{6},params{7}],
-                                        [0,0,0,0],
-                                        externalAxis];
-                    IF BUFFER_POS < MAX_BUFFER THEN
-                        BUFFER_POS := BUFFER_POS + 1;
-                        bufferTargets{BUFFER_POS} := cartesianTarget;
-                        bufferSpeeds{BUFFER_POS} := currentSpeed;
-                    ENDIF
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
-                ENDIF
-
-            CASE 31: !Clear Cartesian Buffer
-                IF nParams = 0 THEN
-                    BUFFER_POS := 0;	
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
-                ENDIF
-
-            CASE 32: !Get Buffer Size)
-                IF nParams = 0 THEN
-                    addString := NumToStr(BUFFER_POS,2);
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
-                ENDIF
-
-            CASE 33: !Execute moves in cartesianBuffer as linear moves
-                IF nParams = 0 THEN
-                    FOR i FROM 1 TO (BUFFER_POS) DO 
-                        MoveL bufferTargets{i}, bufferSpeeds{i}, currentZone, currentTool \WObj:=currentWobj ;
-                    ENDFOR			
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
-                ENDIF
-
-            CASE 34: !External Axis move
-                IF nParams = 6 THEN
-                    externalAxis :=[params{1},params{2},params{3},params{4},params{5},params{6}];
-                    jointsTarget := CJointT();
-                    jointsTarget.extax := externalAxis;
-                    ok := SERVER_OK;
-                    moveCompleted := FALSE;
-                    MoveAbsJ jointsTarget, currentSpeed, currentZone, currentTool \Wobj:=currentWobj;
-                    moveCompleted := TRUE;
-                ELSE
-                    ok :=SERVER_BAD_MSG;
-                ENDIF
-
-            CASE 35: !Specify circPoint for circular move, and then wait on toPoint
-                IF nParams = 7 THEN
-                    circPoint :=[[params{1},params{2},params{3}],
-                                [params{4},params{5},params{6},params{7}],
-                                [0,0,0,0],
-                                externalAxis];
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
-                ENDIF
-
-            CASE 36: !specify toPoint, and use circPoint specified previously
-                IF nParams = 7 THEN
-                    cartesianTarget :=[[params{1},params{2},params{3}],
-                                        [params{4},params{5},params{6},params{7}],
-                                        [0,0,0,0],
-                                        externalAxis];
-                    MoveC circPoint, cartesianTarget, currentSpeed, currentZone, currentTool \WObj:=currentWobj ;
-                    ok := SERVER_OK;
-                ELSE
-                    ok:=SERVER_BAD_MSG;
-                ENDIF
-				
-            CASE 98: !returns current robot info: serial number, robotware version, and robot type
-                IF nParams = 0 THEN
-                    addString := GetSysInfo(\SerialNo) + "*";
-                    addString := addString + GetSysInfo(\SWVersion) + "*";
-                    addString := addString + GetSysInfo(\RobotType);
-                    ok := SERVER_OK;
-                ELSE
-                    ok :=SERVER_BAD_MSG;
                 ENDIF
 			
             CASE 99: !Close Connection
@@ -683,4 +547,3 @@ PROC main()
 ENDPROC
 
 ENDMODULE
-

@@ -55,11 +55,14 @@ def set_robot_tool(robot, tool):
 def set_zone_use(robot, zone_use):
     """Set use of zone traversment.
 
-    0 for no zone traversement
+    False: for no zone traversement
 
-    1 for zone traversement
+    True: for zone traversement
     """
-    robot.use_zone_traverse(zone_use)
+    if zone_use == True:
+        robot.use_zone_traverse(1)
+    else:
+        robot.use_zone_traverse(0)
 
 
 def return_robot_to_start(robot):
@@ -68,11 +71,19 @@ def return_robot_to_start(robot):
 
 def close_connection(robot):
     "Returns robot to start and closes the TCP connection to robot"
-    return_robot_to_start(robot)
+    robot.return_to_start()
     robot.close()
 
 
-def robot_init(tool):
+def robot_init(
+    tool,
+    quaternion=[
+        0.9999431292112558,
+        0.010580670532612012,
+        0.0013370534780490603,
+        6.502210241618077e-06,
+    ],
+):
     """Connects to and sets initial parameters of the robot
 
     tool == 1: for laser TCP
@@ -82,13 +93,16 @@ def robot_init(tool):
     robot = connect_to_robot()
     set_reference_coordinate_system(
         robot,
-        [
-            [-2.80, -6.41, 760.2787866568916],
-            [9.99954527e-01, 9.41712207e-03, 1.50357889e-03, 9.45543129e-06],
-        ],
+        [[-1.55, -4.51, 760.2787866568916], quaternion],
     )
 
     """
+    [-3.40, -6.31, 760.2787866568916],
+    [0.9999534, 0.0094194, 0.0014893, 0.0015269]
+
+    [0.9999534, 0.0094194, 0.0014893, 0.0015269]
+    [0.9999509211136645,0.009829618166903913,0.0012385159580043847,6.989160936131759e-06]
+    [9.99954527e-01, 9.41712207e-03, 1.50357889e-03, 9.45543129e-06]
     760.3715408113393
     [0.20, -5.41, 759.24] where fetched using the calibration TCP, when aimed at nipple it seems to be aiming slightly left
     When arm is in last quadrant it almost perfectly center.
@@ -100,6 +114,6 @@ def robot_init(tool):
     """
     set_robot_tool(robot, tool)
     set_robot_speed(robot, [75, 25, 50, 25])
-    return_robot_to_start(robot)
+    robot.return_to_start()
 
     return robot
